@@ -1,0 +1,91 @@
+{
+  "code": "0000",
+  "message": "成功",
+  "result": "success",
+  "data": [
+    {
+      "type": "f",
+      "size": 265318,
+      "modified_time": 1514442610000,
+      "name": "Z.zip"
+    },
+    {
+      "type": "f",
+      "size": 10240000,
+      "modified_time": 1515052610000,
+      "name": "bieb_report_1225_V0.zip"
+    },
+    {
+      "type": "d",
+      "size": 0,
+      "modified_time": 3030105220000,
+      "name": "b_plus_ui"
+    },
+    {
+      "type": "d",
+      "size": 0,
+      "modified_time": 4545157830000,
+      "name": "bieb_report"
+    },
+    {
+      "type": "f",
+      "size": 1024,
+      "modified_time": 6060210440000,
+      "name": "dsp_monitor.zip"
+    },
+    {
+      "type": "d",
+      "size": 0,
+      "modified_time": 7575263050000,
+      "name": "mon_jobs"
+    },
+    {
+      "type": "d",
+      "size": 0,
+      "modified_time": 9090315660000,
+      "name": "vue-devtools"
+    },
+    {
+      "type": "f",
+      "size": 2048,
+      "modified_time": 10605368270000,
+      "name": "客户标签库项目配置.txt"
+    },
+    {
+      "type": "f",
+      "size": 2048,
+      "modified_time": 12120420880000,
+      "name": "verify-cached-files.js"
+    },
+    {
+      "type": "d",
+      "size": 0,
+      "modified_time": 13635473490000,
+      "name": "node_modules"
+    },
+    {
+      "type": "f",
+      "size": 2048000,
+      "modified_time": 15150526100000,
+      "name": "The-sun-and-immortal-bird-gold-ornament-Chengdu-China.jpg"
+    },
+    {
+      "type": "f",
+      "size": 2048,
+      "modified_time": 16665578710000,
+      "name": "save-stack.js"
+    },
+    {
+      "type": "f",
+      "size": 2048,
+      "modified_time": 18180631320000,
+      "name": ".gitignore"
+    },
+    {
+      "type": "f",
+      "size": 4866400000,
+      "modified_time": 19695683930000,
+      "name": "pick-manifest-from-registry-metadata.js"
+    }
+  ]
+}

@@ -1,0 +1,350 @@
+<template>
+    <el-container class="storage">
+        <el-main class="storage-main">
+            <el-card :body-style="{padding:'15px',display:'flex','justify-content':'space-between'}"
+                     class="card operations">
+                <div class="button-group">
+                    <el-button @click="handleCd('..')" size="small" type="primary" icon="el-icon-arrow-up"
+                               :loading="folderIsLoading" :disabled="current_sub_path.trim() === ''">
+                        去父级目录
+                    </el-button>
+                    <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
+                               style="margin-right: 10px;">
+                        新建目录
+                    </el-button>
+                    <el-upload
+                            action="https://jsonplaceholder.typicode.com/posts/"
+                            multiple>
+                        <el-button size="small" type="primary" icon="el-icon-upload">上传文件</el-button>
+                    </el-upload>
+                </div>
+                <el-input
+                        placeholder="过滤文件名"
+                        suffix-icon="el-icon-search"
+                        size="small"
+                        clearable
+                        v-model="input_file_filter">
+                </el-input>
+            </el-card>
+
+            <el-card :body-style="{padding:'15px'}" class="card">
+                <div class="input-dir" style="font-family: monospace;">
+                    <el-input placeholder="输入子路径" v-model="current_sub_path" :disabled="folderIsLoading" clearable>
+                        <template slot="prepend">{{home_path}}</template>
+                        <el-button @click="handleCd()" slot="append"
+                                   :disabled="folderIsLoading || current_sub_path.trim() === ''"
+                                   icon="el-icon-d-arrow-right">
+
+                        </el-button>
+                    </el-input>
+                </div>
+            </el-card>
+
+            <el-card :body-style="{padding:'15px'}" class="card table-card">
+                <el-table
+                        :data="folderData"
+                        :height="table_height"
+                        stripe
+                        :row-class-name="tableRowClassName"
+                        @row-click="handleRowClick"
+                        class="storage-table">
+                    <el-table-column
+                            label="名称"
+                            sort-by="['type','name']"
+                            sortable>
+                        <template slot-scope="scope">
+                            <!--<i :class="scope.row.icon"></i>-->
+                            <img v-if="scope.row.icon === 'icon_folder'" class="icn" :src="icon_folder"/>
+                            <img v-if="scope.row.icon === 'icon_file'" class="icn" :src="icon_file"/>
+                            <span>{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            prop="modified_time_readable"
+                            label="修改日期"
+                            width="250"
+                            :sort-method="sortModifiedTime"
+                            sortable>
+                    </el-table-column>
+                    <el-table-column
+                            prop="size_readable"
+                            label="大小"
+                            width="100"
+                            :sort-method="sortSize"
+                            sortable>
+                    </el-table-column>
+                    <el-table-column label="操作"
+                                     width="180">
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    type="danger"
+                                    icon="el-icon-delete"
+                                    @click="handleDeleteFile(scope.$index, scope.row)">删除
+                            </el-button>
+                            <el-button
+                                    v-if="scope.row.type == 'f'"
+                                    size="mini"
+                                    plain
+                                    icon="el-icon-download"
+                                    @click="handleDownloadFile(scope.$index, scope.row)">下载
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-card>
+        </el-main>
+    </el-container>
+</template>
+
+<script>
+  import {baseURL} from '@/conf/env'
+  import API from '@/service/api'
+  import filesize from 'filesize'
+  import {compact, sortBy, map, debounce} from 'lodash'
+  import * as moment from 'moment'
+  import 'moment/locale/zh-cn'
+  import ElCard from "element-ui/packages/card/src/main";
+  import icon_folder from '@/assets/images/folder-documents.svg'
+  import icon_file from '@/assets/images/text-x-script.svg'
+
+  moment.locale('zh-cn');
+
+  export default {
+    name: 'Storage',
+    metaInfo: {
+      titleTemplate: '%s-数据存储'
+    },
+    data: function () {
+      return {
+        icon_folder: icon_folder,
+        icon_file: icon_file,
+        current_sub_path: '',
+        current_path_content: {
+          name: '',
+          children: []
+        },
+        folderIsLoading: false,
+        input_file_filter: '',
+        table_height: this.resizeHandler()
+      }
+    },
+    computed: {
+      home_path() {
+        return `${this.$store.state.user.parentDir}/`;
+      },
+      folderData() {
+        return sortBy(map(this.current_path_content.children, (entry) => {
+          // console.log(entry);
+          entry.modified_time = Number(entry.modified_time);
+          // entry.icon = entry.type === 'd' ? 'el-icon-message' : 'el-icon-document';
+          entry.icon = entry.type === 'd' ? 'icon_folder' : 'icon_file';
+          entry.size_readable = entry.type === 'd' ? '' : filesize(entry.size, {base: 10, round: 0});
+          // entry.modified_time_readable = ;
+          // entry.modified_time_readable = moment(new Date(entry.modified_time)).format('YYYY/MM/DD HH:MM');
+          entry.modified_time_readable = moment(new Date(entry.modified_time)).format('LLL');
+          return entry;
+        }), ['type', 'name']).filter((file) => file.name.toLowerCase().includes(String(this.input_file_filter).toLowerCase()))
+      }
+    },
+    // beforeRouteEnter(to, from, next) {
+    //   console.log('Storage beforeRouteEnter()');
+    //   return next();
+    // },
+    mounted: function () {
+      console.log('Storage mounted()');
+      this.current_sub_path = '';
+      this.ls(this.current_sub_path);
+      this.table_height = this.resizeHandler();
+      window.onresize = debounce(() => {
+        this.table_height = this.resizeHandler();
+      }, 300);
+      // this.refreshAll();
+    },
+    beforeDestroy: function () {
+      window.onresize = undefined;
+    },
+    methods: {
+      fetchData(what, param) {
+      },
+      resizeHandler() {
+        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 50 + 20 + 30);
+      },
+      ls(path) {
+        this.current_path_content.name = path;
+        API.ls().then(res => {
+          this.current_path_content.children = res;
+          // loading.close();
+        }, err => {
+          console.log(`err: `, err);
+          loading.close();
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
+          });
+        });
+      },
+      handleCd(dir) {
+        console.log(`handleCd(): ${this.current_sub_path}`);
+        let sub_path = this.current_sub_path.trim();
+        if (sub_path.length === 0) {
+          if (!dir || dir === '..') {
+            return false;
+          }
+        }
+        let sub_path_arr = compact(sub_path.split('/'));
+        if (sub_path_arr.length === 0) {
+          if (!dir || dir === '..') {
+            return false;
+          }
+        }
+        console.log(this.home_path + sub_path_arr.join('/'));
+        this.folderIsLoading = true;
+        let loading = this.$loading({
+          target: '.storage-table',
+          lock: true,
+          text: '正在获取数据。。。',
+          background: 'rgba(255,255,255,0.5)'
+        });
+        setTimeout(() => {
+          loading.close();
+          this.folderIsLoading = false;
+        }, 300);
+        if (!dir) {
+          console.log(this.home_path + sub_path_arr.join('/'));
+          this.current_sub_path = sub_path_arr.join('/');
+        } else if (dir !== '..') {
+          console.log(this.home_path + sub_path_arr.join('/') + `${dir}`);
+          sub_path_arr.push(`${dir}`);
+          this.current_sub_path = sub_path_arr.join('/');
+        } else {
+          console.log(`dir: ${dir}`);
+          sub_path_arr.pop();
+          this.current_sub_path = sub_path_arr.join('/');
+        }
+      },
+      tableRowClassName({row, rowIndex}) {
+        return row.type === 'd' ? 'folder-row' : 'file-row';
+      },
+      sortSize(a, b) {
+        return Number(a.size) - Number(b.size);
+      },
+      sortModifiedTime(a, b) {
+        return Number(a.modified_time) - Number(b.modified_time);
+      },
+      handleRowClick(row, event, column) {
+        console.log(`handleRowClick(`, column.label, row.type, ')');
+        event.stopPropagation();
+        if (column.label === '操作' || row.type === 'f') {
+          return false;
+        }
+        return this.handleCd(row.name);
+        // this.$emit('rowClick', row);
+      },
+      handleDownloadFile() {
+        console.log(`${baseURL}api/v1/download?path=${this.home_path}${this.current_sub_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`);
+        return window.open(`${baseURL}api/v1/download?path=${this.home_path}${this.current_sub_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`, '_blank');
+      },
+      handleDeleteFile() {
+        console.log(arguments[1].type);
+        this.$confirm(`继续删除${arguments[1].name}?`, '提示', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '已删除'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          });
+        });
+      },
+      refreshAll() {
+        console.log('refreshAll()');
+        this.folderIsLoading = true;
+        // this.fetchData('all').then(res => {
+        //   this.$store.dispatch('buildTree', res);
+        //   this.$notify({
+        //     message: `数据已更新`,
+        //     type: 'success',
+        //     duration: 2000
+        //   });
+        //   this.folderIsLoading = false;
+        //   this.timestamp_data_fetched = (new Date()).toLocaleString();
+        // }, err => {
+        //   console.log(`err: `, err);
+        //   this.$notify({
+        //     message: `${err}`,
+        //     type: 'error',
+        //     duration: 0
+        //   });
+        //   this.folderIsLoading = false;
+        // });
+      }
+    },
+    components: {ElCard}
+  }
+</script>
+
+<style scoped>
+    .storage {
+        background-color: antiquewhite;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .storage-main {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .button-group {
+        display: flex;
+    }
+
+    .card {
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    .card:last-of-type {
+        margin-bottom: 0;
+        flex-shrink: 1;
+    }
+
+    .card.operations .el-input {
+        width: 200px;
+    }
+
+    .storage-table {
+        padding: 0;
+        width: 100%;
+    }
+
+    .storage-table /deep/ .folder-row {
+        cursor: pointer;
+    }
+
+    .icn {
+        width: 20px;
+        height: auto;
+        vertical-align: text-bottom;
+        user-select: none;
+        margin-right: 0.5em;
+    }
+
+    .input-dir /deep/ .el-input__inner {
+        font-family: monospace;
+    }
+</style>
