@@ -1,6 +1,6 @@
 <template>
-    <el-container class="training">
-        <el-main class="training-main">
+    <el-container class="project">
+        <el-main class="project-main">
             <el-dialog title="新增项目" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
                 <el-form :model="form_add_proj">
                     <el-form-item label="项目名称">
@@ -34,12 +34,13 @@
             </el-card>
 
             <el-row type="flex"
+                    class="loading-target"
                     :style="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}">
                 <el-col :span="24" :style="{'overflow-y': 'auto','overflow-x': 'hidden'}">
                     <el-row class="proj-container" type="flex" :gutter="10">
                         <el-col v-for="(proj, index) in proj_list" :xs="12" :sm="8" :md="8" :lg="6" :xl="4"
                                 :key="proj.proId"
-                                :style="{height: '250px','margin-bottom': '10px'}">
+                                :style="{height: '220px','margin-bottom': '10px'}">
                             <el-card :body-style="{padding:'15px'}" :class="proj.css_class">
                                 <div slot="header" class="card-header">
                                     <span>{{proj.proName}}</span>
@@ -65,7 +66,7 @@
                                     <el-button
                                             size="mini"
                                             plain
-                                            @click="handleEditProj(proj)">详情
+                                            @click="handleGoToProj(proj)">训练列表
                                     </el-button>
                                     <el-button
                                             size="mini"
@@ -99,7 +100,7 @@
   moment.locale('zh-cn');
 
   export default {
-    name: 'Training',
+    name: 'Project',
     metaInfo: {
       titleTemplate: '%s-模型训练'
     },
@@ -128,17 +129,17 @@
             createDate_converted: moment(new Date(v.createDate)).format('LL LTS'),
             css_class: `proj-card ${this.transProjStatus(v.status).en}`,
             status_en: `${this.transProjStatus(v.status).en}`,
-            status_zh: `${this.transProjStatus(v.status).zh}`,
+            status_zh: `${this.transProjStatus(v.status).zh}`
           })
         }), ['status_en', 'createDate']).filter((proj) => proj.proName.toLowerCase().includes(String(this.input_proj_filter).toLowerCase()))
       }
     },
     // beforeRouteEnter(to, from, next) {
-    //   console.log('Training beforeRouteEnter()');
+    //   console.log('Project beforeRouteEnter()');
     //   return next();
     // },
     mounted: function () {
-      console.log('Training mounted()');
+      console.log('Project mounted()');
       this.fetchData();
       this.proj_container_height = this.resizeHandler();
       window.onresize = debounce(() => {
@@ -151,7 +152,7 @@
     methods: {
       fetchData() {
         let loading = this.$loading({
-          target: '.proj-container',
+          target: '.loading-target',
           lock: true,
           text: '正在获取数据。。。',
           background: 'rgba(250,235,215,0.5)'
@@ -199,7 +200,10 @@
         return router.push({name: 'tfproj', params: {name: row.name}})
         // this.$emit('rowClick', row);
       },
-      handleEditProj() {
+      handleGoToProj(proj) {
+
+      },
+      handleEditProj(proj) {
 
       },
       handleDeleteProj(proj) {
@@ -276,14 +280,14 @@
 </script>
 
 <style scoped>
-    .training {
+    .project {
         background-color: antiquewhite;
         width: 100%;
         height: 100%;
         position: relative;
     }
 
-    .training-main {
+    .project-main {
         padding: 10px;
         width: 100%;
         height: 100%;

@@ -1,21 +1,29 @@
 <template>
     <el-container class="UserManager" v-loading="isLoading">
         <el-main class="user-manager-main">
-            <el-dialog title="新增用户" :visible.sync="dialog_add_user_visible" width="20%" append-to-body>
-                <el-form :model="form_add_user" label-position="top" size="small">
-                    <el-form-item label="用户名">
+            <el-dialog title="新增用户" :visible.sync="dialog_add_user_visible" width="30%" append-to-body>
+                <el-form :model="form_add_user" :rules="rules" ref="form_add_user" status-icon label-position="top"
+                         size="small">
+
+                    <el-form-item label="用户名" prop="userName">
                         <el-input v-model="form_add_user.userName"></el-input>
                     </el-form-item>
-                    <el-form-item label="角色">
+
+                    <el-form-item label="角色" prop="role">
                         <el-select v-model="form_add_user.role" placeholder="请选择用户角色" style="width: 100%;">
                             <el-option v-for="role in roles" :label="role.name" :key="role.v"
-                                       :value="role.v"></el-option>
+                                       :value="role.v">
+
+                            </el-option>
                         </el-select>
                     </el-form-item>
+
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialog_add_user_visible = false">取消</el-button>
-                    <!--<el-button type="primary" @click="validateForm('form_add_user')">确定</el-button>-->
+                    <el-button @click="cancelForm('form_add_user')">取消</el-button>
+                    <el-button type="primary" @click="validateForm('form_add_user')" icon="el-icon-upload2"
+                               :loading="isSendingForm">提交
+                    </el-button>
                 </div>
             </el-dialog>
 
@@ -63,11 +71,11 @@
                             sortable>
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.role === 'admin'" type="warning">
-                                <img class="user-avatar super" :src="icon_super_user"/>
+                                <img class="user-avatar admin" :src="icon_admin_user"/>
                                 管理员
                             </el-tag>
                             <el-tag v-if="scope.row.role === 'normal'" type="info">
-                                <img class="user-avatar average" :src="icon_average_user"/>
+                                <img class="user-avatar normal" :src="icon_normal_user"/>
                                 普通用户
                             </el-tag>
                         </template>
@@ -103,8 +111,8 @@
   import * as moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
-  import icon_average_user from 'material-design-icons/action/2x_web/ic_face_black_48dp.png'
-  import icon_super_user from 'material-design-icons/action/2x_web/ic_supervisor_account_black_48dp.png'
+  import icon_normal_user from 'material-design-icons/action/2x_web/ic_face_black_48dp.png'
+  import icon_admin_user from 'material-design-icons/action/2x_web/ic_supervisor_account_black_48dp.png'
 
   moment.locale('zh-cn');
 
@@ -116,8 +124,8 @@
     data() {
       return {
         isLoading: false,
-        icon_average_user: icon_average_user,
-        icon_super_user: icon_super_user,
+        icon_normal_user: icon_normal_user,
+        icon_admin_user: icon_admin_user,
         users_data: [],
         dialog_add_user_visible: false,
         roles: [{'v': 'admin', 'name': '管理员'}, {'v': 'normal', 'name': '普通用户'}],
@@ -129,6 +137,16 @@
           userName: '',
           role: ''
         },
+        rules: {
+          userName: [
+            {type: "string", required: true, message: '请输入用户名', trigger: 'blur'},
+            {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
+          ],
+          role: [
+            {type: "string", required: true, message: '请选择用户角色', trigger: 'change'}
+          ]
+        },
+        isSendingForm: false,
         input_users_filter: '',
         table_height: this.resizeHandler()
       }
@@ -185,6 +203,51 @@
         console.log(`handleAddUser()`);
         this.form_add_user = extend({}, this.tmpl_form_add_user);
         this.dialog_add_user_visible = true;
+      },
+      cancelForm(formName) {
+        console.log(`cancelForm(${formName})`);
+        this.$refs[formName].resetFields();
+        this.form_add_user = extend({}, this.tmpl_form_add_user);
+        this.dialog_add_user_visible = false;
+      },
+      validateForm(form) {
+        console.log('validateForm(form): ', form);
+        console.log(this.$refs[form]);
+
+        this.$refs[form].validate((valid) => {
+          console.log(`valid: `, valid);
+          if (valid) {
+            // alert('submit!');
+            return this.postForm(this.form_add_user);
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      postForm(data) {
+        console.log(`postForm(${data})`);
+        // let operation = this.operation === '新增' ? 'add用户' : 'edit用户';
+        // API[operation](data).then(res => {
+        //   this.$notify({
+        //     message: `${this.operation}用户成功`,
+        //     type: 'success',
+        //     duration: 2000
+        //   });
+        //   this.isSendingForm = false;
+        //   if (this.operation === '新增') {
+        //     this.form = _.extend(this.form, this.template_of_用户);
+        //   }
+        //
+        // }, err => {
+        //   console.log(`err: `, err);
+        //   this.$notify({
+        //     message: `${err}`,
+        //     type: 'error',
+        //     duration: 0
+        //   });
+        //   this.isSendingForm = false;
+        // });
       }
     },
     components: {ElCard}
@@ -227,6 +290,7 @@
     .user-table {
         padding: 0;
         width: 100%;
+        font-size: 12px;
     }
 
     .user-avatar {
@@ -235,11 +299,11 @@
         vertical-align: middle;
     }
 
-    .user-avatar.average {
+    .user-avatar.normal {
 
     }
 
-    .user-avatar.super {
+    .user-avatar.admin {
         /*background-color: #F56C6C;*/
     }
 </style>

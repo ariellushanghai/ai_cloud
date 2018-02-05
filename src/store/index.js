@@ -18,8 +18,8 @@ const getters = {
     }
     return _.map(state.user.resource, r => {
       return {
-        'route': r.resource,
-        'name': types.MENU_ITEMS[r.resource]
+        'route': types.MENU_ITEMS[r.resource].route,
+        'name': types.MENU_ITEMS[r.resource].menu_name
       }
     });
   },
@@ -30,6 +30,7 @@ const getters = {
 
 const mutations = {
   [types.SAVE_USER_INFO]: (state, data) => {
+    console.log(`SAVE_USER_INFO: `,data)
     state.user = data;
   },
   [types.LOGOUT]: state => {

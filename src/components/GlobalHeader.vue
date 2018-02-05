@@ -14,7 +14,7 @@
                 <el-menu-item v-for="(menu, idx) in menuItems" :index="'/'+menu.route" :key="menu.name">{{menu.name}}
                 </el-menu-item>
                 <!--<el-menu-item index="/overview">概览</el-menu-item>-->
-                <!--<el-menu-item index="/training">TensorFlow 模型训练</el-menu-item>-->
+                <!--<el-menu-item index="/project">TensorFlow 模型训练</el-menu-item>-->
                 <!--<el-menu-item index="/deployment">上线部署</el-menu-item>-->
                 <!--<el-menu-item index="/solution">算法库</el-menu-item>-->
                 <!--<el-menu-item index="/storage">数据存储</el-menu-item>-->

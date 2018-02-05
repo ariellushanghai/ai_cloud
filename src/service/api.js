@@ -58,12 +58,10 @@ export default {
     // return network.get('/users');
   },
   // admin角色用户可以新增用户
-  addUser() {
+  addUser(user) {
     return network.get('users.json');
     // return network.post(`/user`, {
-    //   params: {
-    //     path: path
-    //   }
+    //   params: user
     // });
   },
   // 训练项目List
