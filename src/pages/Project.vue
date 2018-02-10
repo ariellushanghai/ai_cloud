@@ -302,10 +302,10 @@
     .proj-container {
         /*padding: 0 10px;*/
         flex-wrap: wrap;
-
     }
 
     .proj-card {
+        will-change: transform;
         height: 100%;
         margin-bottom: 10px;
         background-color: #fff;

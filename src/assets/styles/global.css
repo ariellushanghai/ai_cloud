@@ -8,6 +8,8 @@ body {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
 }
 
 button,
@@ -24,3 +26,12 @@ input::selection, .cell *::selection, .cell::selection {
     color: #fff;
     background-color: #EA5505;
 }
+
+:lang(zh-CN) {
+    quotes: "“" "”";
+}
+
+:lang(zh) {
+    quotes: "「" "」";
+}
+

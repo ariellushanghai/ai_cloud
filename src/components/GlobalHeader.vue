@@ -79,55 +79,51 @@
   }
 </script>
 
-<style scoped>
-    .row {
-        height: 100%;
-        background-color: #333644;
-        color: #fff;
-    }
+<style lang="stylus" scoped>
+    header-height = 60px
+    ping_an-orange = #EA5505
 
-    .col {
-        height: 100%;
-        background-color: #35495e;
-    }
+    .row
+        height 100%
+        background-color #333644
+        color #fff
 
-    .link {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        background-color: #EA5505;
-    }
+    .col
+        height 100%
+        background-color #35495e
 
-    .logo {
-        display: block;
-        flex-grow: 0;
-        flex-shrink: 0;
-        width: 82px;
-        height: auto;
-        max-height: 60px;
-    }
+    .link
+        display flex
+        justify-content space-around
+        align-items center
+        background-color ping_an-orange
 
-    .title {
-        justify-content: center;
-        line-height: 60px;
-        text-align: center;
-        background-color: #EA5505;
-        font-size: 20px;
-        font-weight: bold;
-        color: white;
-    }
+    .logo
+        display block
+        flex-grow 0
+        flex-shrink 0
+        width 82px
+        height auto
+        max-height header-height
 
-    .col-user {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .title
+        justify-content center
+        line-height header-height
+        text-align center
+        background-color ping_an-orange
+        font-size 20px
+        font-weight bold
+        color #fff
 
-    .btn-user {
-        color: #fff;
-    }
+    .col-user
+        display flex
+        align-items center
+        justify-content center
 
-    .btn-user:hover {
-        color: rgb(234, 85, 5);
-    }
+    .btn-user
+        color #fff
+
+    .btn-user:hover
+        color rgb(234, 85, 5)
+
 </style>
