@@ -1,98 +1,138 @@
 <template>
-    <el-container class="project-details">
+    <el-container class="ProjectDetails" v-loading="isLoading">
         <el-main class="project-details-main">
-            <el-dialog title="新增训练" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
-                <el-form :model="form_add_proj">
-                    <el-form-item label="训练名称">
-                        <el-input v-model="form_add_proj.name" auto-complete="off"></el-input>
+            <el-dialog title="新增训练" :visible.sync="dialog_add_training_visible" width="30%" append-to-body>
+                <el-form :model="form_add_train" :rules="rules" ref="form_add_train" status-icon label-position="top"
+                         size="small">
+
+                    <el-form-item label="训练名" prop="trainName">
+                        <el-input v-model="form_add_train.trainName"></el-input>
                     </el-form-item>
-                    <el-form-item label="训练日志存储目录">
-                        <el-input v-model="form_add_proj.dir" auto-complete="off"></el-input>
+
+                    <el-form-item label="角色" prop="role">
+                        <el-select v-model="form_add_train.role" placeholder="请选择用户角色" style="width: 100%;">
+                            <el-option v-for="role in roles" :label="role.name" :key="role.v"
+                                       :value="role.v">
+
+                            </el-option>
+                        </el-select>
                     </el-form-item>
+
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialog_add_proj_visible = false">取消</el-button>
-                    <el-button type="primary" @click="validateForm('form_add_proj')">确定</el-button>
+                    <el-button @click="cancelForm('form_add_train')">取消</el-button>
+                    <el-button type="primary" @click="validateForm('form_add_train')" icon="el-icon-upload2"
+                               :loading="isSendingForm">提交
+                    </el-button>
                 </div>
             </el-dialog>
 
-            <el-card :body-style="{padding:'15px'}" style="margin-bottom: 10px;" class="card operations">
+            <el-card :body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}"
+                     class="card operations">
                 <div class="button-group">
-                    <el-button size="small" type="primary" icon="el-icon-circle-plus"
-                               style="margin-right: 10px;" @click="handleAddProj">
+                    <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
+                               style="margin-right: 10px;" @click="handleAddTrain">
                         新增训练
                     </el-button>
-
-                    <el-input
-                            placeholder="过滤训练名"
-                            suffix-icon="el-icon-search"
-                            size="small"
-                            clearable
-                            v-model="input_proj_filter">
-                    </el-input>
                 </div>
+                <el-input
+                        placeholder="过滤训练名"
+                        suffix-icon="el-icon-search"
+                        size="small"
+                        clearable
+                        v-model="input_trainings_filter">
+                </el-input>
             </el-card>
+            <el-card :body-style="{padding:'15px'}" class="card">
+                <el-table
+                        :data="tableTrainings"
+                        :height="table_height"
+                        class="training-table"
+                        stripe
+                        fit
+                        border>
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="table-expand">
+                                <el-form-item label="ID: ">
+                                    <span>{{ props.row.trainId }}</span>
+                                </el-form-item>
+                                <el-form-item label="基础镜像: ">
+                                    <span>{{ props.row.baseImage }}</span>
+                                </el-form-item>
+                                <el-form-item label="代码库URL: ">
+                                    <span>{{ props.row.codeURL }}</span>
+                                </el-form-item>
+                                <el-form-item label="分布式存储路径: ">
+                                    <span>{{ props.row.workdir }}</span>
+                                </el-form-item>
+                                <el-form-item label="运行目标环境: ">
+                                    <span>{{ props.row.target }}</span>
+                                </el-form-item>
+                                <el-form-item label="版本号: ">
+                                    <span>{{ props.row.revision }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            prop="trainName"
+                            label="训练名"
+                            sortable>
+                    </el-table-column>
+                    <el-table-column
+                            prop="createDate_converted"
+                            label="创建时间"
+                            width="220"
+                            :sort-method="sortCreateDate"
+                            sortable>
+                    </el-table-column>
+                    <el-table-column
+                            prop="role"
+                            label="状态"
+                            align="center"
+                            width="120px">
+                        <template slot-scope="scope">
+                            <el-tag v-if="scope.row.status === '00'" type="warning">
+                                <i class="el-icon-time"></i>
+                                {{scope.row.status_zh}}
+                            </el-tag>
+                            <el-tag v-if="scope.row.status === '10'">
+                                <i class="el-icon-loading"></i>
+                                {{scope.row.status_zh}}
+                            </el-tag>
+                            <el-tag v-if="scope.row.status === '20'" type="success">
+                                <i class="el-icon-success"></i>
+                                {{scope.row.status_zh}}
+                            </el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            prop="count"
+                            label="训练轮数">
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button
+                                    size="mini"
+                                    @click="handleEdit(scope.$index, scope.row)">开始训练
+                            </el-button>
+                            <el-button
+                                    size="mini"
+                                    @click="handleEdit(scope.$index, scope.row)">编辑
+                            </el-button>
 
-            <el-row type="flex"
-                    class="loading-target"
-                    :style="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}">
-                <el-col :span="24" :style="{'overflow-y': 'auto','overflow-x': 'hidden'}">
-                    <el-row class="proj-container" type="flex" :gutter="10">
-                        <el-col v-for="(proj, index) in proj_list" :xs="12" :sm="8" :md="8" :lg="6" :xl="4"
-                                :key="proj.proId"
-                                :style="{height: '220px','margin-bottom': '10px'}">
-                            <el-card :body-style="{padding:'15px'}" :class="proj.css_class">
-                                <div slot="header" class="card-header">
-                                    <span>{{proj.proName}}</span>
-                                </div>
-                                <div style="font-size: 13px;line-height: 30px;">
-                                    <div>状态：
-                                        <el-tag v-if="proj.status === '00'" type="warning">
-                                            <i class="el-icon-time"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                        <el-tag v-if="proj.status === '10'">
-                                            <i class="el-icon-loading"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                        <el-tag v-if="proj.status === '20'" type="success">
-                                            <i class="el-icon-success"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                    </div>
-                                    <p>创建时间： {{proj.createDate_converted}}</p>
-                                </div>
-                                <div class="button-group">
-                                    <el-button
-                                            size="mini"
-                                            plain
-                                            @click="handleGoToProj(proj)">训练列表
-                                    </el-button>
-                                    <el-button
-                                            size="mini"
-                                            plain
-                                            @click="handleEditProj(proj)">编辑
-                                    </el-button>
-                                    <el-button
-                                            size="mini"
-                                            plain
-                                            type="danger"
-                                            @click="handleDeleteProj(proj)">删除
-                                    </el-button>
-                                </div>
-                            </el-card>
-                        </el-col>
-                    </el-row>
-                </el-col>
-            </el-row>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-card>
         </el-main>
     </el-container>
 </template>
 
 <script>
   import API from '@/service/api'
-  import router from '@/router'
-  import {map, extend, assign, debounce, sortBy} from 'lodash'
+  import {map, extend, assign, debounce} from 'lodash'
   import * as moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
@@ -102,149 +142,58 @@
   export default {
     name: 'ProjectDetails',
     metaInfo: {
-      titleTemplate: '%s-模型训练'
+      titleTemplate: '%s-项目详情'
     },
-    data: function () {
+    data() {
       return {
         isLoading: false,
-        dialog_add_proj_visible: false,
-        tmpl_form_add_proj: {
-          name: '',
-          dir: '/'
+        trainings_data: [],
+        dialog_add_training_visible: false,
+        roles: [{'v': 'admin', 'name': '管理员'}, {'v': 'normal', 'name': '普通用户'}],
+        tmpl_form_add_train: {
+          trainName: '',
+          role: ''
         },
-        form_add_proj: {
-          name: '',
-          dir: '/'
+        form_add_train: {
+          trainName: '',
+          role: ''
         },
-        projects_data: [],
-        input_proj_filter: '',
-        proj_container_height: this.resizeHandler()
+        rules: {
+          trainName: [
+            {type: "string", required: true, message: '请输入训练名', trigger: 'blur'},
+            {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
+          ],
+          role: [
+            {type: "string", required: true, message: '请选择用户角色', trigger: 'change'}
+          ]
+        },
+        isSendingForm: false,
+        input_trainings_filter: '',
+        table_height: this.resizeHandler()
       }
     },
     computed: {
-      proj_list() {
-        // console.log(this.filters)
-        return sortBy(map(this.projects_data, (v) => {
+      tableTrainings: function () {
+        return map(this.trainings_data, (v) => {
           return assign(v, {
-            createDate_converted: moment(new Date(v.createDate)).format('LL LTS'),
-            css_class: `proj-card ${this.transTrainStatus(v.status).en}`,
-            status_en: `${this.transTrainStatus(v.status).en}`,
-            status_zh: `${this.transTrainStatus(v.status).zh}`
+            createDate_converted: moment(new Date(v.createDate)).format('LLL'),
+            status_zh: `${this.transProjStatus(v.status).zh}`
           })
-        }), ['status_en', 'createDate']).filter((proj) => proj.proName.toLowerCase().includes(String(this.input_proj_filter).toLowerCase()))
+        }).filter((train) => train.trainName.toLowerCase().includes(String(this.input_trainings_filter).toLowerCase()))
       }
     },
-    // beforeRouteEnter(to, from, next) {
-    //   console.log('ProjectDetails beforeRouteEnter()');
-    //   return next();
-    // },
-    mounted: function () {
-      console.log('ProjectDetails mounted()');
+    mounted() {
       this.fetchData();
-      this.proj_container_height = this.resizeHandler();
+      this.table_height = this.resizeHandler();
       window.onresize = debounce(() => {
-        this.proj_container_height = this.resizeHandler();
+        this.table_height = this.resizeHandler();
       }, 300);
     },
     beforeDestroy: function () {
       window.onresize = undefined;
     },
     methods: {
-      fetchData() {
-        let loading = this.$loading({
-          target: '.loading-target',
-          lock: true,
-          text: '正在获取数据。。。',
-          background: 'rgba(250,235,215,0.5)'
-        });
-        setTimeout(() => {
-          loading.close();
-          return API.getTrains(`${this.$store.getters.userName}`).then(res => {
-            this.projects_data = res;
-            loading.close();
-          }, err => {
-            console.log(`err: `, err);
-            loading.close();
-            this.$notify({
-              message: `${err}`,
-              type: 'error',
-              duration: 0
-            });
-          });
-        }, 500);
-      },
-      handleAddProj() {
-        console.log(`handleAddProj()`);
-        this.form_add_proj = extend({}, this.tmpl_form_add_proj);
-        this.dialog_add_proj_visible = true;
-      },
-      validateForm(form) {
-        console.log('validateForm(form): ', form);
-        this.$refs[form].validate((valid) => {
-          console.log(`valid: `, valid);
-          if (valid) {
-            alert('submit!');
-            // return this.postForm(self.form);
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      handleRowClick(row, event, column) {
-        event.stopPropagation();
-        if (column.label === 'operations') {
-          return false;
-        }
-        console.log('handleRowClick(', row, column, ')');
-        return router.push({name: 'tfproj', params: {name: row.name}})
-        // this.$emit('rowClick', row);
-      },
-      handleEditProj(proj) {
-
-      },
-      handleDeleteProj(proj) {
-        console.log(`handleDeleteProj()`, proj);
-        this.$confirm(`<p>您确定删除<strong>${proj.proName}</strong>?</p>`, '提示', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
-      },
-      refreshAll() {
-        console.log('refreshAll()');
-        this.isLoading = true;
-        // this.fetchData('all').then(res => {
-        //   this.$store.dispatch('buildTree', res);
-        //   this.$notify({
-        //     message: `数据已更新`,
-        //     type: 'success',
-        //     duration: 2000
-        //   });
-        //   this.isLoading = false;
-        //   this.timestamp_data_fetched = (new Date()).toLocaleString();
-        // }, err => {
-        //   console.log(`err: `, err);
-        //   this.$notify({
-        //     message: `${err}`,
-        //     type: 'error',
-        //     duration: 0
-        //   });
-        //   this.isLoading = false;
-        // });
-      },
-      transTrainStatus(value) {
+      transProjStatus(value) {
         switch (value) {
           case '00':
             return {
@@ -269,55 +218,133 @@
         }
       },
       resizeHandler() {
-        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 20);
+        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10 + 30);
+      },
+      fetchData() {
+        let loading = this.$loading({
+          target: '.ProjectDetails',
+          lock: true,
+          text: '正在获取数据。。。',
+          background: 'rgba(250,235,215,0.5)'
+        });
+        setTimeout(() => {
+          loading.close();
+          return API.getTrains().then(res => {
+            this.trainings_data = res;
+            loading.close();
+          }, err => {
+            console.log(`err: `, err);
+            loading.close();
+            this.$notify({
+              message: `${err}`,
+              type: 'error',
+              duration: 0
+            });
+          });
+        }, 500);
+      },
+      sortCreateDate(a, b) {
+        return Number(a.createDate) - Number(b.createDate);
+      },
+      handleAddTrain() {
+        console.log(`handleAddTrain()`);
+        this.form_add_train = extend({}, this.tmpl_form_add_train);
+        this.dialog_add_training_visible = true;
+      },
+      cancelForm(formName) {
+        console.log(`cancelForm(${formName})`);
+        this.$refs[formName].resetFields();
+        this.form_add_train = extend({}, this.tmpl_form_add_train);
+        this.dialog_add_training_visible = false;
+      },
+      validateForm(form) {
+        console.log('validateForm(form): ', form);
+        console.log(this.$refs[form]);
+
+        this.$refs[form].validate((valid) => {
+          console.log(`valid: `, valid);
+          if (valid) {
+            // alert('submit!');
+            return this.postForm(this.form_add_train);
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      postForm(data) {
+        console.log(`postForm(${data})`);
+        // let operation = this.operation === '新增' ? 'add用户' : 'edit用户';
+        // API[operation](data).then(res => {
+        //   this.$notify({
+        //     message: `${this.operation}用户成功`,
+        //     type: 'success',
+        //     duration: 2000
+        //   });
+        //   this.isSendingForm = false;
+        //   if (this.operation === '新增') {
+        //     this.form = _.extend(this.form, this.template_of_用户);
+        //   }
+        //
+        // }, err => {
+        //   console.log(`err: `, err);
+        //   this.$notify({
+        //     message: `${err}`,
+        //     type: 'error',
+        //     duration: 0
+        //   });
+        //   this.isSendingForm = false;
+        // });
       }
     },
     components: {ElCard}
   }
 </script>
 
-<style scoped>
-    .project-details {
-        background-color: antiquewhite;
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
+<style lang="stylus" scoped>
+    .ProjectDetails
+        background-color antiquewhite
+        min-height 100%
+        position relative
 
-    .project-details-main {
-        padding: 10px;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
+    .project-details-main
+        display flex
+        flex-direction column
+        padding 10px
+        width 100%
+        height 100%
+        position relative
+        overflow hidden
 
-    .card.operations .el-input {
-        width: 200px;
-    }
+    .card
+        margin-bottom 10px
+        flex-shrink 0
 
-    .proj-container {
-        /*padding: 0 10px;*/
-        flex-wrap: wrap;
+    .card:last-of-type
+        margin-bottom 0px
+        flex-shrink 1
+        height calc(100% - 74px)
 
-    }
+    .card.operations .el-input
+        width 200px
 
-    .proj-card {
-        height: 100%;
-        margin-bottom: 10px;
-        background-color: #fff;
-        border: none;
-        transition: transform .2s ease-in-out;
-    }
+    .training-table
+        padding 0
+        width 100%
+        font-size 12px
+    .table-expand
+        font-size 0
+        /deep/ label
+            width 120px
+            color #99a9bf
+        /deep/ .el-form-item
+            width 50%
+            margin-right 0
+            margin-bottom 0
 
-    .proj-card:hover {
-        cursor: pointer;
-        transform: scale(1.05);
-    }
-
-    .proj-card.waiting {
-        color: #e6a23c;
-    }
+        .proj-card.waiting {
+            color: #e6a23c;
+        }
 
     .proj-card.waiting /deep/ .el-card__header {
         background-color: rgba(230, 162, 60, .1);
@@ -337,29 +364,6 @@
 
     .proj-card.success /deep/ .el-card__header {
         background-color: rgba(103, 194, 58, .1);
-    }
-
-    .card-header {
-        line-height: 20px;
-        font-size: 18px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .proj-card /deep/ .el-card__body {
-        height: calc(100% - 57px);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .button-group {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .proj-card .button-group {
-        justify-content: flex-end;
     }
 
 </style>

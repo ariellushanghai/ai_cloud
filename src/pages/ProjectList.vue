@@ -40,43 +40,31 @@
                     <el-row class="proj-container" type="flex" :gutter="10">
                         <el-col v-for="(proj, index) in proj_list" :xs="12" :sm="8" :md="8" :lg="6" :xl="4"
                                 :key="proj.proId"
-                                :style="{height: '220px','margin-bottom': '10px'}">
-                            <el-card :body-style="{padding:'15px'}" :class="proj.css_class">
+                                :style="{height: 'auto','margin-bottom': '10px'}">
+                            <el-card :body-style="{padding:'15px'}" class="proj-card">
                                 <div slot="header" class="card-header">
                                     <span>{{proj.proName}}</span>
                                 </div>
                                 <div style="font-size: 13px;line-height: 30px;">
-                                    <div>状态：
-                                        <el-tag v-if="proj.status === '00'" type="warning">
-                                            <i class="el-icon-time"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                        <el-tag v-if="proj.status === '10'">
-                                            <i class="el-icon-loading"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                        <el-tag v-if="proj.status === '20'" type="success">
-                                            <i class="el-icon-success"></i>
-                                            {{proj.status_zh}}
-                                        </el-tag>
-                                    </div>
                                     <p>创建时间： {{proj.createDate_converted}}</p>
                                 </div>
                                 <div class="button-group">
                                     <el-button
                                             size="mini"
                                             plain
+                                            icon="el-icon-back"
                                             @click="handleGoToProj(proj)">训练列表
                                     </el-button>
                                     <el-button
                                             size="mini"
-                                            plain
+                                            type="primary"
+                                            icon="el-icon-edit"
                                             @click="handleEditProj(proj)">编辑
                                     </el-button>
                                     <el-button
                                             size="mini"
-                                            plain
                                             type="danger"
+                                            icon="el-icon-delete"
                                             @click="handleDeleteProj(proj)">删除
                                     </el-button>
                                 </div>
@@ -126,12 +114,9 @@
         // console.log(this.filters)
         return sortBy(map(this.projects_data, (v) => {
           return assign(v, {
-            createDate_converted: moment(new Date(v.createDate)).format('LL LTS'),
-            css_class: `proj-card ${this.transProjStatus(v.status).en}`,
-            status_en: `${this.transProjStatus(v.status).en}`,
-            status_zh: `${this.transProjStatus(v.status).zh}`
+            createDate_converted: moment(new Date(v.createDate)).format('LL LTS')
           })
-        }), ['status_en', 'createDate']).filter((proj) => proj.proName.toLowerCase().includes(String(this.input_proj_filter).toLowerCase()))
+        }), ['createDate']).filter((proj) => proj.proName.toLowerCase().includes(String(this.input_proj_filter).toLowerCase()))
       }
     },
     // beforeRouteEnter(to, from, next) {
@@ -239,30 +224,6 @@
         //   this.isLoading = false;
         // });
       },
-      transProjStatus(value) {
-        switch (value) {
-          case '00':
-            return {
-              zh: '等待中',
-              en: 'waiting'
-            };
-            break;
-          case '10':
-            return {
-              zh: '正在训练',
-              en: 'training'
-            };
-            break;
-          case '20':
-            return {
-              zh: '训练成功',
-              en: 'success'
-            };
-            break;
-          default:
-            break;
-        }
-      },
       resizeHandler() {
         return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10);
       }
@@ -310,30 +271,6 @@
         transform: scale(1.05);
     }
 
-    .proj-card.waiting {
-        color: #e6a23c;
-    }
-
-    .proj-card.waiting /deep/ .el-card__header {
-        background-color: rgba(230, 162, 60, .1);
-    }
-
-    .proj-card.training {
-        color: #409eff;
-    }
-
-    .proj-card.training /deep/ .el-card__header {
-        background-color: rgba(64, 158, 255, 0.1);
-    }
-
-    .proj-card.success {
-        color: #67c23a;
-    }
-
-    .proj-card.success /deep/ .el-card__header {
-        background-color: rgba(103, 194, 58, .1);
-    }
-
     .card-header {
         line-height: 20px;
         font-size: 18px;
@@ -341,6 +278,9 @@
         text-overflow: ellipsis;
     }
 
+    .proj-card /deep/ .el-card__header {
+        background: #FAFAFA;
+    }
     .proj-card /deep/ .el-card__body {
         height: calc(100% - 57px);
         display: flex;

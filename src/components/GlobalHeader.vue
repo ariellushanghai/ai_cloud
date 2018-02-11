@@ -44,9 +44,9 @@
     },
     computed: {
       defaultActive() {
-        // if (/^\/workflows\//.exec(this.$route.path)) {
-        //   return '/workflows/all'
-        // }
+        if (/^\/project\//.exec(this.$route.path)) {
+          return '/project'
+        }
         // if (/^\/workflowform\//.exec(this.$route.path)) {
         //   return '/workflowform/0'
         // }
