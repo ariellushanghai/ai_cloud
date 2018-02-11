@@ -1,9 +1,9 @@
 <template>
-    <el-container class="project">
-        <el-main class="project-main">
-            <el-dialog title="新增训练" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
+    <el-container class="project-list">
+        <el-main class="project-list-main">
+            <el-dialog title="新增项目" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
                 <el-form :model="form_add_proj">
-                    <el-form-item label="训练名称">
+                    <el-form-item label="项目名称">
                         <el-input v-model="form_add_proj.name" auto-complete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="训练日志存储目录">
@@ -20,11 +20,11 @@
                 <div class="button-group">
                     <el-button size="small" type="primary" icon="el-icon-circle-plus"
                                style="margin-right: 10px;" @click="handleAddProj">
-                        新增训练
+                        新增项目
                     </el-button>
 
                     <el-input
-                            placeholder="过滤训练名"
+                            placeholder="过滤项目名"
                             suffix-icon="el-icon-search"
                             size="small"
                             clearable
@@ -100,7 +100,7 @@
   moment.locale('zh-cn');
 
   export default {
-    name: 'Project',
+    name: 'ProjectList',
     metaInfo: {
       titleTemplate: '%s-模型训练'
     },
@@ -135,11 +135,11 @@
       }
     },
     // beforeRouteEnter(to, from, next) {
-    //   console.log('Project beforeRouteEnter()');
+    //   console.log('ProjectList beforeRouteEnter()');
     //   return next();
     // },
     mounted: function () {
-      console.log('Project mounted()');
+      console.log('ProjectList mounted()');
       this.fetchData();
       this.proj_container_height = this.resizeHandler();
       window.onresize = debounce(() => {
@@ -191,17 +191,9 @@
           }
         });
       },
-      handleRowClick(row, event, column) {
-        event.stopPropagation();
-        if (column.label === 'operations') {
-          return false;
-        }
-        console.log('handleRowClick(', row, column, ')');
-        return router.push({name: 'tfproj', params: {name: row.name}})
-        // this.$emit('rowClick', row);
-      },
       handleGoToProj(proj) {
-
+        console.log(`handleGoToProj()`, proj);
+        return router.push({name: 'project_details', params: {id: proj.proId}})
       },
       handleEditProj(proj) {
 
@@ -272,7 +264,7 @@
         }
       },
       resizeHandler() {
-        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 20);
+        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10);
       }
     },
     components: {ElCard}
@@ -280,14 +272,14 @@
 </script>
 
 <style scoped>
-    .project {
+    .project-list {
         background-color: antiquewhite;
         width: 100%;
         height: 100%;
         position: relative;
     }
 
-    .project-main {
+    .project-list-main {
         padding: 10px;
         width: 100%;
         height: 100%;
@@ -302,13 +294,14 @@
     .proj-container {
         /*padding: 0 10px;*/
         flex-wrap: wrap;
-
     }
 
     .proj-card {
+        will-change: transform;
         height: 100%;
         margin-bottom: 10px;
         background-color: #fff;
+        border: none;
         transition: transform .2s ease-in-out;
     }
 

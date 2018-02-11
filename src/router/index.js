@@ -4,9 +4,9 @@ import {loginURL} from '@/conf/env'
 
 const UserManager = r => require(['@/pages/UserManager'], r);
 const Storage = r => require(['@/pages/Storage'], r);
-const Project = r => require(['@/pages/Project'], r);
+const ProjectList = r => require(['@/pages/ProjectList'], r);
+const ProjectDetails = r => require(['@/pages/ProjectDetails'], r);
 const Solution = r => require(['@/pages/Solution'], r);
-const Deployment = r => require(['@/pages/Deployment'], r);
 
 
 export default new Router({
@@ -31,17 +31,17 @@ export default new Router({
     {
       name: 'project',
       path: '/project',
-      component: Project
+      component: ProjectList
+    },
+    {
+      name: 'project_details',
+      path: '/project/:id',
+      component: ProjectDetails
     },
     {
       name: 'solution',
       path: '/solution',
       component: Solution
-    },
-    {
-      name: 'deployment',
-      path: '/deployment',
-      component: Deployment
     }
   ]
 })

@@ -80,6 +80,11 @@ export default {
     //     type: '00'
     //   }
     // });
+  },
+  // 项目对应训练List
+  getTrains(userName) {
+    return network.get('getTrains.json');
+    // return network.get(`/projects/${userName}`);
   }
 
 

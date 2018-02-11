@@ -1,9 +1,9 @@
 <template>
-    <el-container class="project">
-        <el-main class="project-main">
-            <el-dialog title="新增项目" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
+    <el-container class="project-details">
+        <el-main class="project-details-main">
+            <el-dialog title="新增训练" :visible.sync="dialog_add_proj_visible" width="25%" append-to-body center>
                 <el-form :model="form_add_proj">
-                    <el-form-item label="项目名称">
+                    <el-form-item label="训练名称">
                         <el-input v-model="form_add_proj.name" auto-complete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="训练日志存储目录">
@@ -20,11 +20,11 @@
                 <div class="button-group">
                     <el-button size="small" type="primary" icon="el-icon-circle-plus"
                                style="margin-right: 10px;" @click="handleAddProj">
-                        新增项目
+                        新增训练
                     </el-button>
 
                     <el-input
-                            placeholder="过滤项目名"
+                            placeholder="过滤训练名"
                             suffix-icon="el-icon-search"
                             size="small"
                             clearable
@@ -100,7 +100,7 @@
   moment.locale('zh-cn');
 
   export default {
-    name: 'Project',
+    name: 'ProjectDetails',
     metaInfo: {
       titleTemplate: '%s-模型训练'
     },
@@ -127,19 +127,19 @@
         return sortBy(map(this.projects_data, (v) => {
           return assign(v, {
             createDate_converted: moment(new Date(v.createDate)).format('LL LTS'),
-            css_class: `proj-card ${this.transProjStatus(v.status).en}`,
-            status_en: `${this.transProjStatus(v.status).en}`,
-            status_zh: `${this.transProjStatus(v.status).zh}`
+            css_class: `proj-card ${this.transTrainStatus(v.status).en}`,
+            status_en: `${this.transTrainStatus(v.status).en}`,
+            status_zh: `${this.transTrainStatus(v.status).zh}`
           })
         }), ['status_en', 'createDate']).filter((proj) => proj.proName.toLowerCase().includes(String(this.input_proj_filter).toLowerCase()))
       }
     },
     // beforeRouteEnter(to, from, next) {
-    //   console.log('Project beforeRouteEnter()');
+    //   console.log('ProjectDetails beforeRouteEnter()');
     //   return next();
     // },
     mounted: function () {
-      console.log('Project mounted()');
+      console.log('ProjectDetails mounted()');
       this.fetchData();
       this.proj_container_height = this.resizeHandler();
       window.onresize = debounce(() => {
@@ -159,7 +159,7 @@
         });
         setTimeout(() => {
           loading.close();
-          return API.getProjects(`${this.$store.getters.userName}`).then(res => {
+          return API.getTrains(`${this.$store.getters.userName}`).then(res => {
             this.projects_data = res;
             loading.close();
           }, err => {
@@ -199,9 +199,6 @@
         console.log('handleRowClick(', row, column, ')');
         return router.push({name: 'tfproj', params: {name: row.name}})
         // this.$emit('rowClick', row);
-      },
-      handleGoToProj(proj) {
-
       },
       handleEditProj(proj) {
 
@@ -247,7 +244,7 @@
         //   this.isLoading = false;
         // });
       },
-      transProjStatus(value) {
+      transTrainStatus(value) {
         switch (value) {
           case '00':
             return {
@@ -280,14 +277,14 @@
 </script>
 
 <style scoped>
-    .project {
+    .project-details {
         background-color: antiquewhite;
         width: 100%;
         height: 100%;
         position: relative;
     }
 
-    .project-main {
+    .project-details-main {
         padding: 10px;
         width: 100%;
         height: 100%;
@@ -302,13 +299,14 @@
     .proj-container {
         /*padding: 0 10px;*/
         flex-wrap: wrap;
+
     }
 
     .proj-card {
-        will-change: transform;
         height: 100%;
         margin-bottom: 10px;
         background-color: #fff;
+        border: none;
         transition: transform .2s ease-in-out;
     }
 
