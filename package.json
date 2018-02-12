@@ -16,7 +16,7 @@
     "babel-preset-es2015": "^6.24.1",
     "clipboard": "^1.7.1",
     "echarts": "^4.0.2",
-    "element-ui": "^2.1.0",
+    "element-ui": "^2.2.0",
     "filesize": "^3.6.0",
     "lodash": "^4.17.5",
     "material-design-icons": "^3.0.1",

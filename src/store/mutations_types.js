@@ -2,6 +2,7 @@ export default {
   'LOGOUT': 'LOGOUT',
   'BUILD_MENU': 'BUILD_MENU',
   'SAVE_USER_INFO': 'SAVE_USER_INFO',
+  'SET_PROJECTS_LIST': 'SET_PROJECTS_LIST',
   'MENU_ITEMS': {
     'userManager': {route: 'userManager', 'menu_name': '用户管理'},
     'training': {route: 'project', 'menu_name': '模型训练'},

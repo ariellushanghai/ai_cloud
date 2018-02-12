@@ -21,7 +21,7 @@
                         </el-select>
                     </el-form-item>
 
-                    <el-form-item label="上传代码" prop="role">
+                    <el-form-item label="上传代码">
                         <el-upload
                                 action="https://jsonplaceholder.typicode.com/posts/"
                                 multiple>
@@ -37,152 +37,161 @@
                     </el-button>
                 </div>
             </el-dialog>
-
-            <el-card :body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}"
-                     class="card operations">
-                <div class="button-group">
-                    <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
-                               style="margin-right: 10px;" @click="handleAddTrain">
-                        新增训练
-                    </el-button>
-                </div>
-                <el-input
-                        placeholder="过滤训练名"
-                        suffix-icon="el-icon-search"
-                        size="small"
-                        clearable
-                        v-model="input_trainings_filter">
-                </el-input>
-            </el-card>
-            <el-card :body-style="{padding:'15px'}" class="card">
-                <el-table
-                        :data="tableTrainings"
-                        :height="table_height"
-                        class="training-table"
-                        stripe
-                        fit
-                        border>
-                    <el-table-column type="expand">
-                        <template slot-scope="props">
-                            <el-form label-position="left" inline class="table-expand" size="small">
-                                <el-form-item label="ID: ">
-                                    <span>{{ props.row.trainId }}</span>
-                                </el-form-item>
-                                <el-form-item label="基础镜像名: ">
-                                    <span>{{ props.row.imageName }}</span>
-                                </el-form-item>
-                                <el-form-item label="代码库URL: ">
-                                    <el-input placeholder="请输入内容"
-                                              v-model="props.row.codeURL"
-                                              :id="'input_codeURL_'+ props.row.trainId"
-                                              readonly>
-                                        <el-tooltip slot="append" class="item" effect="dark"
-                                                    content="点击复制到剪贴板"
-                                                    placement="bottom"
-                                                    :hide-after="1000">
-                                            <el-button type="primary"
-                                                       :class="'btn-copy-codeURL-' + props.row.trainId"
-                                                       @click="copyToClipBoard(props.row,'codeURL')">
-                                                <img class="icon_clippy" :src="icon_clippy"/>
-                                            </el-button>
-                                        </el-tooltip>
-                                    </el-input>
-                                </el-form-item>
-                                <el-form-item label="分布式存储路径: ">
-                                    <el-input placeholder="请输入内容"
-                                              v-model="props.row.workdir"
-                                              :id="'input_workdir_'+ props.row.trainId"
-                                              readonly>
-                                        <el-tooltip slot="append" class="item" effect="dark"
-                                                    content="点击复制到剪贴板"
-                                                    placement="bottom"
-                                                    :hide-after="1000">
-                                            <el-button type="primary"
-                                                       :class="'btn-copy-workdir-' + props.row.trainId"
-                                                       @click="copyToClipBoard(props.row,'workdir')">
-                                                <img class="icon_clippy" :src="icon_clippy"/>
-                                            </el-button>
-                                        </el-tooltip>
-                                    </el-input>
-                                </el-form-item>
-                                <el-form-item label="运行目标环境: ">
-                                    <span>{{ props.row.target }}</span>
-                                </el-form-item>
-                                <el-form-item label="版本号: ">
-                                    <span>{{ props.row.revision }}</span>
-                                </el-form-item>
-                            </el-form>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="trainName"
-                            label="训练名"
-                            sortable>
-                    </el-table-column>
-                    <el-table-column
-                            prop="createDate_converted"
-                            label="创建时间"
-                            width="220"
-                            :sort-method="sortCreateDate"
-                            sortable>
-                    </el-table-column>
-                    <el-table-column
-                            prop="role"
-                            label="状态"
-                            align="center"
-                            width="120">
-                        <template slot-scope="scope">
-                            <el-tag v-if="scope.row.status === '00'" type="warning">
-                                <i class="el-icon-time"></i>
-                                {{scope.row.status_zh}}
-                            </el-tag>
-                            <el-tag v-if="scope.row.status === '10'">
-                                <i class="el-icon-loading"></i>
-                                {{scope.row.status_zh}}
-                            </el-tag>
-                            <el-tag v-if="scope.row.status === '20'" type="success">
-                                <i class="el-icon-success"></i>
-                                {{scope.row.status_zh}}
-                            </el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="count"
-                            label="训练轮数"
-                            align="center"
-                            width="100">
-                    </el-table-column>
-                    <el-table-column label="操作" align="center" width="220">
-                        <template slot-scope="scope">
-                            <el-button
-                                    v-show="scope.row.status === '20'"
-                                    size="mini"
-                                    icon="el-icon-check"
-                                    @click="handleEdit(scope.$index, scope.row)">开始训练
+            <el-row type="flex" style="overflow: hidden;">
+                <el-col class="menu-wrapper" :sm="6" :md="6" :lg="4" :xl="3">
+                    <project-menu :data="project_menu_data"></project-menu>
+                </el-col>
+                <el-col :sm="18" :md="18" :lg="20" :xl="21">
+                    <el-card :body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}"
+                             class="card operations">
+                        <div class="button-group">
+                            <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
+                                       style="margin-right: 10px;" @click="handleAddTrain">
+                                新增训练
                             </el-button>
-                            <el-button
-                                    v-show="scope.row.status === '20'"
-                                    size="mini"
-                                    icon="el-icon-edit-outline"
-                                    @click="handleEdit(scope.$index, scope.row)">编辑
-                            </el-button>
+                        </div>
+                        <el-input
+                                placeholder="过滤训练名"
+                                suffix-icon="el-icon-search"
+                                size="small"
+                                clearable
+                                v-model="input_trainings_filter">
+                        </el-input>
+                    </el-card>
+                    <el-card :body-style="{padding:'15px'}" class="card">
+                        <el-table
+                                :data="tableTrainings"
+                                :height="table_height"
+                                class="training-table"
+                                stripe
+                                fit
+                                border>
+                            <el-table-column type="expand">
+                                <template slot-scope="props">
+                                    <el-form label-position="left" inline class="table-expand" size="small">
+                                        <el-form-item label="ID: ">
+                                            <span>{{ props.row.trainId }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="基础镜像名: ">
+                                            <span>{{ props.row.imageName }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="代码库URL: ">
+                                            <el-input placeholder="请输入内容"
+                                                      v-model="props.row.codeURL"
+                                                      :id="'input_codeURL_'+ props.row.trainId"
+                                                      readonly>
+                                                <el-tooltip slot="append" class="item" effect="dark"
+                                                            content="点击复制到剪贴板"
+                                                            placement="bottom"
+                                                            :hide-after="1000">
+                                                    <el-button type="primary"
+                                                               :class="'btn-copy-codeURL-' + props.row.trainId"
+                                                               @click="copyToClipBoard(props.row,'codeURL')">
+                                                        <img class="icon_clippy" :src="icon_clippy"/>
+                                                    </el-button>
+                                                </el-tooltip>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item label="分布式存储路径: ">
+                                            <el-input placeholder="请输入内容"
+                                                      v-model="props.row.workdir"
+                                                      :id="'input_workdir_'+ props.row.trainId"
+                                                      readonly>
+                                                <el-tooltip slot="append" class="item" effect="dark"
+                                                            content="点击复制到剪贴板"
+                                                            placement="bottom"
+                                                            :hide-after="1000">
+                                                    <el-button type="primary"
+                                                               :class="'btn-copy-workdir-' + props.row.trainId"
+                                                               @click="copyToClipBoard(props.row,'workdir')">
+                                                        <img class="icon_clippy" :src="icon_clippy"/>
+                                                    </el-button>
+                                                </el-tooltip>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item label="运行目标环境: ">
+                                            <span>{{ props.row.target }}</span>
+                                        </el-form-item>
+                                        <el-form-item label="版本号: ">
+                                            <span>{{ props.row.revision }}</span>
+                                        </el-form-item>
+                                    </el-form>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="trainName"
+                                    label="训练名"
+                                    sortable>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="createDate_converted"
+                                    label="创建时间"
+                                    width="220"
+                                    :sort-method="sortCreateDate"
+                                    sortable>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="status"
+                                    label="状态"
+                                    align="center"
+                                    width="120">
+                                <template slot-scope="scope">
+                                    <el-tag v-if="scope.row.status === '00'" type="warning">
+                                        <i class="el-icon-time"></i>
+                                        {{scope.row.status_zh}}
+                                    </el-tag>
+                                    <el-tag v-if="scope.row.status === '10'">
+                                        <i class="el-icon-loading"></i>
+                                        {{scope.row.status_zh}}
+                                    </el-tag>
+                                    <el-tag v-if="scope.row.status === '20'" type="success">
+                                        <i class="el-icon-success"></i>
+                                        {{scope.row.status_zh}}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="count"
+                                    label="训练轮数"
+                                    align="center"
+                                    width="100">
+                            </el-table-column>
+                            <el-table-column label="操作" align="center" width="220">
+                                <template slot-scope="scope">
+                                    <el-button
+                                            v-show="scope.row.status === '20'"
+                                            size="mini"
+                                            icon="el-icon-check"
+                                            @click="handleEdit(scope.$index, scope.row)">开始训练
+                                    </el-button>
+                                    <el-button
+                                            v-show="scope.row.status === '20'"
+                                            size="mini"
+                                            icon="el-icon-edit-outline"
+                                            @click="handleEdit(scope.$index, scope.row)">编辑
+                                    </el-button>
 
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </el-card>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </el-col>
+            </el-row>
+
         </el-main>
     </el-container>
 </template>
 
 <script>
   import API from '@/service/api'
+  import ProjectMenu from '@/components/ProjectMenu'
   import {map, extend, assign, debounce} from 'lodash'
   import Clipboard from 'clipboard'
   import * as moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_clippy from '@/assets/images/clippy.svg'
+  import ElRow from "element-ui/packages/row/src/row";
 
   moment.locale('zh-cn');
 
@@ -206,7 +215,6 @@
           form_name: 'form_deploy_image'
         }],
         at_step_add_training: 0,
-        roles: [{'v': 'admin', 'name': '管理员'}, {'v': 'normal', 'name': '普通用户'}],
         tmpl_form_build_image: {
           imageId: "",
           imageUrl: "",
@@ -221,9 +229,6 @@
           image: [
             {type: "string", required: true, message: '请选择镜像', trigger: 'blur'},
             {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
-          ],
-          role: [
-            {type: "string", required: true, message: '请选择用户角色', trigger: 'change'}
           ]
         },
         isSendingForm: false,
@@ -239,9 +244,15 @@
             status_zh: `${this.transProjStatus(v.status).zh}`
           })
         }).filter((train) => train.trainName.toLowerCase().includes(String(this.input_trainings_filter).toLowerCase()))
-      }
+      },
+      project_menu_data() {
+        return this.$store.state.project_list;
+      },
     },
     mounted() {
+      if (!this.$store.state.project_list || !this.$store.state.project_list.length) {
+        return this.$router.push({name: 'project'})
+      }
       this.fetchData();
       this.table_height = this.resizeHandler();
       window.onresize = debounce(() => {
@@ -281,10 +292,10 @@
       },
       fetchData() {
         let loading = this.$loading({
-          target: '.ProjectDetails',
+          target: '.training-table',
           lock: true,
           text: '正在获取数据。。。',
-          background: 'rgba(250,235,215,0.5)'
+          background: 'rgba(255,255,255,1)'
         });
         setTimeout(() => {
           loading.close();
@@ -389,7 +400,11 @@
         // });
       }
     },
-    components: {ElCard}
+    components: {
+      ElRow,
+      ElCard,
+      ProjectMenu
+    }
   }
 </script>
 
@@ -472,5 +487,13 @@
     .text-selected
         color #fff
         background-color #EA5505
+
+    .menu-wrapper
+        padding-right 10px
+        border-radius 4px
+        overflow-x hidden
+        overflow-y auto
+        display flex
+        align-items stretch
 
 </style>

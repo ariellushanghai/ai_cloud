@@ -1,6 +1,6 @@
 <template>
     <el-row type="flex" class="row">
-        <el-col :sm="1" :md="1" :lg="2" :xl="2">
+        <el-col :sm="3" :md="3" :lg="2" :xl="2">
             <router-link :to="{path: '/'}" class="link col">
                 <img src="../assets/images/logo.jpg" class="logo"/>
             </router-link>
@@ -8,7 +8,7 @@
         <el-col :sm="3" :md="3" :lg="2" :xl="2" class="title">
             <span>AI Cloud</span>
         </el-col>
-        <el-col :span="17">
+        <el-col :sm="15" :md="15" :lg="17" :xl="17">
             <el-menu mode="horizontal" background-color="#333644" text-color="#fff" active-text-color="#EA5505"
                      :default-active="defaultActive" router>
                 <el-menu-item v-for="(menu, idx) in menuItems" :index="'/'+menu.route" :key="menu.name">{{menu.name}}

@@ -1,0 +1,59 @@
+<template>
+    <el-menu
+            router
+            class="vertical-menu"
+            unique-opened
+            @select="handleSelectMenu"
+            :default-active="defaultActive"
+            text-color="#303133"
+            active-text-color="#000">
+
+        <el-tooltip v-for="item in data" :index="String(item.proId)" :key="item.proId" effect="dark"
+                    :content="item.proName" placement="right">
+            <el-menu-item :index="String('/project/'+item.proId)" :route="String('/project/'+item.proId)">
+                <span slot="title">{{item.proName}}</span>
+            </el-menu-item>
+        </el-tooltip>
+    </el-menu>
+</template>
+
+<script>
+  export default {
+    name: "ProjectMenu",
+    props: ['data'],
+    data() {
+      return {};
+    },
+    computed: {
+      defaultActive() {
+        return this.$route.path;
+      }
+    },
+    mounted() {
+    },
+    methods: {
+      handleSelectMenu(key, keyPath) {
+        console.log('handleSelectMenu(', key, keyPath, ')');
+
+      }
+    }
+  }
+</script>
+
+<style lang="stylus" scoped>
+    .vertical-menu
+        overflow-x hidden
+        overflow-y auto
+        border 1px solid #ebeef5
+        background-color #fff
+        box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
+        color #303133
+
+    .vertical-menu /deep/ .el-menu-item
+        overflow hidden
+        text-overflow ellipsis
+
+    .vertical-menu /deep/ .el-menu-item.is-active
+        background-color: #ecf5ff;
+        font-weight bolder
+</style>

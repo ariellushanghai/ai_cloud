@@ -9,7 +9,8 @@ import _ from 'lodash'
 Vue.use(Vuex);
 
 const state = {
-  user: {}
+  user: {},
+  project_list: []
 };
 const getters = {
   global_menu: state => {
@@ -32,6 +33,10 @@ const mutations = {
   [types.SAVE_USER_INFO]: (state, data) => {
     console.log(`SAVE_USER_INFO: `,data)
     state.user = data;
+  },
+  [types.SET_PROJECTS_LIST]: (state, data) => {
+    console.log(`SET_PROJECTS_LIST: `,data)
+    state.project_list = data;
   },
   [types.LOGOUT]: state => {
     state.user = {};

@@ -38,7 +38,7 @@
                     :style="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}">
                 <el-col :span="24" :style="{'overflow-y': 'auto','overflow-x': 'hidden'}">
                     <el-row class="proj-container" type="flex" :gutter="10">
-                        <el-col v-for="(proj, index) in proj_list" :xs="12" :sm="8" :md="8" :lg="6" :xl="4"
+                        <el-col v-for="proj in proj_list" :xs="12" :sm="8" :md="8" :lg="6" :xl="4"
                                 :key="proj.proId"
                                 :style="{height: 'auto','margin-bottom': '10px'}">
                             <el-card :body-style="{padding:'15px'}" class="proj-card">
@@ -53,6 +53,7 @@
                                             size="mini"
                                             plain
                                             icon="el-icon-back"
+                                            style="color: #303133;"
                                             @click="handleGoToProj(proj)">训练列表
                                     </el-button>
                                     <el-button
@@ -146,6 +147,7 @@
           loading.close();
           return API.getProjects(`${this.$store.getters.userName}`).then(res => {
             this.projects_data = res;
+            this.$store.commit('SET_PROJECTS_LIST', this.projects_data);
             loading.close();
           }, err => {
             console.log(`err: `, err);
@@ -232,69 +234,56 @@
   }
 </script>
 
-<style scoped>
-    .project-list {
-        background-color: antiquewhite;
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
+<style lang="stylus" scoped>
+    .project-list
+        background-color antiquewhite
+        width 100%
+        height 100%
+        position relative
 
-    .project-list-main {
-        padding: 10px;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
+    .project-list-main
+        padding 10px
+        width 100%
+        height 100%
+        position relative
+        overflow hidden
 
-    .card.operations .el-input {
-        width: 200px;
-    }
+    .card.operations .el-input
+        width 200px
 
-    .proj-container {
-        /*padding: 0 10px;*/
-        flex-wrap: wrap;
-    }
+    .proj-container
+        flex-wrap wrap
 
-    .proj-card {
-        will-change: transform;
-        height: 100%;
-        margin-bottom: 10px;
-        background-color: #fff;
-        border: none;
-        transition: transform .2s ease-in-out;
-    }
+    .proj-card
+        will-change transform
+        height 100%
+        margin-bottom 10px
+        background-color #fff
+        border none
+        transition transform .2s ease-in-out
 
-    .proj-card:hover {
-        cursor: pointer;
-        transform: scale(1.05);
-    }
+    .proj-card:hover
+        transform scale(1.05)
 
-    .card-header {
-        line-height: 20px;
-        font-size: 18px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+    .card-header
+        line-height 20px
+        font-size 18px
+        overflow hidden
+        text-overflow ellipsis
 
-    .proj-card /deep/ .el-card__header {
-        background: #FAFAFA;
-    }
-    .proj-card /deep/ .el-card__body {
-        height: calc(100% - 57px);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+    .proj-card /deep/ .el-card__header
+        background #FAFAFA
 
-    .button-group {
-        display: flex;
-        justify-content: space-between;
-    }
+    .proj-card /deep/ .el-card__body
+        height calc(100% - 57px)
+        display flex
+        flex-direction column
+        justify-content space-between
 
-    .proj-card .button-group {
-        justify-content: flex-end;
-    }
+    .button-group
+        display flex
+        justify-content space-between
 
+    .proj-card .button-group
+        justify-content flex-end
 </style>
