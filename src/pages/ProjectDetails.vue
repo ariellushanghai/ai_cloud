@@ -1,27 +1,38 @@
 <template>
     <el-container class="ProjectDetails" v-loading="isLoading">
         <el-main class="project-details-main">
-            <el-dialog title="新增训练" :visible.sync="dialog_add_training_visible" width="30%" append-to-body>
-                <el-form :model="form_add_train" :rules="rules" ref="form_add_train" status-icon label-position="top"
+            <el-dialog :visible.sync="dialog_add_training_visible"
+                       width="66%" append-to-body>
+                <div slot="title">
+                    <el-steps :active="at_step_add_training" align-center>
+                        <el-step title="构建镜像" icon="el-icon-edit"></el-step>
+                        <el-step title="部署镜像" icon="el-icon-upload"></el-step>
+                    </el-steps>
+                </div>
+                <el-form :model="form_build_image" :rules="rules_build_image" ref="form_build_image" status-icon
+                         label-position="top"
                          size="small">
-
-                    <el-form-item label="训练名" prop="trainName">
-                        <el-input v-model="form_add_train.trainName"></el-input>
-                    </el-form-item>
-
-                    <el-form-item label="角色" prop="role">
-                        <el-select v-model="form_add_train.role" placeholder="请选择用户角色" style="width: 100%;">
-                            <el-option v-for="role in roles" :label="role.name" :key="role.v"
-                                       :value="role.v">
-
+                    <el-form-item label="训练名" prop="image">
+                        <!--<el-input v-model="form_build_image.image"></el-input>-->
+                        <el-select v-model="form_build_image.image" placeholder="请选择镜像" style="width: 100%;">
+                            <el-option v-for="image in list_images" :label="image.imageName" :key="image.imageId"
+                                       :value="image">
                             </el-option>
                         </el-select>
                     </el-form-item>
 
+                    <el-form-item label="上传代码" prop="role">
+                        <el-upload
+                                action="https://jsonplaceholder.typicode.com/posts/"
+                                multiple>
+                            <el-button size="small" type="primary" icon="el-icon-upload">上传代码</el-button>
+                        </el-upload>
+                    </el-form-item>
+
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="cancelForm('form_add_train')">取消</el-button>
-                    <el-button type="primary" @click="validateForm('form_add_train')" icon="el-icon-upload2"
+                    <el-button @click="cancelForm('form_build_image')">取消</el-button>
+                    <el-button type="primary" @click="validateForm('form_build_image')" icon="el-icon-upload2"
                                :loading="isSendingForm">提交
                     </el-button>
                 </div>
@@ -53,18 +64,46 @@
                         border>
                     <el-table-column type="expand">
                         <template slot-scope="props">
-                            <el-form label-position="left" inline class="table-expand">
+                            <el-form label-position="left" inline class="table-expand" size="small">
                                 <el-form-item label="ID: ">
                                     <span>{{ props.row.trainId }}</span>
                                 </el-form-item>
-                                <el-form-item label="基础镜像: ">
-                                    <span>{{ props.row.baseImage }}</span>
+                                <el-form-item label="基础镜像名: ">
+                                    <span>{{ props.row.imageName }}</span>
                                 </el-form-item>
                                 <el-form-item label="代码库URL: ">
-                                    <span>{{ props.row.codeURL }}</span>
+                                    <el-input placeholder="请输入内容"
+                                              v-model="props.row.codeURL"
+                                              :id="'input_codeURL_'+ props.row.trainId"
+                                              readonly>
+                                        <el-tooltip slot="append" class="item" effect="dark"
+                                                    content="点击复制到剪贴板"
+                                                    placement="bottom"
+                                                    :hide-after="1000">
+                                            <el-button type="primary"
+                                                       :class="'btn-copy-codeURL-' + props.row.trainId"
+                                                       @click="copyToClipBoard(props.row,'codeURL')">
+                                                <img class="icon_clippy" :src="icon_clippy"/>
+                                            </el-button>
+                                        </el-tooltip>
+                                    </el-input>
                                 </el-form-item>
                                 <el-form-item label="分布式存储路径: ">
-                                    <span>{{ props.row.workdir }}</span>
+                                    <el-input placeholder="请输入内容"
+                                              v-model="props.row.workdir"
+                                              :id="'input_workdir_'+ props.row.trainId"
+                                              readonly>
+                                        <el-tooltip slot="append" class="item" effect="dark"
+                                                    content="点击复制到剪贴板"
+                                                    placement="bottom"
+                                                    :hide-after="1000">
+                                            <el-button type="primary"
+                                                       :class="'btn-copy-workdir-' + props.row.trainId"
+                                                       @click="copyToClipBoard(props.row,'workdir')">
+                                                <img class="icon_clippy" :src="icon_clippy"/>
+                                            </el-button>
+                                        </el-tooltip>
+                                    </el-input>
                                 </el-form-item>
                                 <el-form-item label="运行目标环境: ">
                                     <span>{{ props.row.target }}</span>
@@ -91,7 +130,7 @@
                             prop="role"
                             label="状态"
                             align="center"
-                            width="120px">
+                            width="120">
                         <template slot-scope="scope">
                             <el-tag v-if="scope.row.status === '00'" type="warning">
                                 <i class="el-icon-time"></i>
@@ -109,16 +148,22 @@
                     </el-table-column>
                     <el-table-column
                             prop="count"
-                            label="训练轮数">
+                            label="训练轮数"
+                            align="center"
+                            width="100">
                     </el-table-column>
-                    <el-table-column label="操作">
+                    <el-table-column label="操作" align="center" width="220">
                         <template slot-scope="scope">
                             <el-button
+                                    v-show="scope.row.status === '20'"
                                     size="mini"
+                                    icon="el-icon-check"
                                     @click="handleEdit(scope.$index, scope.row)">开始训练
                             </el-button>
                             <el-button
+                                    v-show="scope.row.status === '20'"
                                     size="mini"
+                                    icon="el-icon-edit-outline"
                                     @click="handleEdit(scope.$index, scope.row)">编辑
                             </el-button>
 
@@ -133,9 +178,11 @@
 <script>
   import API from '@/service/api'
   import {map, extend, assign, debounce} from 'lodash'
+  import Clipboard from 'clipboard'
   import * as moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
+  import icon_clippy from '@/assets/images/clippy.svg'
 
   moment.locale('zh-cn');
 
@@ -147,20 +194,32 @@
     data() {
       return {
         isLoading: false,
+        icon_clippy: icon_clippy,
         trainings_data: [],
+        list_images: [],
         dialog_add_training_visible: false,
+        steps_add_training: [{
+          name: '构建镜像',
+          form_name: 'form_build_image'
+        }, {
+          name: '部署镜像',
+          form_name: 'form_deploy_image'
+        }],
+        at_step_add_training: 0,
         roles: [{'v': 'admin', 'name': '管理员'}, {'v': 'normal', 'name': '普通用户'}],
-        tmpl_form_add_train: {
-          trainName: '',
-          role: ''
+        tmpl_form_build_image: {
+          imageId: "",
+          imageUrl: "",
+          imageType: ""
         },
-        form_add_train: {
-          trainName: '',
-          role: ''
+        form_build_image: {
+          imageId: "",
+          imageUrl: "",
+          imageType: ""
         },
-        rules: {
-          trainName: [
-            {type: "string", required: true, message: '请输入训练名', trigger: 'blur'},
+        rules_build_image: {
+          image: [
+            {type: "string", required: true, message: '请选择镜像', trigger: 'blur'},
             {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
           ],
           role: [
@@ -246,15 +305,48 @@
       sortCreateDate(a, b) {
         return Number(a.createDate) - Number(b.createDate);
       },
+      copyToClipBoard(data, prop) {
+        console.log(`copyToClipBoard()`, arguments);
+        // debugger;
+
+        let input = document.getElementById(`input_${prop}_${data.trainId}`);
+        let clipboard = new Clipboard(`.btn-copy-${prop}-${data.trainId}`, {
+          text: function () {
+            return data[prop];
+          }
+        });
+        clipboard.on('success', (e) => {
+          e.clearSelection();
+          input.focus();
+          input.select();
+          return this.$message({
+            type: 'success',
+            message: '已复制到剪贴板'
+          });
+        });
+
+        clipboard.on('error', (e) => {
+          e.clearSelection();
+          input.focus();
+          input.select();
+          return this.$message({
+            type: 'error',
+            message: '失败! 请手动复制文本'
+          });
+        });
+      },
       handleAddTrain() {
         console.log(`handleAddTrain()`);
-        this.form_add_train = extend({}, this.tmpl_form_add_train);
-        this.dialog_add_training_visible = true;
+        this.form_build_image = extend({}, this.tmpl_form_build_image);
+        return API.getImages().then(res => {
+          this.list_images = res;
+          this.dialog_add_training_visible = true;
+        });
       },
       cancelForm(formName) {
         console.log(`cancelForm(${formName})`);
         this.$refs[formName].resetFields();
-        this.form_add_train = extend({}, this.tmpl_form_add_train);
+        this.form_build_image = extend({}, this.tmpl_form_build_image);
         this.dialog_add_training_visible = false;
       },
       validateForm(form) {
@@ -265,7 +357,7 @@
           console.log(`valid: `, valid);
           if (valid) {
             // alert('submit!');
-            return this.postForm(this.form_add_train);
+            return this.postForm(this.form_build_image);
           } else {
             console.log('error submit!!');
             return false;
@@ -332,15 +424,20 @@
         padding 0
         width 100%
         font-size 12px
+
     .table-expand
         font-size 0
         /deep/ label
             width 120px
             color #99a9bf
         /deep/ .el-form-item
+            font-size 12px
             width 50%
             margin-right 0
             margin-bottom 0
+
+        /deep/ .el-form-item__label, /deep/ .el-form-item__content
+            font-size 12px
 
         .proj-card.waiting {
             color: #e6a23c;
@@ -365,5 +462,15 @@
     .proj-card.success /deep/ .el-card__header {
         background-color: rgba(103, 194, 58, .1);
     }
+
+    .icon_clippy
+        width 12px
+        height auto
+        max-height 100%
+        vertical-align middle
+
+    .text-selected
+        color #fff
+        background-color #EA5505
 
 </style>

@@ -6,8 +6,8 @@
                     <el-form-item label="项目名称">
                         <el-input v-model="form_add_proj.name" auto-complete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="训练日志存储目录">
-                        <el-input v-model="form_add_proj.dir" auto-complete="off"></el-input>
+                    <el-form-item label="工作目录">
+                        <el-input v-model="form_add_proj.dirPath" auto-complete="off"></el-input>
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
@@ -98,11 +98,11 @@
         dialog_add_proj_visible: false,
         tmpl_form_add_proj: {
           name: '',
-          dir: '/'
+          dirPath: '/'
         },
         form_add_proj: {
           name: '',
-          dir: '/'
+          dirPath: '/'
         },
         projects_data: [],
         input_proj_filter: '',

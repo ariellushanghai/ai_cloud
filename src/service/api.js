@@ -85,6 +85,11 @@ export default {
   getTrains(userName) {
     return network.get('getTrains.json');
     // return network.get(`/projects/${userName}`);
+  },
+  // 获取基础镜像列表
+  getImages() {
+    return network.get('getImages.json');
+    // return network.get(`/projects/images`);
   }
 
 

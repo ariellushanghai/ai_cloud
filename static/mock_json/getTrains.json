@@ -13,12 +13,13 @@
       "status": "00",
       "count": 100000,
       "name": "测试项目",
-      "codeURL": "http://10.11.112.66/bdp/knowledgelib",
+      "codeURL": "https://github.com/zenorocha/clipboard.js/",
       "baseImage": {},
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
       "imageUrl": "http://10.11.112.66/bdp/knowledgelib",
+      "imageName": "tensorflow-gpu",
       "revision": "0.1.0"
     },
     {
@@ -31,10 +32,8 @@
       "status": "10",
       "count": 1000,
       "name": "测试项目",
-      "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "python"
-      },
+      "codeURL": "https://github.com/ecomfe/vue-echarts",
+      "imageName": "caffe-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "imageUrl": "http://10.11.112.66/bdp/knowledgelib",
@@ -51,9 +50,7 @@
       "count": 1000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "python"
-      },
+      "imageName": "tensorflow",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
@@ -71,9 +68,7 @@
       "count": 1000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "caffe"
-      },
+      "imageName": "mxnet-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
@@ -91,9 +86,7 @@
       "count": 2000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "tf"
-      },
+      "imageName": "mxnet-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
@@ -111,9 +104,7 @@
       "count": 1000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "python"
-      },
+      "imageName": "mxnet-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
@@ -131,9 +122,7 @@
       "count": 1000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "python"
-      },
+      "imageName": "caffe-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
@@ -151,9 +140,7 @@
       "count": 1000,
       "name": "测试项目",
       "codeURL": "http://10.11.112.66/bdp/knowledgelib",
-      "baseImage": {
-        "imageType": "caffe"
-      },
+      "imageName": "caffe-gpu",
       "projectType": "train",
       "workdir": "LUHUAN/WORKSPACE",
       "target": "test",
