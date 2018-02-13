@@ -1,13 +1,69 @@
 <template>
     <el-container class="ProjectDetails" v-loading="isLoading">
         <el-main class="project-details-main">
-            <el-dialog :visible.sync="dialog_add_training_visible"
-                       width="66%" append-to-body>
+            <el-dialog class="dialog-build-image" :visible.sync="dialog_add_training_visible"
+                       width="50%" append-to-body modal-append-to-body lock-scroll :show-close="false"
+                       :close-on-click-modal="false" :close-on-press-escape="false">
                 <div slot="title">
-                    <el-steps :active="at_step_add_training" align-center>
+                    <el-steps :active="at_step_add_training" simple finish-status="success">
                         <el-step title="构建镜像" icon="el-icon-edit"></el-step>
                         <el-step title="部署镜像" icon="el-icon-upload"></el-step>
                     </el-steps>
+                </div>
+                <div class="form-container">
+                    <el-form v-show="at_step_add_training === 0" :model="form_build_image"
+                             :rules="rules_build_image" ref="form_build_image" status-icon
+                             label-position="top"
+                             size="small">
+                        <el-form-item label="选择镜像" prop="image.imageName">
+                            <el-select v-model="form_build_image.image.imageName" placeholder="请选择镜像"
+                                       style="width: 100%;">
+                                <el-option v-for="image in list_images" :label="image.imageName"
+                                           :key="image.imageId"
+                                           :value="image.imageName">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+
+                        <el-form-item label="上传代码">
+                            <el-upload
+                                    :action="upload_to_url"
+                                    multiple>
+                                <el-button type="primary" icon="el-icon-upload">上传代码</el-button>
+                            </el-upload>
+                        </el-form-item>
+                    </el-form>
+
+                    <el-form v-show="at_step_add_training === 1" :model="form_build_image"
+                             :rules="rules_build_image" ref="form_build_image" status-icon
+                             label-position="top"
+                             size="small">
+                        <el-form-item label="选择镜像" prop="image">
+                            <el-select v-model="form_build_image.image" placeholder="请选择镜像" style="width: 100%;">
+                                <el-option v-for="image in list_images" :label="image.imageName"
+                                           :key="image.imageId"
+                                           :value="image">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+
+                        <el-form-item label="上传代码">
+                            <el-upload
+                                    action="https://jsonplaceholder.typicode.com/posts/"
+                                    multiple>
+                                <el-button type="primary" icon="el-icon-upload">上传代码</el-button>
+                            </el-upload>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancelForm('form_build_image')" size="small">取消</el-button>
+                    <el-button type="primary" @click="validateForm('form_build_image')" :loading="isSendingForm"
+                               icon="el-icon-check"
+                               size="small">
+                        下一步
+                    </el-button>
                 </div>
                 <el-form :model="form_build_image" :rules="rules_build_image" ref="form_build_image" status-icon
                          label-position="top"
@@ -207,6 +263,7 @@
         trainings_data: [],
         list_images: [],
         dialog_add_training_visible: false,
+        upload_to_url: API.baseUploadToAddr('/'),
         steps_add_training: [{
           name: '构建镜像',
           form_name: 'form_build_image'
@@ -216,20 +273,19 @@
         }],
         at_step_add_training: 0,
         tmpl_form_build_image: {
-          imageId: "",
-          imageUrl: "",
-          imageType: ""
+          image: {},
+          uploaded: false
         },
         form_build_image: {
-          imageId: "",
-          imageUrl: "",
-          imageType: ""
+          image: {},
+          uploaded: false
         },
         rules_build_image: {
           image: [
-            {type: "string", required: true, message: '请选择镜像', trigger: 'blur'},
-            {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
+            {required: true, message: '请选择镜像', trigger: 'change'}
           ]
+          //  上传代码标志位: 是否multiple?
+
         },
         isSendingForm: false,
         input_trainings_filter: '',
@@ -247,7 +303,7 @@
       },
       project_menu_data() {
         return this.$store.state.project_list;
-      },
+      }
     },
     mounted() {
       if (!this.$store.state.project_list || !this.$store.state.project_list.length) {
@@ -258,10 +314,18 @@
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
       }, 300);
-    },
+      console.log(`upload_to_url: `, this.upload_to_url);
+    }
+    ,
     beforeDestroy: function () {
       window.onresize = undefined;
-    },
+    }
+    ,
+    watch: {
+      '$route':
+        'fetchData'
+    }
+    ,
     methods: {
       transProjStatus(value) {
         switch (value) {
