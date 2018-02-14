@@ -6,7 +6,7 @@ const UserManager = r => require(['@/pages/UserManager'], r);
 const Storage = r => require(['@/pages/Storage'], r);
 const ProjectList = r => require(['@/pages/ProjectList'], r);
 const ProjectDetails = r => require(['@/pages/ProjectDetails'], r);
-const Solution = r => require(['@/pages/Solution'], r);
+const Inference = r => require(['@/pages/Inference'], r);
 
 
 export default new Router({
@@ -39,9 +39,9 @@ export default new Router({
       component: ProjectDetails
     },
     {
-      name: 'solution',
-      path: '/solution',
-      component: Solution
+      name: 'inference',
+      path: '/inference',
+      component: Inference
     }
   ]
 })
