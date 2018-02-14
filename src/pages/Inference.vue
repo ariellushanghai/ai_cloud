@@ -15,7 +15,6 @@
                                              status="exception"></el-progress>
                             </div>
                             <div id="inference_chart_1"></div>
-                            <div></div>
                         </div>
                     </el-card>
                     <el-card :body-style="{padding:'15px'}">
@@ -46,7 +45,6 @@
 </template>
 
 <script lang="coffeescript">
-
     import API from '@/service/api'
     import echarts from 'echarts/lib/echarts'
     import 'echarts/lib/chart/pie'
@@ -56,7 +54,7 @@
     import ElCard from "element-ui/packages/card/src/main";
 
     export default {
-        name: 'Solution'
+        name: 'Inference'
 
         metaInfo:
             titleTemplate: '%s-算法库'
@@ -87,144 +85,145 @@
             @fetchData()
             @drawChart()
 
-        methods: {
+        methods:
             fetchData: ->
                 loading = this.$loading {
-                    target: '.inference'
-                    lock: true
-                    text: '正在获取数据。。。'
-                    background: 'rgba(250,235,215,0.5)'
-                }
+                                            target: '.inference'
+                                            lock: true
+                                            text: '正在获取数据。。。'
+                                            background: 'rgba(250,235,215,0.5)'
+                                        }
 
                 window.setTimeout (()-> loading.close()), 500
 
-                API.getUsers().then (res) -> console.log "res: #{res}",
-                    (err) ->
-                        console.log "err: #{err}"
-                        loading.close()
-                        this.$notify {
-                            message: "#{err}"
-                            type: 'error'
-                            duration: 0
-                        }
+                API.getUsers().then ((res) -> console.log "res: #{res}"),
+                                    ((err) ->
+                                        console.log "err: #{err}"
+                                        loading.close()
+                                        this.$notify {
+                                                         message: "#{err}"
+                                                         type: 'error'
+                                                         duration: 0
+                                                     }
+                                    )
 
             drawChart: ->
                 chart0 = echarts.init document.getElementById 'inference_chart_0'
                 chart1 = echarts.init document.getElementById 'inference_chart_1'
 
                 chart0.setOption {
-                    title:
-                        text: 'Tensorflow 模型类型（692）'
-                        subtext: ''
-                        x: 'center'
+                                     title:
+                                         text: 'Tensorflow 模型类型（692）'
+                                         subtext: ''
+                                         x: 'center'
 
-                    tooltip:
-                        trigger: 'item'
-                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                                     tooltip:
+                                         trigger: 'item'
+                                         formatter: "{a} <br/>{b} : {c} ({d}%)"
 
-                    legend:
-                        orient: 'vertical',
-                        left: 'left',
-                        data: ['样例', '非样例']
+                                     legend:
+                                         orient: 'vertical',
+                                         left: 'left',
+                                         data: ['样例', '非样例']
 
-                    series: [{
-                        name: '模型类型'
-                        type: 'pie'
-                        radius: '55%'
-                        center: ['50%', '60%']
-                        data: [
-                            {value: 335, name: '样例'}
-                            {value: 310, name: '非样例'}
-                        ]
-                        itemStyle:
-                            emphasis:
-                                shadowBlur: 10
-                                shadowOffsetX: 0
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }]
-                }
+                                     series: [{
+                                         name: '模型类型'
+                                         type: 'pie'
+                                         radius: '55%'
+                                         center: ['50%', '60%']
+                                         data: [
+                                             { value: 335, name: '样例' }
+                                             { value: 310, name: '非样例' }
+                                         ]
+                                         itemStyle:
+                                             emphasis:
+                                                 shadowBlur: 10
+                                                 shadowOffsetX: 0
+                                                 shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                     }]
+                                 }
 
                 chart1.setOption {
-                    title:
-                        text: '堆叠区域图'
+                                     title:
+                                         text: '堆叠区域图'
 
-                    tooltip:
-                        trigger: 'axis'
-                        axisPointer:
-                            type: 'cross'
-                            label:
-                                backgroundColor: '#6a7985'
+                                     tooltip:
+                                         trigger: 'axis'
+                                         axisPointer:
+                                             type: 'cross'
+                                             label:
+                                                 backgroundColor: '#6a7985'
 
-                    legend:
-                        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+                                     legend:
+                                         data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
 
-                    toolbox:
-                        feature:
-                            saveAsImage: {}
+                                     toolbox:
+                                         feature:
+                                             saveAsImage: {}
 
-                    grid:
-                        left: '3%'
-                        right: '4%'
-                        bottom: '3%'
-                        containLabel: true
+                                     grid:
+                                         left: '3%'
+                                         right: '4%'
+                                         bottom: '3%'
+                                         containLabel: true
 
-                    xAxis: [
-                        {
-                            type: 'category'
-                            boundaryGap: false
-                            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            type: 'value'
-                        }
-                    ],
-                    series: [
-                        {
-                            name: '邮件营销',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {normal: {}},
-                            data: [120, 132, 101, 134, 90, 230, 210]
-                        },
-                        {
-                            name: '联盟广告',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {normal: {}},
-                            data: [220, 182, 191, 234, 290, 330, 310]
-                        },
-                        {
-                            name: '视频广告',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {normal: {}},
-                            data: [150, 232, 201, 154, 190, 330, 410]
-                        },
-                        {
-                            name: '直接访问',
-                            type: 'line',
-                            stack: '总量',
-                            areaStyle: {normal: {}},
-                            data: [320, 332, 301, 334, 390, 330, 320]
-                        },
-                        {
-                            name: '搜索引擎',
-                            type: 'line',
-                            stack: '总量',
-                            label:
-                                normal:
-                                    show: true,
-                                    position: 'top'
+                                     xAxis: [
+                                         {
+                                             type: 'category'
+                                             boundaryGap: false
+                                             data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                         }
+                                     ],
+                                     yAxis: [
+                                         {
+                                             type: 'value'
+                                         }
+                                     ],
+                                     series: [
+                                         {
+                                             name: '邮件营销',
+                                             type: 'line',
+                                             stack: '总量',
+                                             areaStyle: { normal: {} }
+                                             data: [120, 132, 101, 134, 90, 230, 210]
+                                         }
+                                         {
+                                             name: '联盟广告',
+                                             type: 'line',
+                                             stack: '总量',
+                                             areaStyle: { normal: {} }
+                                             data: [220, 182, 191, 234, 290, 330, 310]
+                                         }
+                                         {
+                                             name: '视频广告',
+                                             type: 'line',
+                                             stack: '总量',
+                                             areaStyle: { normal: {} }
+                                             data: [150, 232, 201, 154, 190, 330, 410]
+                                         }
+                                         {
+                                             name: '直接访问',
+                                             type: 'line',
+                                             stack: '总量',
+                                             areaStyle: { normal: {} }
+                                             data: [320, 332, 301, 334, 390, 330, 320]
+                                         }
+                                         {
+                                             name: '搜索引擎',
+                                             type: 'line',
+                                             stack: '总量',
+                                             label:
+                                                 normal:
+                                                     show: true,
+                                                     position: 'top'
 
-                            areaStyle: {normal: {}},
-                            data: [820, 932, 901, 934, 1290, 1330, 1320]
-                        }
-                    ]
-                }
-        }
-        components: {ElCard}
+                                             areaStyle: { normal: {} }
+                                             data: [820, 932, 901, 934, 1290, 1330, 1320]
+                                         }
+                                     ]
+                                 }
+
+        components: { ElCard }
     }
 </script>
 

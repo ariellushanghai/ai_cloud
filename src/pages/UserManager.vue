@@ -106,6 +106,7 @@
 </template>
 
 <script>
+  // @flow
   import API from '@/service/api'
   import {map, extend, assign, debounce} from 'lodash'
   import * as moment from 'moment'
@@ -170,7 +171,7 @@
       window.onresize = undefined;
     },
     methods: {
-      resizeHandler() {
+      resizeHandler(): number {
         return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10 + 30);
       },
       fetchData() {
@@ -196,7 +197,7 @@
           });
         }, 500);
       },
-      sortCreateDate(a, b) {
+      sortCreateDate(a: number, b: number): number {
         return Number(a.createDate) - Number(b.createDate);
       },
       handleAddUser() {
@@ -204,13 +205,13 @@
         this.form_add_user = extend({}, this.tmpl_form_add_user);
         this.dialog_add_user_visible = true;
       },
-      cancelForm(formName) {
+      cancelForm(formName: string) {
         console.log(`cancelForm(${formName})`);
         this.$refs[formName].resetFields();
         this.form_add_user = extend({}, this.tmpl_form_add_user);
         this.dialog_add_user_visible = false;
       },
-      validateForm(form) {
+      validateForm(form: string) {
         console.log('validateForm(form): ', form);
         console.log(this.$refs[form]);
 

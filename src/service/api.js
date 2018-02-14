@@ -90,7 +90,9 @@ export default {
   getImages() {
     return network.get('getImages.json');
     // return network.get(`/projects/images`);
+  },
+
+  baseUploadToAddr(path) {
+    return `${network.defaults.baseURL}${path}`
   }
-
-
 }

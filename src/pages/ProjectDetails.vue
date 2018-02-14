@@ -239,6 +239,7 @@
 </template>
 
 <script>
+  // @flow
   import API from '@/service/api'
   import ProjectMenu from '@/components/ProjectMenu'
   import {map, extend, assign, debounce} from 'lodash'
@@ -249,7 +250,7 @@
   import icon_clippy from '@/assets/images/clippy.svg'
   import ElRow from "element-ui/packages/row/src/row";
 
-  moment.locale('zh-cn');
+  moment.locale('zh-cn')
 
   export default {
     name: 'ProjectDetails',
@@ -302,7 +303,7 @@
         }).filter((train) => train.trainName.toLowerCase().includes(String(this.input_trainings_filter).toLowerCase()))
       },
       project_menu_data() {
-        return this.$store.state.project_list;
+        return this.$store.state.project_list
       }
     },
     mounted() {
@@ -315,17 +316,14 @@
         this.table_height = this.resizeHandler();
       }, 300);
       console.log(`upload_to_url: `, this.upload_to_url);
-    }
-    ,
+    },
     beforeDestroy: function () {
       window.onresize = undefined;
-    }
-    ,
+    },
     watch: {
       '$route':
         'fetchData'
-    }
-    ,
+    },
     methods: {
       transProjStatus(value) {
         switch (value) {
@@ -355,7 +353,7 @@
         return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10 + 30);
       },
       fetchData() {
-        let loading = this.$loading({
+        const loading = this.$loading({
           target: '.training-table',
           lock: true,
           text: '正在获取数据。。。',
@@ -377,23 +375,23 @@
           });
         }, 500);
       },
-      sortCreateDate(a, b) {
+      sortCreateDate(a: number, b: number): number {
         return Number(a.createDate) - Number(b.createDate);
       },
       copyToClipBoard(data, prop) {
-        console.log(`copyToClipBoard()`, arguments);
+        console.log(`copyToClipBoard()`, arguments)
         // debugger;
 
-        let input = document.getElementById(`input_${prop}_${data.trainId}`);
-        let clipboard = new Clipboard(`.btn-copy-${prop}-${data.trainId}`, {
+        const input = document.getElementById(`input_${prop}_${data.trainId}`)
+        const clipboard = new Clipboard(`.btn-copy-${prop}-${data.trainId}`, {
           text: function () {
             return data[prop];
           }
         });
         clipboard.on('success', (e) => {
-          e.clearSelection();
-          input.focus();
-          input.select();
+          e.clearSelection()
+          input.focus()
+          input.select()
           return this.$message({
             type: 'success',
             message: '已复制到剪贴板'
