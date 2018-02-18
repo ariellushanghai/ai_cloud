@@ -265,17 +265,18 @@
     .proj-card:hover
         transform scale(1.05)
 
+    .proj-card /deep/ .el-card__header
+        background #fafafa
+        padding 10px 20px
+
     .card-header
         line-height 20px
-        font-size 18px
+        font-size 16px
         overflow hidden
         text-overflow ellipsis
 
-    .proj-card /deep/ .el-card__header
-        background #FAFAFA
-
     .proj-card /deep/ .el-card__body
-        height calc(100% - 57px)
+        height calc(100% - 41px)
         display flex
         flex-direction column
         justify-content space-between

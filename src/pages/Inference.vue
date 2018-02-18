@@ -1,47 +1,21 @@
-<template>
-    <el-container class="inference" v-loading="isLoading">
-        <el-main class="inference-main">
-            <el-row type="flex" justify="center">
-                <el-col>
-                    <el-card :body-style="{padding:'15px'}" style="margin-bottom: 10px;">
-                        <div class="inference-charts">
-                            <div id="inference_chart_0"></div>
-                            <div>
-                                <el-progress :text-inside="true" :stroke-width="18" :percentage="0"></el-progress>
-                                <el-progress :text-inside="true" :stroke-width="18" :percentage="70"></el-progress>
-                                <el-progress :text-inside="true" :stroke-width="18" :percentage="100"
-                                             status="success"></el-progress>
-                                <el-progress :text-inside="true" :stroke-width="18" :percentage="50"
-                                             status="exception"></el-progress>
-                            </div>
-                            <div id="inference_chart_1"></div>
-                        </div>
-                    </el-card>
-                    <el-card :body-style="{padding:'15px'}">
-                        <el-table
-                                :data="tableData2"
-                                style="width: 100%"
-                                border>
-                            <el-table-column
-                                    prop="date"
-                                    label="最近一次使用模型训练"
-                                    width="180">
-                            </el-table-column>
-                            <el-table-column
-                                    prop="name"
-                                    label="总训练时间"
-                                    width="180">
-                            </el-table-column>
-                            <el-table-column
-                                    prop="address"
-                                    label="模型训练次数">
-                            </el-table-column>
-                        </el-table>
-                    </el-card>
-                </el-col>
-            </el-row>
-        </el-main>
-    </el-container>
+<template lang="pug">
+    el-container.inference(v-loading="isLoading")
+        el-main.inference-main
+            el-row(type="flex" justify="center")
+                el-col
+                    el-card(:body-style="{padding:'15px'}" style={'margin-bottom': '10px'})
+                        .inference-charts
+                            #inference_chart_0
+                            div
+                                el-progress(:text-inside="true" ":stroke-width"="18" ":percentage"="100")
+                                el-progress(:text-inside="true" ":stroke-width"="18" ":percentage"="70")
+                            #inference_chart_1
+
+                    el-card(:body-style="{padding:'15px'}")
+                        el-table(:data="tableData2" style={'width': '100%'} border)
+                            el-table-column(prop="date" label="最近一次使用模型训练" width="180")
+                            el-table-column(prop="name" label="总训练时间" width="180")
+                            el-table-column(prop="address" label="模型训练次数")
 </template>
 
 <script lang="coffeescript">

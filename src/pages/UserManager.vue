@@ -1,108 +1,52 @@
-<template>
-    <el-container class="UserManager" v-loading="isLoading">
-        <el-main class="user-manager-main">
-            <el-dialog title="新增用户" :visible.sync="dialog_add_user_visible" width="30%" append-to-body>
-                <el-form :model="form_add_user" :rules="rules" ref="form_add_user" status-icon label-position="top"
-                         size="small">
+<template lang="pug">
+    el-container.UserManager(v-loading="isLoading")
+        el-main.user-manager-main
+            // 弹出表单
+            el-dialog(title="新增用户" ":visible.sync"="dialog_add_user_visible" width="30%" append-to-body)
+                el-form(:model="form_add_user" ":rules"="rules" ref="form_add_user" status-icon label-position="top" size="small")
+                    el-form-item(label="用户名" prop="userName")
+                        el-input(v-model="form_add_user.userName")
+                    el-form-item(label="角色" prop="role")
+                        el-select(v-model="form_add_user.role" placeholder="请选择用户角色" style="width: 100%;")
+                            el-option(v-for="role in roles" ":label"="role.name" ":key"="role.v"
+                            ":value"="role.v")
+                .dialog-footer(slot="footer")
+                    el-button("@click"="cancelForm('form_add_user')") 取消
+                    el-button(type="primary" "@click"="validateForm('form_add_user')" icon="el-icon-upload2" ":loading"="isSendingForm") 提交
 
-                    <el-form-item label="用户名" prop="userName">
-                        <el-input v-model="form_add_user.userName"></el-input>
-                    </el-form-item>
+            // 操作栏
+            el-card.card(class="operations" ":body-style"="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
+                .button-group
+                    el-button(size="small" type="primary" icon="el-icon-circle-plus-outline" style="margin-right: 10px;" "@click"="handleAddUser") 新增用户
+                el-input(placeholder="过滤用户名" suffix-icon="el-icon-search" size="small" clearable v-model="input_users_filter")
 
-                    <el-form-item label="角色" prop="role">
-                        <el-select v-model="form_add_user.role" placeholder="请选择用户角色" style="width: 100%;">
-                            <el-option v-for="role in roles" :label="role.name" :key="role.v"
-                                       :value="role.v">
+            // 表格容器
+            el-card.card(":body-style"="{padding:'15px'}")
+                el-table.user-table(:data="tableUsers" ":height"="table_height" stripe border)
 
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+                    el-table-column( prop="userName" label="用户名" sortable)
+                        template(slot-scope="scope")
+                            el-popover(trigger="hover" placement="right")
+                                span ID: {{ scope.row.userId }}
+                                div(slot="reference") {{ scope.row.userName }}
 
-                </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="cancelForm('form_add_user')">取消</el-button>
-                    <el-button type="primary" @click="validateForm('form_add_user')" icon="el-icon-upload2"
-                               :loading="isSendingForm">提交
-                    </el-button>
-                </div>
-            </el-dialog>
+                    el-table-column( prop="role" label="角色" align="center" width="120px" sortable)
+                        template(slot-scope="scope")
+                            el-tag(v-if="scope.row.role === 'admin'" type="warning")
+                                img(class=['user-avatar', 'admin'] ":src"="icon_admin_user")
+                                span 管理员
+                            el-tag(v-if="scope.row.role === 'normal'" type="info")
+                                img(class=['user-avatar', 'normal'] ":src"="icon_normal_user")
+                                span 普通用户
 
-            <el-card :body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}"
-                     class="card operations">
-                <div class="button-group">
-                    <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
-                               style="margin-right: 10px;" @click="handleAddUser">
-                        新增用户
-                    </el-button>
-                </div>
-                <el-input
-                        placeholder="过滤用户名"
-                        suffix-icon="el-icon-search"
-                        size="small"
-                        clearable
-                        v-model="input_users_filter">
-                </el-input>
-            </el-card>
-            <el-card :body-style="{padding:'15px'}" class="card">
-                <el-table
-                        :data="tableUsers"
-                        :height="table_height"
-                        class="user-table"
-                        stripe
-                        border>
-                    <el-table-column
-                            prop="userName"
-                            label="用户名"
-                            sortable>
-                        <template slot-scope="scope">
-                            <el-popover trigger="hover" placement="right">
-                                <span>ID: {{ scope.row.userId }}</span>
-                                <div slot="reference">
-                                    {{ scope.row.userName }}
-                                </div>
-                            </el-popover>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="role"
-                            label="角色"
-                            align="center"
-                            width="120px"
-                            sortable>
-                        <template slot-scope="scope">
-                            <el-tag v-if="scope.row.role === 'admin'" type="warning">
-                                <img class="user-avatar admin" :src="icon_admin_user"/>
-                                管理员
-                            </el-tag>
-                            <el-tag v-if="scope.row.role === 'normal'" type="info">
-                                <img class="user-avatar normal" :src="icon_normal_user"/>
-                                普通用户
-                            </el-tag>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="createDate_converted"
-                            label="创建时间"
-                            width="220"
-                            :sort-method="sortCreateDate"
-                            sortable>
-                    </el-table-column>
-                    <el-table-column
-                            prop="parentDir"
-                            label="主目录">
-                    </el-table-column>
-                    <el-table-column
-                            prop="training"
-                            label="训练目录">
-                    </el-table-column>
-                    <el-table-column
-                            prop="inference"
-                            label="部署目录">
-                    </el-table-column>
-                </el-table>
-            </el-card>
-        </el-main>
-    </el-container>
+                    el-table-column( prop="createDate_converted" label="创建时间" width="220" ":sort-method"="sortCreateDate" sortable)
+
+                    el-table-column( prop="parentDir" label="主目录")
+
+                    el-table-column(prop="training" label="训练目录")
+
+                    el-table-column(prop="inference" label="部署目录")
+
 </template>
 
 <script>
@@ -255,56 +199,41 @@
   }
 </script>
 
-<style scoped>
-    .UserManager {
-        background-color: antiquewhite;
-        min-height: 100%;
-        position: relative;
-    }
+<style lang="stylus" scoped>
+    .UserManager
+        background-color antiquewhite
+        min-height 100%
+        position relative
 
-    .user-manager-main {
-        display: flex;
-        flex-direction: column;
-        /*justify-content: space-between;*/
-        padding: 10px;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
+    .user-manager-main
+        display flex
+        flex-direction column
+        padding 10px
+        width 100%
+        height 100%
+        position relative
+        overflow hidden
 
-    .card {
-        margin-bottom: 10px;
-        flex-shrink: 0;
-    }
+    .card
+        margin-bottom 10px
+        flex-shrink 0
 
-    .card:last-of-type {
-        margin-bottom: 0px;
-        flex-shrink: 1;
-        height: calc(100% - 74px);
-    }
+    .card:last-of-type
+        margin-bottom 0
+        flex-shrink 1
+        height calc(100% - 74px)
 
-    .card.operations .el-input {
-        width: 200px;
-    }
+    .card.operations .el-input
+        width 200px
 
-    .user-table {
-        padding: 0;
-        width: 100%;
-        font-size: 12px;
-    }
+    .user-table
+        padding 0
+        width 100%
+        font-size 12px
 
-    .user-avatar {
-        width: 23px;
-        height: 23px;
-        vertical-align: middle;
-    }
+    .user-avatar
+        width 23px
+        height 23px
+        vertical-align middle
 
-    .user-avatar.normal {
-
-    }
-
-    .user-avatar.admin {
-        /*background-color: #F56C6C;*/
-    }
 </style>

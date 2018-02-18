@@ -516,9 +516,9 @@
         /deep/ .el-form-item__label, /deep/ .el-form-item__content
             font-size 12px
 
-        .proj-card.waiting {
-            color: #e6a23c;
-        }
+    .proj-card.waiting {
+        color: #e6a23c;
+    }
 
     .proj-card.waiting /deep/ .el-card__header {
         background-color: rgba(230, 162, 60, .1);
@@ -551,11 +551,10 @@
         background-color #EA5505
 
     .menu-wrapper
+        display flex
+        align-items stretch
         padding-right 10px
         border-radius 4px
         overflow-x hidden
         overflow-y auto
-        display flex
-        align-items stretch
-
 </style>
