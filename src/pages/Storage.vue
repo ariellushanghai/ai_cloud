@@ -147,10 +147,6 @@
         }), ['type', 'name']).filter((file) => file.name.toLowerCase().includes(String(this.input_file_filter).toLowerCase()))
       }
     },
-    // beforeRouteEnter(to, from, next) {
-    //   console.log('Storage beforeRouteEnter()');
-    //   return next();
-    // },
     mounted: function () {
       console.log('Storage mounted()');
       this.current_sub_path = '';
