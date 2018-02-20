@@ -44,13 +44,12 @@
   // @flow
   import API from '@/service/api'
   import {map, extend, assign, debounce} from 'lodash'
-  import moment from 'moment'
-  import 'moment/locale/zh-cn'
+  import format from 'date-fns/format'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_normal_user from 'material-design-icons/action/2x_web/ic_face_black_48dp.png'
   import icon_admin_user from 'material-design-icons/action/2x_web/ic_supervisor_account_black_48dp.png'
 
-  moment.locale('zh-cn');
+  const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
     name: 'UserManager',
@@ -90,7 +89,13 @@
     computed: {
       tableUsers: function () {
         return map(this.users_data, (v) => {
-          return assign(v, {'createDate_converted': moment(new Date(v.createDate)).format('LLL')})
+          return assign(v, {
+            'createDate_converted': format(
+              new Date(v.createDate),
+              'YYYY[年]MMMD[日]Ah[点]mm[分]',
+              {locale: zh_cn}
+            )
+          })
         }).filter((user) => user.userName.toLowerCase().includes(String(this.input_users_filter).toLowerCase()))
       }
     },

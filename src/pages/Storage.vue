@@ -39,13 +39,13 @@
   import API from '@/service/api'
   import filesize from 'filesize'
   import {compact, sortBy, map, debounce} from 'lodash'
-  import moment from 'moment'
-  import 'moment/locale/zh-cn'
+  import format from 'date-fns/format'
+
   import ElCard from "element-ui/packages/card/src/main";
   import icon_folder from '@/assets/images/folder-documents.svg'
   import icon_file from '@/assets/images/text-x-script.svg'
 
-  moment.locale('zh-cn');
+  const zh_cn = require('date-fns/locale/zh-CN');
 
   export default {
     name: 'Storage',
@@ -77,9 +77,11 @@
           // entry.icon = entry.type === 'd' ? 'el-icon-message' : 'el-icon-document';
           entry.icon = entry.type === 'd' ? 'icon_folder' : 'icon_file';
           entry.size_readable = entry.type === 'd' ? '' : filesize(entry.size, {base: 10, round: 0});
-          // entry.modified_time_readable = ;
-          // entry.modified_time_readable = moment(new Date(entry.modified_time)).format('YYYY/MM/DD HH:MM');
-          entry.modified_time_readable = moment(new Date(entry.modified_time)).format('LLL');
+          entry.modified_time_readable = format(
+            new Date(entry.modified_time),
+            'YYYY[年]MMMD[日]Ah[点]mm[分]',
+            {locale: zh_cn}
+          );
           return entry;
         }), ['type', 'name']).filter((file) => file.name.toLowerCase().includes(String(this.input_file_filter).toLowerCase()))
       }

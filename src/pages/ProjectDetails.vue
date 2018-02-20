@@ -98,13 +98,12 @@
   import ProjectMenu from '@/components/ProjectMenu'
   import {map, extend, assign, debounce} from 'lodash'
   import Clipboard from 'clipboard'
-  import * as moment from 'moment'
-  import 'moment/locale/zh-cn'
+  import format from 'date-fns/format'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_clippy from '@/assets/images/clippy.svg'
   import ElRow from "element-ui/packages/row/src/row";
 
-  moment.locale('zh-cn')
+  const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
     name: 'ProjectDetails',
@@ -151,7 +150,11 @@
       tableTrainings: function () {
         return map(this.trainings_data, (v) => {
           return assign(v, {
-            createDate_converted: moment(new Date(v.createDate)).format('LLL'),
+            createDate_converted: format(
+              new Date(v.createDate),
+              'YYYY[年]MMMD[日]Ah[点]mm[分]',
+              {locale: zh_cn}
+            ),
             status_zh: `${this.transProjStatus(v.status).zh}`
           })
         }).filter((train) => train.trainName.toLowerCase().includes(String(this.input_trainings_filter).toLowerCase()))
