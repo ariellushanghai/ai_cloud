@@ -1,6 +1,6 @@
 import types from './mutations_types'
 import API from '@/service/api'
-import _ from 'lodash'
+// import _ from 'lodash'
 
 // export const buildMenu = ({commit, state}, input) => {
 //   let result = {};

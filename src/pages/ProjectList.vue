@@ -1,44 +1,36 @@
 <template lang="pug">
     el-container.project-list
         el-main.project-list-main
-
-            // 弹出表单
-            el-dialog(title="新增项目" ":visible.sync"="dialog_add_proj_visible" width="25%" append-to-body center)
-                el-form(:model="form_add_proj")
-
-                    el-form-item(label="项目名称")
-                        el-input(v-model="form_add_proj.name" auto-complete="off")
-
-                    el-form-item(label="工作目录")
-                        el-input(v-model="form_add_proj.dirPath" auto-complete="off")
-
-                div.dialog-footer(slot="footer")
-                    el-button(@click="dialog_add_proj_visible = false") 取消
-                    el-button(@click="validateForm('form_add_proj')" type="primary") 确定
-
-            // 操作栏
-            el-card.card(:body-style="{padding:'15px'}" style="margin-bottom: 10px;" class="operations")
+            el-dialog(title='新增项目', :visible.sync='dialog_add_proj_visible', width='25%', append-to-body='', center='')
+                el-form(:model='form_add_proj')
+                    el-form-item(label='项目名称')
+                        el-input(v-model='form_add_proj.name', auto-complete='off')
+                    el-form-item(label='工作目录')
+                        el-input(v-model='form_add_proj.dirPath', auto-complete='off')
+                .dialog-footer(slot='footer')
+                    el-button(@click='dialog_add_proj_visible = false') 取消
+                    el-button(type='primary', @click="validateForm('form_add_proj')") 确定
+            el-card.card.operations(:body-style="{padding:'15px'}", style='margin-bottom: 10px;')
                 .button-group
-                    el-button(@click="handleAddProj" size="small" type="primary" icon="el-icon-circle-plus"
-                    style="margin-right: 10px;" ) 新增项目
-                    el-input( placeholder="过滤项目名" suffix-icon="el-icon-search" size="small" clearable v-model="input_proj_filter")
-
-            // 卡片区域
-            el-row.loading-target(type="flex" ":style"="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}")
-                el-col(:span="24" ":style"="{'overflow-y': 'auto','overflow-x': 'hidden'}")
-                    el-row.proj-container(type="flex" ":gutter"="10")
-                        el-col(v-for="proj in proj_list" ":xs"="12" ":sm"="8" ":md"="8" ":lg"="6" ":xl"="4" ":key"="proj.proId" ":style"="{height: 'auto','margin-bottom': '10px'}")
-
+                    el-button(size='small', type='primary', icon='el-icon-circle-plus', style='margin-right: 10px;', @click='handleAddProj')
+                        | 新增项目
+                    el-input(placeholder='过滤项目名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_proj_filter')
+            el-row.loading-target(type='flex', :style="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}")
+                el-col(:span='24', :style="{'overflow-y': 'auto','overflow-x': 'hidden'}")
+                    el-row.proj-container(type='flex', :gutter='10')
+                        el-col(v-for='proj in proj_list', :xs='12', :sm='8', :md='8', :lg='6', :xl='4', :key='proj.proId', :style="{height: 'auto','margin-bottom': '10px'}")
                             el-card.proj-card(:body-style="{padding:'15px'}")
-                                .card-header(slot="header")
+                                .card-header(slot='header')
                                     span {{proj.proName}}
-
-                                div(style="font-size: 13px;line-height: 30px;")
+                                div(style='font-size: 13px;line-height: 30px;')
                                     p 创建时间： {{proj.createDate_converted}}
                                 .button-group
-                                    el-button(@click="handleGoToProj(proj)" size="mini" plain icon="el-icon-back" style="color: #303133;") 训练列表
-                                    el-button(@click="handleEditProj(proj)" size="mini" type="primary" icon="el-icon-edit") 编辑
-                                    el-button(@click="handleDeleteProj(proj)" size="mini" type="danger" icon="el-icon-delete") 删除
+                                    el-button(size='mini', plain='', icon='el-icon-back', style='color: #303133;', @click='handleGoToProj(proj)')
+                                        | 训练列表
+                                    el-button(size='mini', type='primary', icon='el-icon-edit', @click='handleEditProj(proj)')
+                                        | 编辑
+                                    el-button(size='mini', type='danger', icon='el-icon-delete', @click='handleDeleteProj(proj)')
+                                        | 删除
 
 </template>
 
@@ -46,7 +38,7 @@
   import API from '@/service/api'
   import router from '@/router'
   import {map, extend, assign, debounce, sortBy} from 'lodash'
-  import * as moment from 'moment'
+  import moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
 

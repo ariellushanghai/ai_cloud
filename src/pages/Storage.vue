@@ -1,100 +1,37 @@
-<template>
-    <el-container class="storage">
-        <el-main class="storage-main">
-            <el-card :body-style="{padding:'15px',display:'flex','justify-content':'space-between'}"
-                     class="card operations">
-                <div class="button-group">
-                    <el-button @click="handleCd('..')" size="small" type="primary" icon="el-icon-arrow-up"
-                               :loading="folderIsLoading" :disabled="current_sub_path.trim() === ''">
-                        去父级目录
-                    </el-button>
-                    <el-button size="small" type="primary" icon="el-icon-circle-plus-outline"
-                               style="margin-right: 10px;">
-                        新建目录
-                    </el-button>
-                    <el-upload
-                            action="https://jsonplaceholder.typicode.com/posts/"
-                            multiple>
-                        <el-button size="small" type="primary" icon="el-icon-upload">上传文件</el-button>
-                    </el-upload>
-                </div>
-                <el-input
-                        placeholder="过滤文件名"
-                        suffix-icon="el-icon-search"
-                        size="small"
-                        clearable
-                        v-model="input_file_filter">
-                </el-input>
-            </el-card>
+<template lang="pug">
+    el-container.storage
+        el-main.storage-main
+            el-card.card.operations(:body-style="{padding:'15px',display:'flex','justify-content':'space-between'}")
+                .button-group
+                    el-button(@click="handleCd('..')", size='small', type='primary', icon='el-icon-arrow-up', :loading='folderIsLoading', :disabled="current_sub_path.trim() === ''")
+                        | 去父级目录
+                    el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;')
+                        | 新建目录
+                    el-upload(action='https://jsonplaceholder.typicode.com/posts/', multiple='')
+                        el-button(size='small', type='primary', icon='el-icon-upload') 上传文件
+                el-input(placeholder='过滤文件名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_file_filter')
+            el-card.card(:body-style="{padding:'15px'}")
+                .input-dir(style='font-family: monospace;')
+                    el-input(placeholder='输入子路径', v-model='current_sub_path', :disabled='folderIsLoading', clearable='')
+                        template(slot='prepend') {{home_path}}
+                        el-button(@click='handleCd()', slot='append', :disabled="folderIsLoading || current_sub_path.trim() === ''", icon='el-icon-d-arrow-right')
+            el-card.card.table-card(:body-style="{padding:'15px'}")
+                el-table.storage-table(:data='folderData', :height='table_height', stripe='', :row-class-name='tableRowClassName', @row-click='handleRowClick')
+                    el-table-column(label='名称', sort-by="['type','name']", sortable='')
+                        template(slot-scope='scope')
+                            // <i :class="scope.row.icon"></i>
+                            img.icn(v-if="scope.row.icon === 'icon_folder'", :src='icon_folder')
+                            img.icn(v-if="scope.row.icon === 'icon_file'", :src='icon_file')
+                            span {{ scope.row.name }}
+                    el-table-column(prop='modified_time_readable', label='修改日期', width='250', :sort-method='sortModifiedTime', sortable='')
+                    el-table-column(prop='size_readable', label='大小', width='100', :sort-method='sortSize', sortable='')
+                    el-table-column(label='操作', width='180')
+                        template(slot-scope='scope')
+                            el-button(size='mini', type='danger', icon='el-icon-delete', @click='handleDeleteFile(scope.$index, scope.row)')
+                                | 删除
+                            el-button(v-if="scope.row.type == 'f'", size='mini', plain='', icon='el-icon-download', @click='handleDownloadFile(scope.$index, scope.row)')
+                                | 下载
 
-            <el-card :body-style="{padding:'15px'}" class="card">
-                <div class="input-dir" style="font-family: monospace;">
-                    <el-input placeholder="输入子路径" v-model="current_sub_path" :disabled="folderIsLoading" clearable>
-                        <template slot="prepend">{{home_path}}</template>
-                        <el-button @click="handleCd()" slot="append"
-                                   :disabled="folderIsLoading || current_sub_path.trim() === ''"
-                                   icon="el-icon-d-arrow-right">
-
-                        </el-button>
-                    </el-input>
-                </div>
-            </el-card>
-
-            <el-card :body-style="{padding:'15px'}" class="card table-card">
-                <el-table
-                        :data="folderData"
-                        :height="table_height"
-                        stripe
-                        :row-class-name="tableRowClassName"
-                        @row-click="handleRowClick"
-                        class="storage-table">
-                    <el-table-column
-                            label="名称"
-                            sort-by="['type','name']"
-                            sortable>
-                        <template slot-scope="scope">
-                            <!--<i :class="scope.row.icon"></i>-->
-                            <img v-if="scope.row.icon === 'icon_folder'" class="icn" :src="icon_folder"/>
-                            <img v-if="scope.row.icon === 'icon_file'" class="icn" :src="icon_file"/>
-                            <span>{{ scope.row.name }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="modified_time_readable"
-                            label="修改日期"
-                            width="250"
-                            :sort-method="sortModifiedTime"
-                            sortable>
-                    </el-table-column>
-                    <el-table-column
-                            prop="size_readable"
-                            label="大小"
-                            width="100"
-                            :sort-method="sortSize"
-                            sortable>
-                    </el-table-column>
-                    <el-table-column label="操作"
-                                     width="180">
-                        <template slot-scope="scope">
-                            <el-button
-                                    size="mini"
-                                    type="danger"
-                                    icon="el-icon-delete"
-                                    @click="handleDeleteFile(scope.$index, scope.row)">删除
-                            </el-button>
-                            <el-button
-                                    v-if="scope.row.type == 'f'"
-                                    size="mini"
-                                    plain
-                                    icon="el-icon-download"
-                                    @click="handleDownloadFile(scope.$index, scope.row)">下载
-                            </el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-            </el-card>
-        </el-main>
-    </el-container>
 </template>
 
 <script>
@@ -102,7 +39,7 @@
   import API from '@/service/api'
   import filesize from 'filesize'
   import {compact, sortBy, map, debounce} from 'lodash'
-  import * as moment from 'moment'
+  import moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_folder from '@/assets/images/folder-documents.svg'

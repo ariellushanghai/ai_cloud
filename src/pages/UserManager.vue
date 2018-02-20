@@ -1,51 +1,42 @@
 <template lang="pug">
-    el-container.UserManager(v-loading="isLoading")
+    el-container.UserManager(v-loading='isLoading')
         el-main.user-manager-main
-            // 弹出表单
-            el-dialog(title="新增用户" ":visible.sync"="dialog_add_user_visible" width="30%" append-to-body)
-                el-form(:model="form_add_user" ":rules"="rules" ref="form_add_user" status-icon label-position="top" size="small")
-                    el-form-item(label="用户名" prop="userName")
-                        el-input(v-model="form_add_user.userName")
-                    el-form-item(label="角色" prop="role")
-                        el-select(v-model="form_add_user.role" placeholder="请选择用户角色" style="width: 100%;")
-                            el-option(v-for="role in roles" ":label"="role.name" ":key"="role.v"
-                            ":value"="role.v")
-                .dialog-footer(slot="footer")
-                    el-button("@click"="cancelForm('form_add_user')") 取消
-                    el-button(type="primary" "@click"="validateForm('form_add_user')" icon="el-icon-upload2" ":loading"="isSendingForm") 提交
-
-            // 操作栏
-            el-card.card(class="operations" ":body-style"="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
+            el-dialog(title='新增用户', :visible.sync='dialog_add_user_visible', width='30%', :append-to-body='true')
+                el-form(:model='form_add_user', :rules='rules', ref='form_add_user', :status-icon='true', label-position='top', size='small')
+                    el-form-item(label='用户名', prop='userName')
+                        el-input(v-model='form_add_user.userName')
+                    el-form-item(label='角色', prop='role')
+                        el-select(v-model='form_add_user.role', placeholder='请选择用户角色', style='width: 100%;')
+                            el-option(v-for='role in roles', :label='role.name', :key='role.v', :value='role.v')
+                .dialog-footer(slot='footer')
+                    el-button(@click="cancelForm('form_add_user')") 取消
+                    el-button(type='primary', @click="validateForm('form_add_user')", icon='el-icon-upload2', :loading='isSendingForm')
+                        | 提交
+            el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
                 .button-group
-                    el-button(size="small" type="primary" icon="el-icon-circle-plus-outline" style="margin-right: 10px;" "@click"="handleAddUser") 新增用户
-                el-input(placeholder="过滤用户名" suffix-icon="el-icon-search" size="small" clearable v-model="input_users_filter")
-
-            // 表格容器
-            el-card.card(":body-style"="{padding:'15px'}")
-                el-table.user-table(:data="tableUsers" ":height"="table_height" stripe border)
-
-                    el-table-column( prop="userName" label="用户名" sortable)
-                        template(slot-scope="scope")
-                            el-popover(trigger="hover" placement="right")
+                    el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddUser')
+                        | 新增用户
+                el-input(placeholder='过滤用户名', suffix-icon='el-icon-search', size='small', :clearable='true', v-model='input_users_filter')
+            el-card.card(:body-style="{padding:'15px'}")
+                el-table.user-table(:data='tableUsers', :height='table_height', :stripe='true', :border='true')
+                    el-table-column(prop='userName', label='用户名', :sortable='true')
+                        template(slot-scope='scope')
+                            el-popover(trigger='hover', placement='right')
                                 span ID: {{ scope.row.userId }}
-                                div(slot="reference") {{ scope.row.userName }}
-
-                    el-table-column( prop="role" label="角色" align="center" width="120px" sortable)
-                        template(slot-scope="scope")
-                            el-tag(v-if="scope.row.role === 'admin'" type="warning")
-                                img(class=['user-avatar', 'admin'] ":src"="icon_admin_user")
-                                span 管理员
-                            el-tag(v-if="scope.row.role === 'normal'" type="info")
-                                img(class=['user-avatar', 'normal'] ":src"="icon_normal_user")
-                                span 普通用户
-
-                    el-table-column( prop="createDate_converted" label="创建时间" width="220" ":sort-method"="sortCreateDate" sortable)
-
-                    el-table-column( prop="parentDir" label="主目录")
-
-                    el-table-column(prop="training" label="训练目录")
-
-                    el-table-column(prop="inference" label="部署目录")
+                                div(slot='reference')
+                                    | {{ scope.row.userName }}
+                    el-table-column(prop='role', label='角色', align='center', width='120px', :sortable='true')
+                        template(slot-scope='scope')
+                            el-tag(v-if="scope.row.role === 'admin'", type='warning')
+                                img.user-avatar.admin(:src='icon_admin_user')
+                                | 管理员
+                            el-tag(v-if="scope.row.role === 'normal'", type='info')
+                                img.user-avatar.normal(:src='icon_normal_user')
+                                | 普通用户
+                    el-table-column(prop='createDate_converted', label='创建时间', width='220', :sort-method='sortCreateDate', :sortable='true')
+                    el-table-column(prop='parentDir', label='主目录')
+                    el-table-column(prop='training', label='训练目录')
+                    el-table-column(prop='inference', label='部署目录')
 
 </template>
 
@@ -53,7 +44,7 @@
   // @flow
   import API from '@/service/api'
   import {map, extend, assign, debounce} from 'lodash'
-  import * as moment from 'moment'
+  import moment from 'moment'
   import 'moment/locale/zh-cn'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_normal_user from 'material-design-icons/action/2x_web/ic_face_black_48dp.png'
