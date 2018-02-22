@@ -43,7 +43,7 @@
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, extend, assign, debounce} from 'lodash'
+  import {map, extend, assign, debounce, isEmpty} from 'lodash'
   import format from 'date-fns/format'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_normal_user from 'material-design-icons/action/2x_web/ic_face_black_48dp.png'
@@ -64,6 +64,22 @@
         users_data: [],
         dialog_add_user_visible: false,
         roles: [{'v': 'admin', 'name': '管理员'}, {'v': 'normal', 'name': '普通用户'}],
+        form_actions: {
+          add_user: {
+            api_name: 'addUser',
+            display_name: '新增用户',
+            form_name: 'form_add_user'
+          }, modify_user: {
+            api_name: '',
+            display_name: '修改用户',
+            form_name: ''
+          }, del_user: {
+            api_name: '',
+            display_name: '删除用户',
+            form_name: ''
+          }
+        },
+        operation: 'add_user',
         tmpl_form_add_user: {
           userName: '',
           role: ''
@@ -90,6 +106,7 @@
       tableUsers: function () {
         return map(this.users_data, (v) => {
           return assign(v, {
+            'userName': String(v.userName),
             'createDate_converted': format(
               new Date(v.createDate),
               'YYYY[年]MMMD[日]Ah[点]mm[分]',
@@ -121,27 +138,25 @@
           text: '正在获取数据。。。',
           background: 'rgba(250,235,215,0.5)'
         });
-        setTimeout(() => {
+        return API.getUsers().then(res => {
+          this.users_data = res;
           loading.close();
-          return API.getUsers().then(res => {
-            this.users_data = res;
-            loading.close();
-          }, err => {
-            console.log(`err: `, err);
-            loading.close();
-            this.$notify({
-              message: `${err}`,
-              type: 'error',
-              duration: 0
-            });
+        }, err => {
+          console.error(`err: `, err);
+          loading.close();
+          this.$notify({
+            message: `${err.message}`,
+            type: 'error',
+            duration: 0
           });
-        }, 500);
+        });
       },
       sortCreateDate(a: number, b: number): number {
         return Number(a.createDate) - Number(b.createDate);
       },
       handleAddUser() {
         console.log(`handleAddUser()`);
+        this.operation = 'add_user';
         this.form_add_user = extend({}, this.tmpl_form_add_user);
         this.dialog_add_user_visible = true;
       },
@@ -161,34 +176,31 @@
             // alert('submit!');
             return this.postForm(this.form_add_user);
           } else {
-            console.log('error submit!!');
+            console.error('error submit!!');
             return false;
           }
         });
       },
       postForm(data) {
-        console.log(`postForm(${data})`);
-        // let operation = this.operation === '新增' ? 'add用户' : 'edit用户';
-        // API[operation](data).then(res => {
-        //   this.$notify({
-        //     message: `${this.operation}用户成功`,
-        //     type: 'success',
-        //     duration: 2000
-        //   });
-        //   this.isSendingForm = false;
-        //   if (this.operation === '新增') {
-        //     this.form = _.extend(this.form, this.template_of_用户);
-        //   }
-        //
-        // }, err => {
-        //   console.log(`err: `, err);
-        //   this.$notify({
-        //     message: `${err}`,
-        //     type: 'error',
-        //     duration: 0
-        //   });
-        //   this.isSendingForm = false;
-        // });
+        console.log(`postForm(): `, data);
+        API[this.form_actions[this.operation].api_name](data).then(res => {
+          this.$notify({
+            message: `${this.form_actions[this.operation].display_name}成功`,
+            type: 'success',
+            duration: 2000
+          });
+          this.isSendingForm = false;
+          this.cancelForm(this.form_actions[this.operation].form_name);
+          return this.fetchData();
+        }, err => {
+          console.log(`err: `, err);
+          this.$notify({
+            message: `${err.message}`,
+            type: 'error',
+            duration: 0
+          });
+          this.isSendingForm = false;
+        });
       }
     },
     components: {ElCard}

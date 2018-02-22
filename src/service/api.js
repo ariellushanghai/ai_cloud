@@ -1,7 +1,7 @@
 import network from '@/service/network'
 
 export default {
-  // 文档地址:  http://47.96.180.76:8081/swagger-ui.html
+  // 文档地址:  http://10.25.81.230:31082/swagger-ui.html
   // 根据userName验证用户是否存在及权限
   loginAICloud(userName) {
     return network.get('loginAICloud.json');
@@ -41,12 +41,12 @@ export default {
   },
   // 根据用户路径获取目录及文件列表
   ls(path) {
-    return network.get('ls.json');
-    // return network.get(`/file`, {
-    //   params: {
-    //     path: path
-    //   }
-    // });
+    // return network.get('ls.json');
+    return network.get(`/file`, {
+      params: {
+        path: path
+      }
+    });
   },
   // 获取用户信息
   getUserInfo() {
@@ -54,15 +54,20 @@ export default {
   },
   // admin角色用户可以获取用户列表
   getUsers() {
-    return network.get('users.json');
-    // return network.get('/users');
+    // return network.get('users.json');
+    return network.get('/users');
   },
   // admin角色用户可以新增用户
   addUser(user) {
-    return network.get('users.json');
-    // return network.post(`/user`, {
-    //   params: user
-    // });
+    // return network.get('users.json');
+    return network.post(`/user`, user);
+  },
+  // admin角色用户可以删除用户
+  delUser(user) {
+    // return network.get('users.json');
+    return network.delete(`/user`, {
+      params: {userName: user.userName}
+    });
   },
   // 训练项目List
   getProjects(userName) {

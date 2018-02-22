@@ -26,14 +26,14 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   res => {
-    if (Number(res.status) === 200) {
+    if (Number(res.status) === 200 && res.data) {
       if (res.data.result === 'success') {
         return res.data.data;
       } else if (res.data.result === 'error') {
         console.error('response.err: ', res.data.message);
-        return Promise.reject(res);
+        return Promise.reject(res.data);
       } else {
-        return Promise.reject(res);
+        return Promise.reject(res.data);
       }
     } else if (Number(res.status) === 401) {
       console.log('未登陆', res);
@@ -47,6 +47,9 @@ axios.interceptors.response.use(
   },
   err => {
     console.error('response.err: ', err);
+    if (err.data) {
+      Promise.reject(err.data);
+    }
     return Promise.reject(err);
   }
 );

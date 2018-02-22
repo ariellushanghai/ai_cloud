@@ -70,6 +70,9 @@
       home_path() {
         return `${this.$store.state.user.parentDir}/`;
       },
+      full_path() {
+        return this.home_path + this.current_sub_path;
+      },
       folderData() {
         return sortBy(map(this.current_path_content.children, (entry) => {
           // console.log(entry);
@@ -89,7 +92,7 @@
     mounted: function () {
       console.log('Storage mounted()');
       this.current_sub_path = '';
-      this.ls(this.current_sub_path);
+      this.ls(this.full_path);
       this.table_height = this.resizeHandler();
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
@@ -107,7 +110,7 @@
       },
       ls(path) {
         this.current_path_content.name = path;
-        API.ls().then(res => {
+        API.ls(path).then(res => {
           this.current_path_content.children = res;
           // loading.close();
         }, err => {
@@ -135,17 +138,7 @@
           }
         }
         console.log(this.home_path + sub_path_arr.join('/'));
-        this.folderIsLoading = true;
-        let loading = this.$loading({
-          target: '.storage-table',
-          lock: true,
-          text: '正在获取数据。。。',
-          background: 'rgba(255,255,255,0.5)'
-        });
-        setTimeout(() => {
-          loading.close();
-          this.folderIsLoading = false;
-        }, 300);
+
         if (!dir) {
           console.log(this.home_path + sub_path_arr.join('/'));
           this.current_sub_path = sub_path_arr.join('/');
@@ -158,6 +151,20 @@
           sub_path_arr.pop();
           this.current_sub_path = sub_path_arr.join('/');
         }
+
+        this.folderIsLoading = true;
+        let loading = this.$loading({
+          target: '.storage-table',
+          lock: true,
+          text: '正在获取数据。。。',
+          background: 'rgba(255,255,255,0.5)'
+        });
+        setTimeout(() => {
+          loading.close();
+          this.folderIsLoading = false;
+        }, 300);
+        return this.ls(this.full_path);
+
       },
       tableRowClassName({row, rowIndex}) {
         return row.type === 'd' ? 'folder-row' : 'file-row';

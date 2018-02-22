@@ -4,10 +4,10 @@
   "result": "success",
   "data": {
     "userId": "1a526ca923b24072a9202f210ca3c0a8",
-    "userName": "lijunyong",
-    "parentDir": "/ai-cloud/lijunyong",
-    "training": "/ai-cloud/lijunyong/train",
-    "inference": "/ai-cloud/lijunyong/inference",
+    "userName": "LUHUAN_ADMIN",
+    "parentDir": "/ai-cloud/LUHUAN_ADMIN",
+    "training": "/ai-cloud/LUHUAN_ADMIN/train",
+    "inference": "/ai-cloud/LUHUAN_ADMIN/inference",
     "role": "admin",
     "resource": [
       {
