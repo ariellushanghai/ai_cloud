@@ -3,11 +3,13 @@
         el-main.storage-main
             el-card.card.operations(:body-style="{padding:'15px',display:'flex','justify-content':'space-between'}")
                 .button-group
-                    el-button(@click="handleCd('..')", size='small', type='primary', icon='el-icon-arrow-up', :loading='folderIsLoading', :disabled="current_sub_path.trim() === ''")
+                    el-button(@click="handleCd('..')", size='small', type='primary', icon='el-icon-arrow-up', :loading='folderIsLoading', :disabled="current_sub_path.trim() === ''", style='margin-right: 10px;')
                         | 去父级目录
-                    el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;')
-                        | 新建目录
-                    el-upload(action='https://jsonplaceholder.typicode.com/posts/', multiple='')
+
+                    <!--el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;')-->
+                    <!--| 新建目录-->
+
+                    el-upload(:action='full_path_upload_to', :on-success='handleFileUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='false', :multiple='false')
                         el-button(size='small', type='primary', icon='el-icon-upload') 上传文件
                 el-input(placeholder='过滤文件名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_file_filter')
             el-card.card(:body-style="{padding:'15px'}")
@@ -73,6 +75,10 @@
       full_path() {
         return this.home_path + this.current_sub_path;
       },
+      full_path_upload_to() {
+        console.log(`full_path_upload_to: ${baseURL}/upload?path=${this.full_path}` + (this.current_sub_path ? '/' : ''));
+        return `${baseURL}/upload?path=${encodeURIComponent(this.full_path)}`;
+      },
       folderData() {
         return sortBy(map(this.current_path_content.children, (entry) => {
           // console.log(entry);
@@ -97,7 +103,6 @@
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
       }, 300);
-      // this.refreshAll();
     },
     beforeDestroy: function () {
       window.onresize = undefined;
@@ -185,108 +190,91 @@
         // this.$emit('rowClick', row);
       },
       handleDownloadFile() {
-        console.log(`${baseURL}api/v1/download?path=${this.home_path}${this.current_sub_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`);
-        return window.open(`${baseURL}api/v1/download?path=${this.home_path}${this.current_sub_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`, '_blank');
+        console.log(`handleDownloadFile() => ${baseURL}/download?path=${this.full_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`);
+        return window.open(`${baseURL}/download?path=${this.full_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`, '_blank');
       },
       handleDeleteFile() {
-        console.log(arguments[1].type);
+        console.log(`handleDeleteFile(${arguments[1].name})`);
         this.$confirm(`继续删除${arguments[1].name}?`, '提示', {
-          confirmButtonText: '删除',
+          confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }).then(() => {
+        }).then(() => API.deleteFile(`${this.full_path}` + (this.current_sub_path ? '/' : '') + `${arguments[1].name}`)).then(() => {
           this.$message({
             type: 'success',
-            message: '已删除'
+            message: '删除成功!',
+            duration: 2000
           });
+          return this.ls(this.full_path);
         }).catch(() => {
           this.$message({
             type: 'info',
-            message: '已取消'
+            message: '删除已取消'
           });
+          return this.ls(this.full_path);
         });
       },
-      refreshAll() {
-        console.log('refreshAll()');
-        this.folderIsLoading = true;
-        // this.fetchData('all').then(res => {
-        //   this.$store.dispatch('buildTree', res);
-        //   this.$notify({
-        //     message: `数据已更新`,
-        //     type: 'success',
-        //     duration: 2000
-        //   });
-        //   this.folderIsLoading = false;
-        //   this.timestamp_data_fetched = (new Date()).toLocaleString();
-        // }, err => {
-        //   console.log(`err: `, err);
-        //   this.$notify({
-        //     message: `${err}`,
-        //     type: 'error',
-        //     duration: 0
-        //   });
-        //   this.folderIsLoading = false;
-        // });
+      handleFileUploadedSuccess(response, file, fileList) {
+        console.log(response, file, fileList);
+        this.$message({
+          type: 'success',
+          message: `上传${file.name}成功!`
+        });
+        return this.ls(this.full_path);
+      },
+      handleFileUploadedFailed(err, file, fileList) {
+        return this.$message.error(`上传${file.name}失败!`)
       }
     },
     components: {ElCard}
   }
 </script>
 
-<style scoped>
-    .storage {
-        background-color: antiquewhite;
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
+<style lang="stylus" scoped>
+    .storage
+        background-color antiquewhite
+        width 100%
+        height 100%
+        position relative
 
-    .storage-main {
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
-    }
+    .storage-main
+        display flex
+        flex-direction column
+        padding 10px
+        width 100%
+        height 100%
+        position relative
+        overflow hidden
 
-    .button-group {
-        display: flex;
-    }
+    .button-group
+        display flex
 
-    .card {
-        margin-bottom: 10px;
-        flex-shrink: 0;
-    }
+    .card
+        margin-bottom 10px
+        flex-shrink 0
 
-    .card:last-of-type {
-        margin-bottom: 0;
-        flex-shrink: 1;
-    }
+    .card:last-of-type
+        margin-bottom 0
+        flex-shrink 1
 
-    .card.operations .el-input {
-        width: 200px;
-    }
+    .card.operations .el-input
+        width 200px
 
-    .storage-table {
-        padding: 0;
-        width: 100%;
-    }
+    .storage-table
+        padding 0
+        width 100%
 
-    .storage-table /deep/ .folder-row {
-        cursor: pointer;
-    }
+    .storage-table /deep/ .folder-row
+        cursor pointer
 
-    .icn {
-        width: 20px;
-        height: auto;
-        vertical-align: text-bottom;
-        user-select: none;
-        margin-right: 0.5em;
-    }
+    .icn
+        width 20px
+        height auto
+        vertical-align text-bottom
+        user-select none
+        margin-right 0.5em
 
-    .input-dir /deep/ .el-input__inner {
-        font-family: monospace;
-    }
+    .input-dir /deep/ .el-input__inner
+        font-family monospace
+
 </style>

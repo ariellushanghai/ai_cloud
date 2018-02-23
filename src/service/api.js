@@ -12,18 +12,9 @@ export default {
     return network.get('logoutAICloud.json');
     // return network.post(`/signout`);
   },
-  // 用户下载文件
-  downloadFile(path) {
-    return network.get('logo.jpg');
-    // return network.get(`/download`, {
-    //   params: {
-    //     path: path
-    //   }
-    // });
-  },
   // 用户上传文件
   uploadFile(path) {
-    return network.get('logo.jpg');
+
     // return network.post(`/upload`, {
     //   params: {
     //     path: path
@@ -32,12 +23,12 @@ export default {
   },
   // 根据用户路径删除文件，不能删除有文件的目录
   deleteFile(path) {
-    return network.get('deleteFileFailure.json');
-    // return network.delete(`/file`, {
-    //   params: {
-    //     path: path
-    //   }
-    // });
+    // return network.get('deleteFileFailure.json');
+    return network.delete(`/file`, {
+      params: {
+        path: path
+      }
+    });
   },
   // 根据用户路径获取目录及文件列表
   ls(path) {

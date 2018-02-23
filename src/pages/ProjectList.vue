@@ -146,12 +146,13 @@
       },
       handleDeleteProj(proj) {
         console.log(`handleDeleteProj()`, proj);
-        this.$confirm(`<p>您确定删除<strong>${proj.proName}`, '提示', {
+        this.$confirm(`<p>您确定删除<strong>${proj.proName}</strong></p>`, '提示', {
           dangerouslyUseHTMLString: true,
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+
           this.$message({
             type: 'success',
             message: '删除成功!'
