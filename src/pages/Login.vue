@@ -40,7 +40,12 @@
           ]
         },
         isLoading: false,
-        styleObj: {'background-image': `url(${require('@/assets/images/masthead_dogs.svg')})`}
+        styleObj: {
+          'background-image': `url(${require('@/assets/images/cloud_w.png')})`,
+          'background-position': 'center',
+          'background-color': '#87CEEB'
+        }
+        // styleObj: {'background-image': `url(${require('@/assets/images/ic_wb_cloudy_48px.svg')})`}
       }
     },
     methods: {
