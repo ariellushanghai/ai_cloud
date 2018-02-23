@@ -2,7 +2,7 @@
     <el-row type="flex" class="row">
         <el-col :sm="3" :md="3" :lg="2" :xl="2">
             <router-link :to="{path: '/'}" class="link col">
-                <img src="../assets/images/logo.jpg" class="logo"/>
+                <img :src="logo_file" class="logo"/>
             </router-link>
         </el-col>
         <el-col :sm="3" :md="3" :lg="2" :xl="2" class="title">
@@ -11,13 +11,9 @@
         <el-col :sm="15" :md="15" :lg="17" :xl="17">
             <el-menu mode="horizontal" background-color="#333644" text-color="#fff" active-text-color="#EA5505"
                      :default-active="defaultActive" router>
-                <el-menu-item v-for="(menu, idx) in menuItems" :index="'/'+menu.route" :key="menu.name">{{menu.name}}
+                <el-menu-item v-for="(menu, idx) in menuItems" :index="'/'+menu.route" :key="menu.name">
+                    {{menu.name}}
                 </el-menu-item>
-                <!--<el-menu-item index="/overview">概览</el-menu-item>-->
-                <!--<el-menu-item index="/project">TensorFlow 模型训练</el-menu-item>-->
-                <!--<el-menu-item index="/deployment">上线部署</el-menu-item>-->
-                <!--<el-menu-item index="/solution">算法库</el-menu-item>-->
-                <!--<el-menu-item index="/storage">数据存储</el-menu-item>-->
             </el-menu>
         </el-col>
         <el-col :span="3" class="col-user">
@@ -27,7 +23,8 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                    <el-dropdown-item command="changePasswd">修改密码</el-dropdown-item>
+                    <el-dropdown-item command="logout">退出</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </el-col>
@@ -36,11 +33,35 @@
 
 <script>
   import API from '@/service/api'
+  import logo_file from '@/assets/images/logo.jpg'
 
   export default {
     name: 'GlobalHeader',
     data() {
-      return {}
+      return {
+        logo_file,
+        tmpl_form_change_passwd: {
+          userName: '',
+          oldPassword: '',
+          newPassword: ''
+        },
+        form_change_passwd: {
+          userName: '',
+          oldPassword: '',
+          newPassword: ''
+        },
+        rules: {
+          userName: [
+            {type: "string", required: true, message: '请输入用户名', trigger: 'blur'}
+          ],
+          oldPassword: [
+            {type: "string", required: true, message: '请输入密码', trigger: 'blur'}
+          ],
+          newPassword: [
+            {type: "string", required: true, message: '两次密码输入不一致', trigger: 'blur'}
+          ]
+        }
+      }
     },
     computed: {
       defaultActive() {
@@ -61,19 +82,27 @@
     },
     mounted() {
       console.log(`GlobalHeader mounted()`);
-      this.fetchData();
     },
     methods: {
-      fetchData() {
-        let cm_user_name = 'LUHUAN994';
-        setTimeout(() => {
-          API.loginAICloud(cm_user_name).then(res => {
-            this.$store.commit('SAVE_USER_INFO', res);
-          });
-        }, 3000);
+      logoutAICloud() {
+        return API.logoutAICloud().then(res => {
+          console.log(`logout success!!`);
+          this.$store.commit('LOGOUT');
+          return this.$router.replace({name: 'login'})
+        });
+      },
+      showForm() {
+
+        this.$message(`成功修改密码`);
       },
       handleCommand(command) {
-        this.$message('click on item ' + command);
+        if (command === 'logout') {
+          return this.logoutAICloud();
+        }
+        if (command === 'changePasswd') {
+          return this.showForm();
+        }
+
       }
     }
   }

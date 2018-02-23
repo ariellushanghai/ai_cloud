@@ -56,8 +56,8 @@
     },
     data: function () {
       return {
-        icon_folder: icon_folder,
-        icon_file: icon_file,
+        icon_folder,
+        icon_file,
         current_sub_path: '',
         current_path_content: {
           name: '',
