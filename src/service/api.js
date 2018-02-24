@@ -14,7 +14,7 @@ export default {
   },
   // 修改密码
   changePasswd(obj) {
-    return network.post(`/signout`, obj);
+    return network.post(`/user/password`, obj);
   },
 
   // 根据用户路径删除文件，不能删除有文件的目录
@@ -54,30 +54,30 @@ export default {
   },
   // 训练项目List
   getProjects(userName) {
-    return network.get('getProjects.json');
-    // return network.get(`/projects/${userName}`);
+    console.log(`getProjects(${userName})`)
+    // return network.get('getProjects.json');
+    return network.get(`/projects/${userName}`);
   },
   // 新增训练项目
   addProject(obj) {
-    return network.get('addProject.json');
-    // return network.post(`/projects`, {
-    //   params: {
-    //     userName: 'userName',
-    //     proName: 'newProj',
-    //     dirPath: 'dirPath',
-    //     type: '00'
-    //   }
-    // });
+    // return network.get('addProject.json');
+    return network.post(`/projects`, obj);
+  },
+  // 删除训练项目
+  delProject(proId) {
+    return network.delete(`/projects/${proId}`);
   },
   // 项目对应训练List
-  getTrains(userName) {
-    return network.get('getTrains.json');
-    // return network.get(`/projects/${userName}`);
+  getTrains(obj) {
+    // return network.get('getTrains.json');
+    return network.get(`/trains`, {
+      params: obj
+    });
   },
   // 获取基础镜像列表
   getImages() {
-    return network.get('getImages.json');
-    // return network.get(`/projects/images`);
+    // return network.get('getImages.json');
+    return network.get(`/images`);
   },
 
   baseUploadToAddr(path) {

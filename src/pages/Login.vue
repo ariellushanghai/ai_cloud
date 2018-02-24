@@ -1,8 +1,8 @@
 <template lang="pug">
-    el-container.login(v-loading='isLoading', :style='styleObj')
+    el-container.login(:style='styleObj')
         el-main.login-main
             el-card(:body-style="{padding:'15px'}")
-                el-form(:model='form_login', :rules="rules", ref='form_login', size='small')
+                el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading')
                     el-form-item(label='用户名', prop='userName')
                         el-input(v-model='form_login.userName')
                     el-form-item(label='密码', prop='password')
@@ -14,6 +14,7 @@
 
 <script>
   import API from '@/service/api'
+  import icon_cloud from '@/assets/images/cloud_w.png'
 
   export default {
     name: 'Login',
@@ -23,6 +24,7 @@
 
     data: function () {
       return {
+        icon_cloud,
         tmpl_form_login: {
           userName: '',
           password: ''
@@ -41,11 +43,10 @@
         },
         isLoading: false,
         styleObj: {
-          'background-image': `url(${require('@/assets/images/cloud_w.png')})`,
+          'background-image': `url(${icon_cloud})`,
           'background-position': 'center',
           'background-color': '#87CEEB'
         }
-        // styleObj: {'background-image': `url(${require('@/assets/images/ic_wb_cloudy_48px.svg')})`}
       }
     },
     methods: {
@@ -60,10 +61,12 @@
               return this.$router.push({name: 'project'})
             }, err => {
               this.isLoading = false;
+              console.error(err);
+              this.resetForm('form_login');
               this.$notify({
-                message: `${err}`,
+                message: `${err.message}`,
                 type: 'error',
-                duration: 0
+                duration: 2000
               });
             });
           } else {
@@ -102,6 +105,7 @@
         width 400px
         position relative
         overflow hidden
+        z-index 10000
 
     .btn-grp
         display flex

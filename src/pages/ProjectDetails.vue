@@ -216,21 +216,18 @@
           text: '正在获取数据。。。',
           background: 'rgba(255,255,255,1)'
         });
-        setTimeout(() => {
+        return API.getTrains().then(res => {
+          this.trainings_data = res;
           loading.close();
-          return API.getTrains().then(res => {
-            this.trainings_data = res;
-            loading.close();
-          }, err => {
-            console.log(`err: `, err);
-            loading.close();
-            this.$notify({
-              message: `${err}`,
-              type: 'error',
-              duration: 0
-            });
+        }, err => {
+          console.log(`err: `, err);
+          loading.close();
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
           });
-        }, 500);
+        });
       },
       sortCreateDate(a: number, b: number): number {
         return Number(a.createDate) - Number(b.createDate);

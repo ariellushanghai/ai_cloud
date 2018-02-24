@@ -12,11 +12,13 @@
                     el-button(@click="cancelForm('form_add_user')") 取消
                     el-button(type='primary', @click="validateForm('form_add_user')", icon='el-icon-upload2', :loading='isSendingForm')
                         | 提交
+
             el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
                 .button-group
                     el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddUser')
                         | 新增用户
                 el-input(placeholder='过滤用户名', suffix-icon='el-icon-search', size='small', :clearable='true', v-model='input_users_filter')
+
             el-card.card(:body-style="{padding:'15px'}")
                 el-table.user-table(:data='tableUsers', :height='table_height', :stripe='true', :border='true')
                     el-table-column(prop='userName', label='用户名', :sortable='true')

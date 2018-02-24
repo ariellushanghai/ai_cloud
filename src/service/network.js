@@ -36,21 +36,21 @@ axios.interceptors.response.use(
         return Promise.reject(res.data);
       }
     } else if (Number(res.status) === 401) {
-      console.log('未登陆', res);
+      console.error('未登陆', res);
       store.commit('LOGOUT');
       location.replace(loginURL + encodeURIComponent(location.origin));
       return Promise.reject(res);
     } else {
-      console.log('response: ', res);
+      console.error('response: ', res);
       return Promise.reject(res);
     }
   },
   err => {
-    console.error('response.err: ', err);
-    if (err.data) {
-      Promise.reject(err.data);
+    console.log('response.err: ', JSON.stringify(err));
+    if (err.response.data) {
+      return Promise.reject(err.response.data);
     }
-    return Promise.reject(err);
+    return Promise.reject(err.response);
   }
 );
 

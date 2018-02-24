@@ -42,6 +42,7 @@
 
 <style lang="stylus" scoped>
     .vertical-menu
+        width 100%
         overflow-x hidden
         overflow-y auto
         border 1px solid #ebeef5
