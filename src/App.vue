@@ -1,15 +1,10 @@
-<template>
-    <div id="app">
-        <el-container class="container">
-            <el-header class="header">
-                <global-header></global-header>
-            </el-header>
-            <el-container id="router_view">
-                <router-view/>
-            </el-container>
-        </el-container>
-
-    </div>
+<template lang="pug">
+    #app
+        el-container.container
+            el-header.header
+                global-header(:invisiable='invisiable')
+            el-container#router_view
+                router-view/
 </template>
 
 <script>
@@ -21,6 +16,11 @@
     metaInfo: {
       title: 'AI☁️',
       titleTemplate: '%s-'
+    },
+    computed: {
+      invisiable() {
+        return !this.$store.getters.visiable_global_header;
+      }
     },
     components: {
       GlobalHeader

@@ -1,20 +1,26 @@
 <template lang="pug">
-    el-container.login(:style='styleObj')
-        el-main.login-main
-            el-card(:body-style="{padding:'15px'}")
-                el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading')
-                    el-form-item(label='用户名', prop='userName')
-                        el-input(v-model='form_login.userName')
-                    el-form-item(label='密码', prop='password')
-                        el-input(v-model='form_login.password', type='password', auto-complete='off')
-                    el-form-item.btn-grp
-                        el-button(@click="submit('form_login')", type='primary') 登录
-                        el-button(@click="resetForm('form_login')") 重置
+    transition(name='fade')
+        el-container.login(:style='styleObj')
+            canvas-background-img.canvas(:loading='isLoading')
+            el-main.login-main
+                el-card(:body-style="{padding:'15px'}")
+                    .header(slot='header')
+                        img.logo(:src='logo_file')
+                        .title 平安银行AI云系统
+                    el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading', label-position='left', label-width='70px')
+                        el-form-item(label='用户名', prop='userName')
+                            el-input(v-model='form_login.userName')
+                        el-form-item(label='密码', prop='password')
+                            el-input(v-model='form_login.password', type='password', auto-complete='off')
+                        el-form-item.btn-grp
+                            el-button(@click="submit('form_login')", type='primary') 登录
+                            el-button(@click="resetForm('form_login')") 取消
 </template>
 
 <script>
   import API from '@/service/api'
-  import icon_cloud from '@/assets/images/cloud_w.png'
+  import CanvasBackgroundImg from '@/components/CanvasBackgroundImg'
+  import logo_file from '@/assets/images/logo.png'
 
   export default {
     name: 'Login',
@@ -24,7 +30,7 @@
 
     data: function () {
       return {
-        icon_cloud,
+        logo_file,
         tmpl_form_login: {
           userName: '',
           password: ''
@@ -43,8 +49,6 @@
         },
         isLoading: false,
         styleObj: {
-          'background-image': `url(${icon_cloud})`,
-          'background-position': 'center',
           'background-color': '#87CEEB'
         }
       }
@@ -79,11 +83,16 @@
       resetForm(formName) {
         this.$refs[formName].resetFields();
       }
+    },
+    components: {
+      CanvasBackgroundImg
     }
   }
 </script>
 
 <style lang="stylus" scoped>
+    ping_an-orange = #EA5505
+
     .login
         display flex
         align-items center
@@ -101,15 +110,45 @@
     .login-main
         flex-grow 0
         flex-shrink 0
-        padding 10px
-        width 400px
+        padding 0
+        width 360px
         position relative
         overflow hidden
         z-index 10000
+
+        /deep/ .el-card__header
+            border-bottom none
+
+        .header
+            text-align center
+            font-size 20px
+
+        .logo
+            width 60px
+            height auto
+
+        .title
+            color ping_an-orange
+            font-weight bolder
+            margin 10px auto
+            user-select none
+
+        /deep/ .el-form-item__label
+            user-select none
 
     .btn-grp
         display flex
         align-items center
         justify-content center
+
+    .canvas
+        position absolute
+        top 0
+        bottom 0
+        left 0
+        right 0
+        z-index -1
+        width 100%
+        height 100%
 
 </style>

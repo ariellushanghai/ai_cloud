@@ -1,5 +1,5 @@
 import Router from 'vue-router'
-import {loginURL} from '@/conf/env'
+import store from '@/store/'
 
 
 const UserManager = r => require(['@/pages/UserManager'], r);
@@ -9,12 +9,12 @@ const ProjectDetails = r => require(['@/pages/ProjectDetails'], r);
 const Login = r => require(['@/pages/Login'], r);
 
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       name: 'index',
       redirect: {
-        name: 'project'
+        name: 'login'
       },
       path: '/'
     },
@@ -44,4 +44,15 @@ export default new Router({
       component: Login
     }
   ]
-})
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.name === 'login' && store.getters.visiable_global_header) {
+    store.commit('HIDE_GLOBAL_HEADER');
+  } else {
+    store.commit('SHOW_GLOBAL_HEADER');
+  }
+  return next();
+});
+
+export default router

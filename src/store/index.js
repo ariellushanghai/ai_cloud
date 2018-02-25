@@ -10,7 +10,8 @@ Vue.use(Vuex);
 
 const state = {
   user: {},
-  project_list: []
+  project_list: [],
+  visiable_global_header: true
 };
 const getters = {
   global_menu: state => {
@@ -26,20 +27,29 @@ const getters = {
   },
   user_name: state => {
     return state.user.userName;
+  },
+  visiable_global_header: state => {
+    return state.visiable_global_header;
   }
 };
 
 const mutations = {
   [types.SAVE_USER_INFO]: (state, data) => {
-    console.log(`SAVE_USER_INFO: `,data)
+    console.log(`SAVE_USER_INFO: `, data)
     state.user = data;
   },
   [types.SET_PROJECTS_LIST]: (state, data) => {
-    console.log(`SET_PROJECTS_LIST: `,data)
+    console.log(`SET_PROJECTS_LIST: `, data)
     state.project_list = data;
   },
   [types.LOGOUT]: state => {
     state.user = {};
+  },
+  [types.HIDE_GLOBAL_HEADER]: state => {
+    state.visiable_global_header = false;
+  },
+  [types.SHOW_GLOBAL_HEADER]: state => {
+    state.visiable_global_header = true;
   }
 };
 

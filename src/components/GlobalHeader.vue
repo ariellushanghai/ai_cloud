@@ -1,5 +1,5 @@
 <template lang="pug">
-    el-row.row(type='flex')
+    el-row.row(type='flex', :class='{invisiable: invisiable}')
         el-col(:sm='3', :md='3', :lg='2', :xl='2')
             router-link.link.col(:to="{path: '/'}")
                 img.logo(:src='logo_file')
@@ -48,6 +48,7 @@
 
   export default {
     name: 'GlobalHeader',
+    props: ['invisiable'],
     data() {
       const validateOldPassword = (rule, value, callback) => {
         if (isNil(value) || value === '') {
@@ -123,9 +124,6 @@
         return this.$store.getters.user_name;
       }
     },
-    mounted() {
-      console.log(`GlobalHeader mounted()`);
-    },
     methods: {
       logoutAICloud() {
         return API.logoutAICloud().then(res => {
@@ -195,6 +193,10 @@
 <style lang="stylus" scoped>
     header-height = 60px
     ping_an-orange = #EA5505
+
+    .invisiable
+        visibility hidden
+        opacity 0
 
     .row
         height 100%

@@ -36,7 +36,7 @@
                                     el-button(size='mini', plain='', icon='el-icon-back', style='color: #303133;', @click='handleGoToProj(proj)')
                                         | 训练列表
                                     <!--el-button(size='mini', type='primary', icon='el-icon-edit', @click='handleEditProj(proj)')-->
-                                        <!--| 编辑-->
+                                    <!--| 编辑-->
                                     el-button(size='mini', type='danger', icon='el-icon-delete', @click='handleDeleteProj(proj)')
                                         | 删除
 
@@ -98,10 +98,7 @@
         return `${this.$store.state.user.parentDir}/train/`;
       }
     },
-    // beforeRouteEnter(to, from, next) {
-    //   console.log('ProjectList beforeRouteEnter()');
-    //   return next();
-    // },
+
     mounted: function () {
       console.log('ProjectList mounted()');
       this.fetchData();
