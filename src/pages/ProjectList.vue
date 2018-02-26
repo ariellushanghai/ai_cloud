@@ -188,7 +188,7 @@
       },
       handleGoToProj(proj) {
         console.log(`handleGoToProj()`, proj);
-        return router.push({name: 'project_details', params: {id: proj.proId}})
+        return router.push({name: 'project_details', params: {name: proj.proName}})
       },
       // handleEditProj(proj) {
       //

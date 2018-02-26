@@ -3,11 +3,15 @@
         el-main.user-manager-main
             el-dialog(title='新增用户', :visible.sync='dialog_add_user_visible', width='30%', :append-to-body='true')
                 el-form(:model='form_add_user', :rules='rules', ref='form_add_user', :status-icon='true', label-position='top', size='small')
+
                     el-form-item(label='用户名', prop='userName')
                         el-input(v-model='form_add_user.userName')
                     el-form-item(label='角色', prop='role')
                         el-select(v-model='form_add_user.role', placeholder='请选择用户角色', style='width: 100%;')
                             el-option(v-for='role in roles', :label='role.name', :key='role.v', :value='role.v')
+                    el-form-item(label='密码', prop='password')
+                        el-input(v-model='form_add_user.password', type='password')
+
                 .dialog-footer(slot='footer')
                     el-button(@click="cancelForm('form_add_user')") 取消
                     el-button(type='primary', @click="validateForm('form_add_user')", icon='el-icon-upload2', :loading='isSendingForm')
@@ -84,11 +88,13 @@
         operation: 'add_user',
         tmpl_form_add_user: {
           userName: '',
-          role: ''
+          role: '',
+          password: ''
         },
         form_add_user: {
           userName: '',
-          role: ''
+          role: '',
+          password: ''
         },
         rules: {
           userName: [
@@ -97,6 +103,10 @@
           ],
           role: [
             {type: "string", required: true, message: '请选择用户角色', trigger: 'change'}
+          ],
+          password: [
+            {type: "string", required: true, message: '请输入密码', trigger: 'blur'},
+            {min: 6, message: '至少6个字', trigger: 'blur'}
           ]
         },
         isSendingForm: false,

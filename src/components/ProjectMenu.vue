@@ -8,9 +8,9 @@
             text-color="#303133"
             active-text-color="#000">
 
-        <el-tooltip v-for="item in data" :index="String(item.proId)" :key="item.proId" effect="dark"
+        <el-tooltip v-for="item in data" :index="String(item.proName)" :key="item.proId" effect="dark"
                     :content="item.proName" placement="right">
-            <el-menu-item :index="String('/project/'+item.proId)" :route="String('/project/'+item.proId)">
+            <el-menu-item :index="String('/project/'+item.proName)" :route="String('/project/'+item.proName)">
                 <span slot="title">{{item.proName}}</span>
             </el-menu-item>
         </el-tooltip>

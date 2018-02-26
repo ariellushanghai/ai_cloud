@@ -2,41 +2,44 @@
     el-container.ProjectDetails(v-loading='isLoading')
         el-main.project-details-main
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='50%', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
+                // 标题栏
                 div(slot='title')
                     el-steps(:active='at_step_add_training', simple='', finish-status='success')
                         el-step(title='构建镜像', icon='el-icon-edit')
                         el-step(title='部署镜像', icon='el-icon-upload')
+                // 表单
                 .form-container
-                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', status-icon='', label-position='top', size='small')
-                        el-form-item(label='选择镜像', prop='image.imageName')
-                            el-select(v-model='form_build_image.image.imageName', placeholder='请选择镜像', style='width: 100%;')
+                    // 第一步: 构建镜像
+                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', :status-icon='true', label-position='left', label-width='61.8%', size='small')
+
+                        el-form-item(label='输入训练名:', prop='trainName')
+                            el-input(v-model.trim='form_build_image.trainName', auto-complete='off', :style="{'width': '200px'}")
+
+                        el-form-item(label='选择镜像:', prop='imageName')
+                            el-select(v-model='form_build_image.imageName', placeholder='请选择镜像', :style="{'width': '200px'}")
                                 el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image.imageName')
-                        el-form-item(label='上传代码')
-                            el-upload(:action='upload_to_url', multiple='')
-                                el-button(type='primary', icon='el-icon-upload') 上传代码
-                    el-form(v-show='at_step_add_training === 1', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', status-icon='', label-position='top', size='small')
+
+                        el-form-item(:label="'上传代码到 ' + upload_code_url_short", prop='uploaded_code')
+                            el-upload(:action='upload_code_url', :on-success='handleCodeUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false')
+                                el-button(type='primary', icon='el-icon-upload') 点击上传
+
+                        el-form-item(:label="'上传训练数据到 ' + upload_data_url_short", prop='uploaded_data')
+                            el-upload(:action='upload_data_url', :on-success='handleDataUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false')
+                                el-button(type='primary', icon='el-icon-upload') 点击上传
+
+                    // 第二步: 部署镜像
+                    el-form(v-show='at_step_add_training === 1', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', status-icon='', label-position='left', size='small')
                         el-form-item(label='选择镜像', prop='image')
                             el-select(v-model='form_build_image.image', placeholder='请选择镜像', style='width: 100%;')
                                 el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image')
-                        el-form-item(label='上传代码')
-                            el-upload(action='https://jsonplaceholder.typicode.com/posts/', multiple='')
-                                el-button(type='primary', icon='el-icon-upload') 上传代码
+
+
+                // 页脚
                 .dialog-footer(slot='footer')
                     el-button(@click="cancelForm('form_build_image')", size='small') 取消
                     el-button(type='primary', @click="validateForm('form_build_image')", :loading='isSendingForm', icon='el-icon-check', size='small')
                         | 下一步
-                el-form(:model='form_build_image', :rules='rules_build_image', ref='form_build_image', status-icon='', label-position='top', size='small')
-                    el-form-item(label='训练名', prop='image')
-                        // <el-input v-model="form_build_image.image"></el-input>
-                        el-select(v-model='form_build_image.image', placeholder='请选择镜像', style='width: 100%;')
-                            el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image')
-                    el-form-item(label='上传代码')
-                        el-upload(action='https://jsonplaceholder.typicode.com/posts/', multiple='')
-                            el-button(size='small', type='primary', icon='el-icon-upload') 上传代码
-                .dialog-footer(slot='footer')
-                    el-button(@click="cancelForm('form_build_image')") 取消
-                    el-button(type='primary', @click="validateForm('form_build_image')", icon='el-icon-upload2', :loading='isSendingForm')
-                        | 提交
+
             el-row(type='flex', style='overflow: hidden;')
                 el-col.menu-wrapper(:sm='6', :md='6', :lg='4', :xl='3')
                     project-menu(:data='project_menu_data')
@@ -94,6 +97,7 @@
 
 <script>
   // @flow
+  import {baseURL} from '@/conf/env'
   import API from '@/service/api'
   import ProjectMenu from '@/components/ProjectMenu'
   import {map, extend, assign, debounce} from 'lodash'
@@ -117,7 +121,6 @@
         trainings_data: [],
         list_images: [],
         dialog_add_training_visible: false,
-        upload_to_url: API.baseUploadToAddr('/'),
         steps_add_training: [{
           name: '构建镜像',
           form_name: 'form_build_image'
@@ -127,19 +130,37 @@
         }],
         at_step_add_training: 0,
         tmpl_form_build_image: {
-          image: {},
-          uploaded: false
+          trainName: '',
+          name: '',
+          projectType: 'train',
+          namespace: '',
+          imageName: '',
+          uploaded_code: false,
+          uploaded_data: false
         },
         form_build_image: {
-          image: {},
-          uploaded: false
+          trainName: '',
+          name: '',
+          projectType: 'train',
+          namespace: '',
+          imageName: '',
+          uploaded_code: false,
+          uploaded_data: false
         },
         rules_build_image: {
-          image: [
-            {required: true, message: '请选择镜像', trigger: 'change'}
+          trainName: [
+            {type: "string", required: true, message: '请输入训练名', trigger: 'blur'},
+            {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
+          ],
+          imageName: [
+            {type: 'string', required: true, message: '请选择镜像', trigger: 'change'}
+          ],
+          uploaded_code: [
+            {type: 'boolean', required: true, message: '请上传代码', trigger: 'change'}
+          ],
+          uploaded_data: [
+            {type: 'boolean', required: true, message: '请上传数据', trigger: 'change'}
           ]
-          //  上传代码标志位: 是否multiple?
-
         },
         isSendingForm: false,
         input_trainings_filter: '',
@@ -147,6 +168,23 @@
       }
     },
     computed: {
+      home_path() {
+        return `${this.$store.state.user.parentDir}/`;
+      },
+      upload_code_url() {
+        console.log(`upload_code_url: ${baseURL}/upload?path=${this.home_path}train/${this.$route.params.name}/project/`);
+        return `${baseURL}/upload?path=${encodeURIComponent(this.home_path + 'train/' + this.$route.params.name + '/project/')}`;
+      },
+      upload_code_url_short() {
+        return `~/train/${this.$route.params.name}/project/`;
+      },
+      upload_data_url() {
+        console.log(`upload_data_url: ${baseURL}/upload?path=${this.home_path}train/${this.$route.params.name}/data/`);
+        return `${baseURL}/upload?path=${encodeURIComponent(this.home_path)}`;
+      },
+      upload_data_url_short() {
+        return `~/train/${this.$route.params.name}/data/`;
+      },
       tableTrainings: function () {
         return map(this.trainings_data, (v) => {
           return assign(v, {
@@ -172,7 +210,7 @@
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
       }, 300);
-      console.log(`upload_to_url: `, this.upload_to_url);
+      console.log(`upload_code_url: `, this.upload_code_url);
     },
     beforeDestroy: function () {
       window.onresize = undefined;
@@ -264,7 +302,11 @@
       },
       handleAddTrain() {
         console.log(`handleAddTrain()`);
-        this.form_build_image = extend({}, this.tmpl_form_build_image);
+        this.form_build_image = extend({}, this.tmpl_form_build_image, {
+          name: this.$route.params.name,
+          namespace: this.$store.getters.user_name
+        });
+        console.log(`this.form_build_image: `, this.form_build_image);
         return API.getImages().then(res => {
           this.list_images = res;
           this.dialog_add_training_visible = true;
@@ -275,6 +317,25 @@
         this.$refs[formName].resetFields();
         this.form_build_image = extend({}, this.tmpl_form_build_image);
         this.dialog_add_training_visible = false;
+      },
+      handleCodeUploadedSuccess(response, file, fileList) {
+        console.log(response, file, fileList);
+        this.uploaded_code = true;
+        return this.$message({
+          type: 'success',
+          message: `上传${file.name}成功!`
+        });
+      },
+      handleDataUploadedSuccess(response, file, fileList) {
+        console.log(response, file, fileList);
+        this.uploaded_data = true;
+        return this.$message({
+          type: 'success',
+          message: `上传${file.name}成功!`
+        });
+      },
+      handleFileUploadedFailed(err, file, fileList) {
+        return this.$message.error(`上传${file.name}失败!`)
       },
       validateForm(form) {
         console.log('validateForm(form): ', form);
