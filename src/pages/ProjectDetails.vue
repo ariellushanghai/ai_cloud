@@ -10,7 +10,7 @@
                 // 表单
                 .form-container
                     // 第一步: 构建镜像
-                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', :status-icon='true', label-position='left', label-width='61.8%', size='small')
+                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', :status-icon='true', label-position='left', label-width='61.8%', size='small', :disabled='isBuildingImage')
 
                         el-form-item(label='输入训练名:', prop='trainName')
                             el-input(v-model.trim='form_build_image.trainName', auto-complete='off', :style="{'width': '200px'}")
@@ -28,27 +28,52 @@
                                 el-button(type='primary', icon='el-icon-upload') 点击上传
 
                     // 第二步: 部署镜像
-                    el-form(v-show='at_step_add_training === 1', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', status-icon='', label-position='left', size='small')
-                        el-form-item(label='选择镜像', prop='image')
-                            el-select(v-model='form_build_image.image', placeholder='请选择镜像', style='width: 100%;')
-                                el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image')
+                    el-form(v-show='at_step_add_training === 1', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='150px', size='small', :disabled='false')
+                        el-form-item(label='自定义资源:')
+                            el-switch(v-model='showCustomComputeResource', active-color='#13ce66')
+                        div.templates(v-show='!showCustomComputeResource')
+                            div.compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="chooseComputeResourceTemplate(index)")
+                                p CPU: {{tmpl.requestCPU}} core
+                                p 内存: {{tmpl.requestMemory}}
+                                p GPU: {{tmpl.gpu}} core
 
+                        div.customize(v-show='showCustomComputeResource')
+                            el-form-item(label='选择CPU数:', prop='requestCPU')
+                                el-slider(v-model='form_deploy_image.requestCPU', :step='1', :min='0', :max='5', :formatTooltip='formatCPUs', :show-stops='true')
+                            el-form-item(label='选择内存大小:', prop='requestMemory')
+                                el-slider(v-model='form_deploy_image.requestMemory', :step='1', :min='1', :max='6', :formatTooltip='formatMemories', :show-stops='true')
+                            el-form-item(label='选择GPU数:', prop='gpu')
+                                el-slider(v-model='form_deploy_image.gpu', :step='1', :min='0', :max='2', :show-stops='true')
 
                 // 页脚
-                .dialog-footer(slot='footer')
-                    el-button(@click="cancelForm('form_build_image')", size='small') 取消
-                    el-button(type='primary', @click="validateForm('form_build_image')", :loading='isSendingForm', icon='el-icon-check', size='small')
+
+                // 第一步: 构建镜像
+                .dialog-footer(v-show='at_step_add_training === 0', slot='footer')
+                    el-button(@click="cancelForm('form_build_image')", size='small')
+                        | 取消
+                    el-button(type='primary', @click="validateForm('form_build_image')", :disabled='isBuildingImage', :loading='isBuildingImage', icon='el-icon-check', size='small')
                         | 下一步
 
+                // 第二步: 部署镜像
+                .dialog-footer(v-show='at_step_add_training === 1', slot='footer')
+                    el-button(@click="cancelForm('form_build_image')", size='small')
+                        | 取消
+                    el-button(type='primary', @click="validateForm('form_build_image')", :loading='isBuildingImage', icon='el-icon-check', size='small')
+                        | 下一步
+
+
             el-row(type='flex', style='overflow: hidden;')
+                // 左侧菜单栏
                 el-col.menu-wrapper(:sm='6', :md='6', :lg='4', :xl='3')
                     project-menu(:data='project_menu_data')
                 el-col(:sm='18', :md='18', :lg='20', :xl='21')
+                    // 操作栏
                     el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
                         .button-group
-                            el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddTrain')
+                            el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddTrain', :disabled='trainings_data.length !== 0')
                                 | 新增训练
                         el-input(placeholder='过滤训练名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_trainings_filter')
+                    // 训练表格
                     el-card.card(:body-style="{padding:'15px'}")
                         el-table.training-table(:data='tableTrainings', :height='table_height', stripe='', fit='', border='')
                             el-table-column(type='expand')
@@ -88,10 +113,8 @@
                             el-table-column(prop='count', label='训练轮数', align='center', width='100')
                             el-table-column(label='操作', align='center', width='220')
                                 template(slot-scope='scope')
-                                    el-button(v-show="scope.row.status === '20'", size='mini', icon='el-icon-check', @click='handleEdit(scope.$index, scope.row)')
-                                        | 开始训练
-                                    el-button(v-show="scope.row.status === '20'", size='mini', icon='el-icon-edit-outline', @click='handleEdit(scope.$index, scope.row)')
-                                        | 编辑
+                                    el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleEdit(scope.$index, scope.row)')
+                                        | 部署镜像
 
 </template>
 
@@ -100,12 +123,13 @@
   import {baseURL} from '@/conf/env'
   import API from '@/service/api'
   import ProjectMenu from '@/components/ProjectMenu'
-  import {map, extend, assign, debounce} from 'lodash'
+  import {map, extend, assign, debounce, omit, find} from 'lodash'
   import Clipboard from 'clipboard'
   import format from 'date-fns/format'
   import ElCard from "element-ui/packages/card/src/main";
   import icon_clippy from '@/assets/images/clippy.svg'
   import ElRow from "element-ui/packages/row/src/row";
+  import ElSwitch from 'element-ui/packages/switch/src/component';
 
   const zh_cn = require('date-fns/locale/zh-CN')
 
@@ -129,6 +153,23 @@
           form_name: 'form_deploy_image'
         }],
         at_step_add_training: 0,
+        tmpl_compute_resource: [{
+          requestCPU: 1,
+          requestMemory: '2Gi',
+          gpu: 0
+        }, {
+          requestCPU: 2,
+          requestMemory: '4Gi',
+          gpu: 0
+        }, {
+          requestCPU: 8,
+          requestMemory: '16Gi',
+          gpu: 1
+        }, {
+          requestCPU: 16,
+          requestMemory: '32Gi',
+          gpu: 2
+        }],
         tmpl_form_build_image: {
           trainName: '',
           name: '',
@@ -162,7 +203,19 @@
             {type: 'boolean', required: true, message: '请上传数据', trigger: 'change'}
           ]
         },
-        isSendingForm: false,
+        tmpl_form_deploy_image: {
+          requestCPU: 1,
+          requestMemory: 1,
+          gpu: 0
+        },
+        form_deploy_image: {
+          requestCPU: 1,
+          requestMemory: 1,
+          gpu: 0
+        },
+        rules_deploy_image: {},
+        isBuildingImage: false,
+        showCustomComputeResource: false,
         input_trainings_filter: '',
         table_height: this.resizeHandler()
       }
@@ -179,8 +232,7 @@
         return `~/train/${this.$route.params.name}/project/`;
       },
       upload_data_url() {
-        console.log(`upload_data_url: ${baseURL}/upload?path=${this.home_path}train/${this.$route.params.name}/data/`);
-        return `${baseURL}/upload?path=${encodeURIComponent(this.home_path)}`;
+        return `${baseURL}/upload?path=${encodeURIComponent(this.home_path + 'train/' + this.$route.params.name + '/data/')}`;
       },
       upload_data_url_short() {
         return `~/train/${this.$route.params.name}/data/`;
@@ -224,7 +276,7 @@
         switch (value) {
           case '00':
             return {
-              zh: '等待中',
+              zh: '未部署镜像',
               en: 'waiting'
             };
             break;
@@ -240,9 +292,19 @@
               en: 'success'
             };
             break;
+          case '30':
+            return {
+              zh: '训练失败',
+              en: 'error'
+            };
+            break;
           default:
             break;
         }
+      },
+      formatCPUs(v) {
+      },
+      formatMemories(v) {
       },
       resizeHandler() {
         return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10 + 30);
@@ -254,7 +316,11 @@
           text: '正在获取数据。。。',
           background: 'rgba(255,255,255,1)'
         });
-        return API.getTrains().then(res => {
+        return API.getTrains({
+          proName: this.$route.params.name,
+          userName: this.$store.getters.user_name
+        }).then(res => {
+          console.log(`res: `, res)
           this.trainings_data = res;
           loading.close();
         }, err => {
@@ -302,10 +368,7 @@
       },
       handleAddTrain() {
         console.log(`handleAddTrain()`);
-        this.form_build_image = extend({}, this.tmpl_form_build_image, {
-          name: this.$route.params.name,
-          namespace: this.$store.getters.user_name
-        });
+        this.form_build_image = extend({}, this.tmpl_form_build_image);
         console.log(`this.form_build_image: `, this.form_build_image);
         return API.getImages().then(res => {
           this.list_images = res;
@@ -337,6 +400,12 @@
       handleFileUploadedFailed(err, file, fileList) {
         return this.$message.error(`上传${file.name}失败!`)
       },
+      handleEdit(index, row) {
+        console.log(`handleEdit(): `, index, row);
+        this.form_build_image = extend({}, row);
+        this.at_step_add_training = 1;
+        this.dialog_add_training_visible = true;
+      },
       validateForm(form) {
         console.log('validateForm(form): ', form);
         console.log(this.$refs[form]);
@@ -352,32 +421,48 @@
           }
         });
       },
-      postForm(data) {
-        console.log(`postForm(${data})`);
-        // let operation = this.operation === '新增' ? 'add用户' : 'edit用户';
-        // API[operation](data).then(res => {
-        //   this.$notify({
-        //     message: `${this.operation}用户成功`,
-        //     type: 'success',
-        //     duration: 2000
-        //   });
-        //   this.isSendingForm = false;
-        //   if (this.operation === '新增') {
-        //     this.form = _.extend(this.form, this.template_of_用户);
-        //   }
-        //
-        // }, err => {
-        //   console.log(`err: `, err);
-        //   this.$notify({
-        //     message: `${err}`,
-        //     type: 'error',
-        //     duration: 0
-        //   });
-        //   this.isSendingForm = false;
-        // });
+      chooseComputeResourceTemplate(idx) {
+        console.log(`chooseComputeResourceTemplate(${idx})`);
+      },
+      postForm(raw_form_data) {
+        let self = this;
+        console.log(self.$route.params.name);
+        console.log(`postForm(${raw_form_data})`);
+        let payload = omit(extend((raw_form_data), {
+          imageType: find(self.list_images, {imageName: raw_form_data.imageName}).imageType,
+          baseImage: find(self.list_images, {imageName: raw_form_data.imageName}).imageUrl
+        }, {
+          name: self.$route.params.name,
+          namespace: self.$store.getters.user_name
+        }), ['uploaded_code', 'uploaded_data', 'imageName']);
+
+        this.isBuildingImage = true;
+        console.log('API: ', API);
+        console.log('payload: ', payload);
+        debugger;
+        API.buildImage(payload).then(res => {
+          this.$notify({
+            message: `构建镜像成功`,
+            type: 'success',
+            duration: 2000
+          });
+          this.isBuildingImage = false;
+          this.form_build_image = extend({}, this.tmpl_form_build_image);
+          this.at_step_add_training = 1;
+
+        }, err => {
+          console.log(`err: `, err);
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
+          });
+          this.isBuildingImage = false;
+        });
       }
     },
     components: {
+      ElSwitch,
       ElRow,
       ElCard,
       ProjectMenu
@@ -472,4 +557,26 @@
         border-radius 4px
         overflow-x hidden
         overflow-y auto
+
+    .templates
+        display flex
+        justify-content space-between
+
+    .compute-resource-template
+        will-change transition
+        font-family monospace
+        padding 10px
+        width 120px
+        margin 0 auto
+        border 1px dashed #606266
+        transition all ease-in-out .2s
+
+    .compute-resource-template:hover, .compute-resource-template.selected
+        cursor pointer
+        border 2px solid #409EFF
+        font-weight bold
+
+    .compute-resource-template.selected
+        cursor unset
+
 </style>

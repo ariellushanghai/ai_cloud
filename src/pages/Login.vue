@@ -1,8 +1,8 @@
 <template lang="pug">
     transition(name='fade')
         el-container.login(:style='styleObj')
-            canvas-background-img.canvas(:loading='isLoading')
-            el-main.login-main
+            <!--canvas-background-img.canvas(:loading='isLoading')-->
+            el-main.login-main(@keyup.capture.enter="submit('form_login')")
                 el-card(:body-style="{padding:'15px'}")
                     .header(slot='header')
                         img.logo(:src='logo_file')
@@ -19,8 +19,10 @@
 
 <script>
   import API from '@/service/api'
-  import CanvasBackgroundImg from '@/components/CanvasBackgroundImg'
+  // import CanvasBackgroundImg from '@/components/CanvasBackgroundImg'
   import logo_file from '@/assets/images/logo.png'
+  import bg_file from '@/assets/images/bg_login.jpg'
+
 
   export default {
     name: 'Login',
@@ -49,7 +51,10 @@
         },
         isLoading: false,
         styleObj: {
-          'background-color': '#87CEEB'
+          'background-image': `url(${bg_file})`,
+          'background-size': 'cover',
+          'background-position': 'center',
+          'background-repeat': 'no-repeat'
         }
       }
     },
@@ -85,9 +90,7 @@
         this.$refs[formName].resetFields();
       }
     },
-    components: {
-      CanvasBackgroundImg
-    }
+    components: {}
   }
 </script>
 

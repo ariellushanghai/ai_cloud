@@ -79,6 +79,14 @@ export default {
     // return network.get('getImages.json');
     return network.get(`/images`);
   },
+  // 构建镜像
+  buildImage(obj) {
+    let req = network.create({
+      timeout: 60 * 1000
+    });
+    console.log(`buildImage(): `, req);
+    return req.post(`/image/build`, obj);
+  },
 
   baseUploadToAddr(path) {
     return `${network.defaults.baseURL}${path}`
