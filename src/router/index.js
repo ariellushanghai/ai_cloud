@@ -47,12 +47,19 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+  console.log(`router.beforeEach(to: `, to, `from: `, from, `next: `, next);
   if (to.name === 'login' && store.getters.visiable_global_header) {
     store.commit('HIDE_GLOBAL_HEADER');
   } else {
     store.commit('SHOW_GLOBAL_HEADER');
   }
-  return next();
+  if (to.name === 'login' || store.getters.user_name) {
+    return next();
+  } else {
+    return next({
+      name: 'login'
+    });
+  }
 });
 
 export default router

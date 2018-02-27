@@ -68,6 +68,8 @@
         const canvas = document.querySelector('#canvas');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#87CEEB';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         let dimsOfMatrix = () => {
           let m = Math.ceil(size.h / 75);
           let n = Math.ceil(size.w / 75);

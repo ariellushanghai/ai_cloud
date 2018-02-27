@@ -124,6 +124,7 @@
             border-bottom none
 
         .header
+            user-select none
             text-align center
             font-size 20px
 
