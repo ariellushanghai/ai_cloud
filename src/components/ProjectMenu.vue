@@ -34,7 +34,6 @@
     methods: {
       handleSelectMenu(key, keyPath) {
         console.log('handleSelectMenu(', key, keyPath, ')');
-
       }
     }
   }

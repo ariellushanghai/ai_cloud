@@ -28,22 +28,47 @@
                                 el-button(type='primary', icon='el-icon-upload') 点击上传
 
                     // 第二步: 部署镜像
-                    el-form(v-show='at_step_add_training === 1', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='150px', size='small', :disabled='false')
-                        el-form-item(label='自定义资源:')
-                            el-switch(v-model='showCustomComputeResource', active-color='#13ce66')
-                        div.templates(v-show='!showCustomComputeResource')
-                            div.compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="chooseComputeResourceTemplate(index)")
-                                p CPU: {{tmpl.requestCPU}} core
-                                p 内存: {{tmpl.requestMemory}}
-                                p GPU: {{tmpl.gpu}} core
+                    el-form(v-show='at_step_add_training === 1', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='false')
 
-                        div.customize(v-show='showCustomComputeResource')
-                            el-form-item(label='选择CPU数:', prop='requestCPU')
-                                el-slider(v-model='form_deploy_image.requestCPU', :step='1', :min='0', :max='5', :formatTooltip='formatCPUs', :show-stops='true')
-                            el-form-item(label='选择内存大小:', prop='requestMemory')
-                                el-slider(v-model='form_deploy_image.requestMemory', :step='1', :min='1', :max='6', :formatTooltip='formatMemories', :show-stops='true')
-                            el-form-item(label='选择GPU数:', prop='gpu')
-                                el-slider(v-model='form_deploy_image.gpu', :step='1', :min='0', :max='2', :show-stops='true')
+                        .templates(v-show='!showCustomComputeResource')
+                            .compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="selectComputeResourceTemplate(index)", :class="{selected: index === selected_compute_resource_template}")
+                                p
+                                    span CPU:
+                                    span {{tmpl.requestCPU}} 核
+                                p
+                                    span 内存:
+                                    span {{tmpl.requestMemory}}
+                                p
+                                    span GPU:
+                                    span {{tmpl.gpu}} 个
+
+
+
+                        el-form-item(label='启用TensorBoard:')
+                            el-switch(v-model='form_deploy_image.tensorboard', active-color='#13ce66')
+
+                        .forty-sixty
+                            .forty
+                                el-form-item(:label="'配置参数服务器(已选' + form_deploy_image.env.ps + '台): '")
+                                    el-switch(v-model='form_deploy_image.enablePS', active-color='#13ce66')
+                            .sixty
+                                el-slider(v-model='form_deploy_image.env.ps', :step='1', :min='0', :max='3', :show-stops='true',:disabled='!form_deploy_image.enablePS')
+
+                        .forty-sixty
+                            .forty
+                                el-form-item(:label="'配置计算节点(已选' + form_deploy_image.env.workers + '个): '")
+                                    el-switch(v-model='form_deploy_image.enableWorkers', active-color='#13ce66')
+                            .sixty
+                                el-slider(v-model='form_deploy_image.env.workers', :step='1', :min='0', :max='3', :show-stops='true', :disabled='!form_deploy_image.enableWorkers')
+
+                        el-form-item(label='训练轮数:')
+                            el-input-number(v-model.trim='form_deploy_image.env.train_num', :min='0', :step='1000', auto-complete='off')
+
+                        el-form-item(label='命令行参数:')
+                            el-input(v-model.trim='form_deploy_image.env.cmd', auto-complete='off')
+
+
+
 
                 // 页脚
 
@@ -56,9 +81,9 @@
 
                 // 第二步: 部署镜像
                 .dialog-footer(v-show='at_step_add_training === 1', slot='footer')
-                    el-button(@click="cancelForm('form_build_image')", size='small')
+                    el-button(@click="cancelForm('form_deploy_image')", size='small')
                         | 取消
-                    el-button(type='primary', @click="validateForm('form_build_image')", :loading='isBuildingImage', icon='el-icon-check', size='small')
+                    el-button(type='primary', @click="validateForm('form_deploy_image')", :loading='isBuildingImage', icon='el-icon-check', size='small')
                         | 下一步
 
 
@@ -113,7 +138,7 @@
                             el-table-column(prop='count', label='训练轮数', align='center', width='100')
                             el-table-column(label='操作', align='center', width='220')
                                 template(slot-scope='scope')
-                                    el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleEdit(scope.$index, scope.row)')
+                                    el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
                                         | 部署镜像
 
 </template>
@@ -153,6 +178,7 @@
           form_name: 'form_deploy_image'
         }],
         at_step_add_training: 0,
+        selected_compute_resource_template: 0,
         tmpl_compute_resource: [{
           requestCPU: 1,
           requestMemory: '2Gi',
@@ -204,18 +230,38 @@
           ]
         },
         tmpl_form_deploy_image: {
-          requestCPU: 1,
-          requestMemory: 1,
-          gpu: 0
+          env: {
+            ps: 0,
+            workers: 0,
+            train_num: 0,
+            cmd: ''
+          },
+          projectType: 'train',
+          replicas: 1,
+          type: 'job',
+          tensorboard: false,
+          enablePS: false,
+          enableWorkers: false
         },
         form_deploy_image: {
-          requestCPU: 1,
-          requestMemory: 1,
-          gpu: 0
+          env: {
+            ps: 0,
+            workers: 0,
+            train_num: 0,
+            cmd: ''
+          },
+          projectType: 'train',
+          replicas: 1,
+          type: 'job',
+          tensorboard: false,
+          enablePS: false,
+          enableWorkers: false
         },
         rules_deploy_image: {},
         isBuildingImage: false,
+        isDeployingImage: false,
         showCustomComputeResource: false,
+
         input_trainings_filter: '',
         table_height: this.resizeHandler()
       }
@@ -347,9 +393,9 @@
           }
         });
         clipboard.on('success', (e) => {
-          e.clearSelection()
-          input.focus()
-          input.select()
+          e.clearSelection();
+          input.focus();
+          input.select();
           return this.$message({
             type: 'success',
             message: '已复制到剪贴板'
@@ -369,7 +415,7 @@
       handleAddTrain() {
         console.log(`handleAddTrain()`);
         this.form_build_image = extend({}, this.tmpl_form_build_image);
-        console.log(`this.form_build_image: `, this.form_build_image);
+        this.form_deploy_image = extend({}, this.tmpl_form_deploy_image);
         return API.getImages().then(res => {
           this.list_images = res;
           this.dialog_add_training_visible = true;
@@ -378,7 +424,7 @@
       cancelForm(formName) {
         console.log(`cancelForm(${formName})`);
         this.$refs[formName].resetFields();
-        this.form_build_image = extend({}, this.tmpl_form_build_image);
+        this[formName] = extend({}, this[`tmpl_${formName}`]);
         this.dialog_add_training_visible = false;
       },
       handleCodeUploadedSuccess(response, file, fileList) {
@@ -400,9 +446,12 @@
       handleFileUploadedFailed(err, file, fileList) {
         return this.$message.error(`上传${file.name}失败!`)
       },
-      handleEdit(index, row) {
-        console.log(`handleEdit(): `, index, row);
-        this.form_build_image = extend({}, row);
+      handleContinueDeployImage(index, row) {
+        console.log(`handleContinueDeployImage(): `, index, row);
+        this.form_deploy_image = omit(extend(this.form_deploy_image, row, {
+          image: row.imageUrl
+        }), ['status_zh', 'createDate_converted']);
+        console.log(`this.form_deploy_image: `, this.form_deploy_image);
         this.at_step_add_training = 1;
         this.dialog_add_training_visible = true;
       },
@@ -414,20 +463,27 @@
           console.log(`valid: `, valid);
           if (valid) {
             // alert('submit!');
-            return this.postForm(this.form_build_image);
+            if (form === 'form_build_image') {
+              return this.postFormBuildImage(this.form_build_image);
+            }
+            if (form === 'form_deploy_image') {
+              return this.postFormDeployImage(this.form_deploy_image);
+            }
           } else {
             console.log('error submit!!');
             return false;
           }
         });
       },
-      chooseComputeResourceTemplate(idx) {
-        console.log(`chooseComputeResourceTemplate(${idx})`);
+      selectComputeResourceTemplate(idx) {
+        console.log(`selectComputeResourceTemplate(${idx})`);
+        this.selected_compute_resource_template = idx;
+        console.log(extend({}, this.tmpl_compute_resource[this.selected_compute_resource_template]));
       },
-      postForm(raw_form_data) {
+      postFormBuildImage(raw_form_data) {
         let self = this;
         console.log(self.$route.params.name);
-        console.log(`postForm(${raw_form_data})`);
+        console.log(`postFormBuildImage(${raw_form_data})`);
         let payload = omit(extend((raw_form_data), {
           imageType: find(self.list_images, {imageName: raw_form_data.imageName}).imageType,
           baseImage: find(self.list_images, {imageName: raw_form_data.imageName}).imageUrl
@@ -439,7 +495,7 @@
         this.isBuildingImage = true;
         console.log('API: ', API);
         console.log('payload: ', payload);
-        debugger;
+        // debugger;
         API.buildImage(payload).then(res => {
           this.$notify({
             message: `构建镜像成功`,
@@ -449,7 +505,6 @@
           this.isBuildingImage = false;
           this.form_build_image = extend({}, this.tmpl_form_build_image);
           this.at_step_add_training = 1;
-
         }, err => {
           console.log(`err: `, err);
           this.$notify({
@@ -458,6 +513,49 @@
             duration: 0
           });
           this.isBuildingImage = false;
+        });
+      },
+      postFormDeployImage(raw_form_data) {
+        let selected_compute_resource = extend({}, this.tmpl_compute_resource[this.selected_compute_resource_template]);
+
+        console.log(`postFormDeployImage(${raw_form_data}): `, raw_form_data);
+        let payload = omit(extend(raw_form_data, selected_compute_resource, {
+          limitCPU: selected_compute_resource.requestCPU,
+          limitMemory: selected_compute_resource.requestMemory
+        }), ['baseImage', 'codeURL', 'createDate', 'imageUrl', 'modifyDate', 'revision', 'env']);
+        if (raw_form_data.tensorboard) {
+          payload = extend(payload, {
+            tensorboard: 1,
+            servicePort: 6006,
+            containerPort: 6006
+          });
+        } else {
+          payload = omit(extend(payload, {
+            tensorboard: 0
+          }), ['servicePort', 'containerPort', 'env']);
+        }
+        console.log(`payload: `, payload);
+        // debugger;
+        this.isDeployingImage = true;
+        API.deployImage(payload).then(res => {
+          this.$notify({
+            message: `部署镜像成功`,
+            type: 'success',
+            duration: 2000
+          });
+          this.dialog_add_training_visible = false;
+          this.isDeployingImage = false;
+          this.form_deploy_image = extend({}, this.tmpl_form_deploy_image);
+          this.at_step_add_training = 0;
+
+        }, err => {
+          console.log(`err: `, err);
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
+          });
+          this.isDeployingImage = false;
         });
       }
     },
@@ -561,14 +659,15 @@
     .templates
         display flex
         justify-content space-between
+        margin-bottom 18px
 
     .compute-resource-template
-        will-change transition
+        will-change border font-weight
         font-family monospace
         padding 10px
         width 120px
-        margin 0 auto
-        border 1px dashed #606266
+        margin 0
+        border 2px dashed #c0c4cc
         transition all ease-in-out .2s
 
     .compute-resource-template:hover, .compute-resource-template.selected
@@ -577,6 +676,23 @@
         font-weight bold
 
     .compute-resource-template.selected
-        cursor unset
+        cursor none
+
+    .compute-resource-template p
+        display flex
+        margin 5px 0
+
+        span
+            width 50%
+
+    .forty-sixty
+        display flex
+        margin-bottom 18px
+
+        .forty
+            width 40%
+        .sixty
+            width 60%
+
 
 </style>

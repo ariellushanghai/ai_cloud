@@ -87,6 +87,14 @@ export default {
     console.log(`buildImage(): `, req);
     return req.post(`/image/build`, obj);
   },
+  // 部署镜像
+  deployImage(obj) {
+    let req = network.create({
+      timeout: 60 * 1000
+    });
+    console.log(`deployImage(): `, req);
+    return req.post(`/image/deploy`, obj);
+  },
 
   baseUploadToAddr(path) {
     return `${network.defaults.baseURL}${path}`
