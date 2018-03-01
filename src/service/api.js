@@ -90,7 +90,7 @@ export default {
   // 部署镜像
   deployImage(obj) {
     let req = network.create({
-      timeout: 60 * 1000
+      timeout: 60 * 5 * 1000
     });
     console.log(`deployImage(): `, req);
     return req.post(`/image/deploy`, obj);

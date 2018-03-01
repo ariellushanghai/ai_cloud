@@ -1,5 +1,5 @@
 <template lang="pug">
-    el-container.ProjectDetails(v-loading='isLoading')
+    el-container.ProjectDetails(v-loading='isLoadingTable')
         el-main.project-details-main
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='50%', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
                 // 标题栏
@@ -97,6 +97,9 @@
                         .button-group
                             el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddTrain', :disabled='trainings_data.length !== 0')
                                 | 新增训练
+                            el-button(size='small', type='primary', icon='el-icon-refresh', @click='fetchData()', :disabled='isLoadingTable')
+                                | 刷新
+
                         el-input(placeholder='过滤训练名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_trainings_filter')
                     // 训练表格
                     el-card.card(:body-style="{padding:'15px'}")
@@ -135,6 +138,9 @@
                                     el-tag(v-if="scope.row.status === '20'", type='success')
                                         i.el-icon-success
                                         | {{scope.row.status_zh}}
+                                    el-tag(v-if="scope.row.status === '30'", type='danger')
+                                        i.el-icon-error
+                                        | {{scope.row.status_zh}}
                             el-table-column(prop='count', label='训练轮数', align='center', width='100')
                             el-table-column(label='操作', align='center', width='220')
                                 template(slot-scope='scope')
@@ -165,7 +171,7 @@
     },
     data() {
       return {
-        isLoading: false,
+        isLoadingTable: false,
         icon_clippy: icon_clippy,
         trainings_data: [],
         list_images: [],
@@ -362,15 +368,18 @@
           text: '正在获取数据。。。',
           background: 'rgba(255,255,255,1)'
         });
+        this.isLoadingTable = true;
         return API.getTrains({
           proName: this.$route.params.name,
           userName: this.$store.getters.user_name
         }).then(res => {
           console.log(`res: `, res)
           this.trainings_data = res;
+          this.isLoadingTable = false;
           loading.close();
         }, err => {
           console.log(`err: `, err);
+          this.isLoadingTable = false;
           loading.close();
           this.$notify({
             message: `${err}`,
