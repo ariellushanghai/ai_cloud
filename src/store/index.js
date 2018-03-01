@@ -11,7 +11,7 @@ Vue.use(Vuex);
 const state = {
   user: {},
   project_list: [],
-  visiable_global_header: true
+  visiable_global_header: false
 };
 const getters = {
   global_menu: state => {

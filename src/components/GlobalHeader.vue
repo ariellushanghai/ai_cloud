@@ -1,5 +1,5 @@
 <template lang="pug">
-    el-row.row(type='flex', :class='{invisiable: invisiable}')
+    el-row.row(type='flex', :class='{invisiable: hide_self}')
         el-col(:sm='3', :md='3', :lg='2', :xl='2')
             router-link.link.col(:to="{path: '/'}")
                 img.logo(:src='logo_file')
@@ -48,7 +48,6 @@
 
   export default {
     name: 'GlobalHeader',
-    props: ['invisiable'],
     data() {
       const validateOldPassword = (rule, value, callback) => {
         if (isNil(value) || value === '') {
@@ -82,6 +81,7 @@
       };
       return {
         logo_file,
+        hide_self: true,
         dialog_change_passwd_visible: false,
         isSendingForm: false,
         tmpl_form_change_passwd: {
@@ -122,6 +122,13 @@
       },
       userName() {
         return this.$store.getters.user_name;
+      }
+    },
+    mounted() {
+      if (this.$store.getters.visiable_global_header) {
+        this.hide_self = false;
+      } else {
+        this.hide_self = true;
       }
     },
     methods: {
@@ -196,6 +203,7 @@
 
     .invisiable
         visibility hidden
+        display none
         opacity 0
 
     .row

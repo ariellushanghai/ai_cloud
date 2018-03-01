@@ -2,7 +2,7 @@
     #app
         el-container.container
             el-header.header
-                global-header(:invisiable='invisiable')
+                global-header
             el-container#router_view
                 router-view/
 </template>
@@ -16,11 +16,6 @@
     metaInfo: {
       title: 'AI☁️',
       titleTemplate: '%s-'
-    },
-    computed: {
-      invisiable() {
-        return !this.$store.getters.visiable_global_header;
-      }
     },
     components: {
       GlobalHeader
