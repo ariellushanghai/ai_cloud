@@ -1,7 +1,7 @@
 <template lang="pug">
     el-container.ProjectDetails(v-loading='isLoadingTable')
         el-main.project-details-main
-            el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='50%', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
+            el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
                 // 标题栏
                 div(slot='title')
                     el-steps(:active='at_step_add_training', simple='', finish-status='success')
@@ -10,7 +10,7 @@
                 // 表单
                 .form-container
                     // 第一步: 构建镜像
-                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', :status-icon='true', label-position='left', label-width='61.8%', size='small', :disabled='isBuildingImage')
+                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', v-loading='isBuildingImage || isTransformingFile', element-loading-background='rgba(255, 255, 255, 0.1)', :disabled='isBuildingImage || isTransformingFile', :status-icon='true', label-position='left', label-width='50%', size='small')
 
                         el-form-item(label='输入训练名:', prop='trainName')
                             el-input(v-model.trim='form_build_image.trainName', auto-complete='off', :style="{'width': '200px'}")
@@ -20,15 +20,15 @@
                                 el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image.imageName')
 
                         el-form-item(:label="'上传代码到 ' + upload_code_url_short", prop='uploaded_code')
-                            el-upload(:action='upload_code_url', :on-success='handleCodeUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false')
-                                el-button(type='primary', icon='el-icon-upload') 点击上传
+                            el-upload(:action='upload_code_url', :on-progress='handleFileUploading', :on-success='handleCodeUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false', :disabled='form_build_image.trainName.length < 3 || !form_build_image.imageName')
+                                el-button(type='primary', icon='el-icon-upload', :disabled='form_build_image.trainName.length < 3 || !form_build_image.imageName') 点击上传
 
                         el-form-item(:label="'上传训练数据到 ' + upload_data_url_short", prop='uploaded_data')
-                            el-upload(:action='upload_data_url', :on-success='handleDataUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false')
-                                el-button(type='primary', icon='el-icon-upload') 点击上传
+                            el-upload(:action='upload_data_url', :on-progress='handleFileUploading', :on-success='handleDataUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false', :disabled='form_build_image.trainName.length < 3 || !form_build_image.imageName')
+                                el-button(type='primary', icon='el-icon-upload', :disabled='form_build_image.trainName.length < 3 || !form_build_image.imageName') 点击上传
 
                     // 第二步: 部署镜像
-                    el-form(v-show='at_step_add_training === 1', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='false')
+                    el-form(v-show='at_step_add_training === 1', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='isTransformingFile')
 
                         .templates(v-show='!showCustomComputeResource')
                             .compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="selectComputeResourceTemplate(index)", :class="{selected: index === selected_compute_resource_template}")
@@ -49,14 +49,14 @@
 
                         .forty-sixty
                             .forty
-                                el-form-item(:label="'配置参数服务器(已选' + form_deploy_image.env.ps + '台): '")
+                                el-form-item(:label="labelOfConfigParaServer")
                                     el-switch(v-model='form_deploy_image.enablePS', active-color='#13ce66')
                             .sixty
                                 el-slider(v-model='form_deploy_image.env.ps', :step='1', :min='0', :max='3', :show-stops='true',:disabled='!form_deploy_image.enablePS')
 
                         .forty-sixty
                             .forty
-                                el-form-item(:label="'配置计算节点(已选' + form_deploy_image.env.workers + '个): '")
+                                el-form-item(:label="labelOfConfigWorker")
                                     el-switch(v-model='form_deploy_image.enableWorkers', active-color='#13ce66')
                             .sixty
                                 el-slider(v-model='form_deploy_image.env.workers', :step='1', :min='0', :max='3', :show-stops='true', :disabled='!form_deploy_image.enableWorkers')
@@ -68,15 +68,13 @@
                             el-input(v-model.trim='form_deploy_image.env.cmd', auto-complete='off')
 
 
-
-
                 // 页脚
 
                 // 第一步: 构建镜像
                 .dialog-footer(v-show='at_step_add_training === 0', slot='footer')
-                    el-button(@click="cancelForm('form_build_image')", size='small')
+                    el-button(@click="cancelForm('form_build_image')", :v-show='!isBuildingImage', :disabled='isTransformingFile', size='small')
                         | 取消
-                    el-button(type='primary', @click="validateForm('form_build_image')", :disabled='isBuildingImage', :loading='isBuildingImage', icon='el-icon-check', size='small')
+                    el-button(type='primary', @click="validateForm('form_build_image')", :disabled='disableBtnBuildImage', :loading='isBuildingImage', icon='el-icon-check', size='small')
                         | 下一步
 
                 // 第二步: 部署镜像
@@ -84,7 +82,7 @@
                     el-button(@click="cancelForm('form_deploy_image')", size='small')
                         | 取消
                     el-button(type='primary', @click="validateForm('form_deploy_image')", :loading='isBuildingImage', icon='el-icon-check', size='small')
-                        | 下一步
+                        | 完成
 
 
             el-row(type='flex', style='overflow: hidden;')
@@ -172,6 +170,7 @@
     data() {
       return {
         isLoadingTable: false,
+        isTransformingFile: false,
         icon_clippy: icon_clippy,
         trainings_data: [],
         list_images: [],
@@ -303,6 +302,29 @@
       },
       project_menu_data() {
         return this.$store.state.project_list
+      },
+      disableBtnBuildImage() {
+        if (this.isTransformingFile || this.isBuildingImage) {
+          console.log(`L308`)
+          return true;
+        } else if (!this.uploaded_data || !this.uploaded_data) {
+          console.log(`L311`)
+          return true;
+        } else if (this.form_build_image.trainName.length < 3 || !this.form_build_image.imageName) {
+          console.log(`L314`)
+          return true;
+        } else {
+          return false;
+        }
+      },
+      disableBtnDeployImage() {
+
+      },
+      labelOfConfigParaServer() {
+        return this.form_deploy_image.enablePS ? `配置参数服务器(已选${this.form_deploy_image.env.ps}台): ` : '配置参数服务器: ';
+      },
+      labelOfConfigWorker() {
+        return this.form_deploy_image.enableWorkers ? `配置计算节点(已选${this.form_deploy_image.env.workers}个): ` : '配置计算节点: ';
       }
     },
     mounted() {
@@ -393,8 +415,6 @@
       },
       copyToClipBoard(data, prop) {
         console.log(`copyToClipBoard()`, arguments)
-        // debugger;
-
         const input = document.getElementById(`input_${prop}_${data.trainId}`)
         const clipboard = new Clipboard(`.btn-copy-${prop}-${data.trainId}`, {
           text: function () {
@@ -436,8 +456,18 @@
         this[formName] = extend({}, this[`tmpl_${formName}`]);
         this.dialog_add_training_visible = false;
       },
+      handleCloseDialogBuildImage(done) {
+        if (!this.isTransformingFile) {
+          return done();
+        }
+      },
+      handleFileUploading(event, file, fileList) {
+        console.log(`handleFileUploading`, file);
+        this.isTransformingFile = true;
+      },
       handleCodeUploadedSuccess(response, file, fileList) {
         console.log(response, file, fileList);
+        this.isTransformingFile = false;
         this.uploaded_code = true;
         return this.$message({
           type: 'success',
@@ -446,6 +476,7 @@
       },
       handleDataUploadedSuccess(response, file, fileList) {
         console.log(response, file, fileList);
+        this.isTransformingFile = false;
         this.uploaded_data = true;
         return this.$message({
           type: 'success',
@@ -453,6 +484,7 @@
         });
       },
       handleFileUploadedFailed(err, file, fileList) {
+        this.isTransformingFile = false;
         return this.$message.error(`上传${file.name}失败!`)
       },
       handleContinueDeployImage(index, row) {
@@ -460,7 +492,7 @@
         this.form_deploy_image = omit(extend(this.form_deploy_image, row, {
           image: row.imageUrl
         }), ['status_zh', 'createDate_converted']);
-        console.log(`this.form_deploy_image: `, this.form_deploy_image);
+        console.log(`L489: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
         this.at_step_add_training = 1;
         this.dialog_add_training_visible = true;
       },
@@ -504,7 +536,6 @@
         this.isBuildingImage = true;
         console.log('API: ', API);
         console.log('payload: ', payload);
-        // debugger;
         API.buildImage(payload).then(res => {
           this.$notify({
             message: `构建镜像成功`,
@@ -512,6 +543,10 @@
             duration: 2000
           });
           this.isBuildingImage = false;
+          this.form_deploy_image = omit(extend({}, this.tmpl_form_deploy_image, this.form_build_image), [
+            'uploaded_code', 'uploaded_data'
+          ]);
+          console.log(`L543: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
           this.form_build_image = extend({}, this.tmpl_form_build_image);
           this.at_step_add_training = 1;
         }, err => {
@@ -526,7 +561,6 @@
       },
       postFormDeployImage(raw_form_data) {
         let selected_compute_resource = extend({}, this.tmpl_compute_resource[this.selected_compute_resource_template]);
-
         console.log(`postFormDeployImage(${raw_form_data}): `, raw_form_data);
         let payload = omit(extend(raw_form_data, selected_compute_resource, {
           limitCPU: selected_compute_resource.requestCPU,
@@ -544,7 +578,6 @@
           }), ['servicePort', 'containerPort', 'env']);
         }
         console.log(`payload: `, payload);
-        // debugger;
         this.isDeployingImage = true;
         API.deployImage(payload).then(res => {
           this.$notify({

@@ -9,7 +9,7 @@
         |
         el-col(:sm='15', :md='15', :lg='17', :xl='17')
             el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', router='')
-                el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name')
+                el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name', :disabled="menu.name == '部署上线'")
                     | {{menu.name}}
         |
         el-col.col-user(:span='3')
@@ -81,7 +81,6 @@
       };
       return {
         logo_file,
-        hide_self: true,
         dialog_change_passwd_visible: false,
         isSendingForm: false,
         tmpl_form_change_passwd: {
@@ -122,14 +121,13 @@
       },
       userName() {
         return this.$store.getters.user_name;
+      },
+      hide_self() {
+        return !this.$store.getters.visiable_global_header;
       }
     },
     mounted() {
-      if (this.$store.getters.visiable_global_header) {
-        this.hide_self = false;
-      } else {
-        this.hide_self = true;
-      }
+
     },
     methods: {
       logoutAICloud() {
