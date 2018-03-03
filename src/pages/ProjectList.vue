@@ -119,22 +119,20 @@
           text: '正在获取数据。。。',
           background: 'rgba(250,235,215,0.5)'
         });
-        setTimeout(() => {
+
+        return API.getProjects(this.userName).then(res => {
+          this.projects_data = res;
+          this.$store.commit('SET_PROJECTS_LIST', this.projects_data);
           loading.close();
-          return API.getProjects(this.userName).then(res => {
-            this.projects_data = res;
-            this.$store.commit('SET_PROJECTS_LIST', this.projects_data);
-            loading.close();
-          }, err => {
-            console.log(`err: `, err);
-            loading.close();
-            this.$notify({
-              message: `${err}`,
-              type: 'error',
-              duration: 0
-            });
+        }, err => {
+          console.log(`err: `, err);
+          loading.close();
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
           });
-        }, 500);
+        });
       },
       showForm() {
         console.log(`showForm()`);

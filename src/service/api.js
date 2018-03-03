@@ -95,6 +95,10 @@ export default {
     console.log(`deployImage(): `, req);
     return req.post(`/image/deploy`, obj);
   },
+  // 获取训练日志
+  getLog(id) {
+    return network.get('getLog.json');
+  },
 
   baseUploadToAddr(path) {
     return `${network.defaults.baseURL}${path}`

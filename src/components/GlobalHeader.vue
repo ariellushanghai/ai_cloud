@@ -126,9 +126,6 @@
         return !this.$store.getters.visiable_global_header;
       }
     },
-    mounted() {
-
-    },
     methods: {
       logoutAICloud() {
         return API.logoutAICloud().then(res => {

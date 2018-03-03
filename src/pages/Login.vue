@@ -1,28 +1,26 @@
 <template lang="pug">
-    transition(name='fade')
-        el-container.login(:style='styleObj')
-            <!--canvas-background-img.canvas(:loading='isLoading')-->
-            el-main.login-main(@keyup.capture.enter="submit('form_login')")
-                el-card(:body-style="{padding:'15px'}")
-                    .header(slot='header')
-                        img.logo(:src='logo_file')
-                        .title 平安银行AI云系统
-                    el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading', label-position='left', label-width='70px')
-                        el-form-item(label='用户名', prop='userName')
-                            el-input(v-model='form_login.userName', :autofocus='true')
-                        el-form-item(label='密码', prop='password')
-                            el-input(v-model='form_login.password', type='password', @keydown.enter="submit('form_login')", auto-complete='off')
-                        el-form-item.btn-grp
-                            el-button(@click="submit('form_login')", type='primary') 登录
-                            el-button(@click="resetForm('form_login')") 取消
+    el-container.login(:style='styleObj')
+        el-main.login-main(@keyup.capture.enter="submit('form_login')")
+            el-card(:body-style="{padding:'15px'}")
+                .header(slot='header')
+                    img.logo(:src='logo_file')
+                    .title 平安银行AI云系统
+                el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading', label-position='left', label-width='70px')
+                    el-form-item(label='用户名', prop='userName')
+                        el-input(v-model='form_login.userName', :autofocus='true')
+                    el-form-item(label='密码', prop='password')
+                        el-input(v-model='form_login.password', type='password', @keydown.enter="submit('form_login')", auto-complete='off')
+                    el-form-item.btn-grp
+                        el-button(@click="submit('form_login')", type='primary') 登录
+                        el-button(@click="resetForm('form_login')") 取消
 </template>
 
 <script>
   import API from '@/service/api'
+
   // import CanvasBackgroundImg from '@/components/CanvasBackgroundImg'
   import logo_file from '@/assets/images/logo.png'
   import bg_file from '@/assets/images/bg_login.jpg'
-
 
   export default {
     name: 'Login',
@@ -58,6 +56,9 @@
         }
       }
     },
+    mounted() {
+
+    },
     methods: {
       submit(formName) {
         console.log('submit()')
@@ -90,7 +91,9 @@
         this.$refs[formName].resetFields();
       }
     },
-    components: {}
+    components: {
+
+    }
   }
 </script>
 
@@ -146,14 +149,5 @@
         align-items center
         justify-content center
 
-    .canvas
-        position absolute
-        top 0
-        bottom 0
-        left 0
-        right 0
-        z-index -1
-        width 100%
-        height 100%
 
 </style>

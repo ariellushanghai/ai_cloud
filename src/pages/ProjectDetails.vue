@@ -1,6 +1,11 @@
 <template lang="pug">
     el-container.ProjectDetails(v-loading='isLoadingTable')
         el-main.project-details-main
+            // 训练日志弹出框
+            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='true')
+            .log-container
+                log(api='getLog', id='0', :freq='5000')
+            // 新建训练弹出框
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
                 // 标题栏
                 div(slot='title')
@@ -152,6 +157,7 @@
   import {baseURL} from '@/conf/env'
   import API from '@/service/api'
   import ProjectMenu from '@/components/ProjectMenu'
+  import Log from '@/components/Log'
   import {map, extend, assign, debounce, omit, find} from 'lodash'
   import Clipboard from 'clipboard'
   import format from 'date-fns/format'
@@ -175,6 +181,7 @@
         trainings_data: [],
         list_images: [],
         dialog_add_training_visible: false,
+        dialog_train_log_visible: false,
         steps_add_training: [{
           name: '构建镜像',
           form_name: 'form_build_image'
@@ -605,7 +612,8 @@
       ElSwitch,
       ElRow,
       ElCard,
-      ProjectMenu
+      ProjectMenu,
+      Log
     }
   }
 </script>
@@ -736,5 +744,15 @@
         .sixty
             width 60%
 
+    .log-container
+        background-color black
+        position absolute
+        top 0
+        bottom 0
+        left 0
+        /*right 0*/
+        z-index 100000
+        width 50%
+        height 100%
 
 </style>
