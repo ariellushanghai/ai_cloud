@@ -1,10 +1,12 @@
 <template lang="pug">
     el-container.ProjectDetails(v-loading='isLoadingTable')
         el-main.project-details-main
+
             // 训练日志弹出框
-            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='true')
-            .log-container
-                log(api='getLog', id='0', :freq='5000')
+            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='0', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
+                .log-container
+                    log(api='getLog', id='0', :freq='5000')
+
             // 新建训练弹出框
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
                 // 标题栏
@@ -149,6 +151,8 @@
                                 template(slot-scope='scope')
                                     el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
                                         | 部署镜像
+                                    el-button(v-show="scope.row.status !== '00'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
+                                        | 察看日志
 
 </template>
 
@@ -494,6 +498,13 @@
         this.isTransformingFile = false;
         return this.$message.error(`上传${file.name}失败!`)
       },
+      handleOpenLog(index, row) {
+        console.log(`handleOpenLog(): `, index, row);
+        this.dialog_train_log_visible = true;
+      },
+      handleCloseLog() {
+        console.log(`handleCloseLog(): `);
+      },
       handleContinueDeployImage(index, row) {
         console.log(`handleContinueDeployImage(): `, index, row);
         this.form_deploy_image = omit(extend(this.form_deploy_image, row, {
@@ -744,15 +755,17 @@
         .sixty
             width 60%
 
+    .dialog-train-log /deep/ .el-dialog__header
+        padding 10px
+
+    .dialog-train-log /deep/ .el-dialog__body
+        height 500px
+
     .log-container
         background-color black
-        position absolute
-        top 0
-        bottom 0
-        left 0
-        /*right 0*/
-        z-index 100000
-        width 50%
+        position relative
+        width 1000%
+        max-width 100%
         height 100%
 
 </style>

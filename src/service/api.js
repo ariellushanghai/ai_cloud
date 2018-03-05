@@ -97,7 +97,8 @@ export default {
   },
   // 获取训练日志
   getLog(id) {
-    return network.get('getLog.json');
+    // return network.get('getLog.json');
+    return network.get(`/logs/${id}`);
   },
 
   baseUploadToAddr(path) {

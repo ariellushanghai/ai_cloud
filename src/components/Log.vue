@@ -6,9 +6,9 @@
                 | 立即刷新
             el-button(@click='clear', type='danger', icon='el-icon-delete', size='mini')
                 | 清空当前显示
-            el-checkbox(v-model='auto_scroll_to_bottom', :border='true', size='mini')
+            el-checkbox(v-model='auto_scroll_to_bottom', size='mini')
                 | 自动滚动到新内容
-            el-input.input-log-filter(v-model='input_log_filter', placeholder='过滤当前显示日志', size='mini')
+            el-input.input-log-filter(v-model='input_log_filter', placeholder='过滤当前显示日志', size='mini', :clearable='true')
 
         .log
             el-table#table(:data='tableData', :style='styleObj', :show-header='false', size='mini')
@@ -36,7 +36,7 @@
         interval_id: null,
         styleObj: {
           width: '100%',
-          height: '100%',
+          height: '100%'
         }
       };
     },
@@ -51,10 +51,10 @@
             )
           })
         }).filter(log => log.msg.toLowerCase().includes(String(this.input_log_filter).toLowerCase()))
-      },
+      }
     },
     mounted() {
-      this.pollingLog();
+      // this.pollingLog();
     },
     beforeDestroy: function () {
       window.clearInterval(this.interval_id);
@@ -97,13 +97,13 @@
     .container
         width 100%
         height 100%
-        padding 5px
+        padding 0
 
     .bar
         display flex
         justify-content space-evenly
         align-items center
-        padding 0 10px
+        padding 0
         background-color #fff
         color #333644
         height 40px
