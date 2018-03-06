@@ -10,6 +10,7 @@ axios.defaults.headers.get['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(
   config => {
+    console.log(`axios.interceptors.request.use: `, config);
     config.validateStatus = function (status) {
       return Number(status) === 200;
     };
@@ -28,7 +29,7 @@ axios.interceptors.response.use(
   res => {
     if (Number(res.status) === 200 && res.data) {
       if (res.data.result === 'success') {
-        return res.data.data;
+        return Promise.resolve(res.data.data);
       } else if (res.data.result === 'error') {
         console.error('response.err: ', res.data.message);
         return Promise.reject(res.data);

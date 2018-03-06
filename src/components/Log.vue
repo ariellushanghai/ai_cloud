@@ -12,20 +12,20 @@
 
         .log
             el-table#table(:data='tableData', :style='styleObj', :show-header='false', size='mini')
-                el-table-column(prop='time_stamp', width='190')
-                el-table-column(prop='msg')
+                el-table-column(prop='timeStamp', width='200')
+                el-table-column(prop='log')
 </template>
 
 <script>
   import format from 'date-fns/format'
-  import {map, assign, isEmpty} from 'lodash'
+  import {extend, map, assign, isEmpty} from 'lodash'
   import API from '@/service/api'
 
   const zh_cn = require('date-fns/locale/zh-CN');
 
   export default {
     name: "Log",
-    props: ['api', 'id', 'freq'],
+    props: ['podName', 'freq', 'switch'],
     data() {
       return {
         max_line: 5e3,
@@ -34,44 +34,56 @@
         input_log_filter: '',
         logs: [],
         interval_id: null,
+        req_conf: {
+          pageIndex: 1,
+          pageSize: 10,
+          timestamp: ''
+        },
         styleObj: {
           width: '100%',
           height: '100%'
         }
       };
     },
+    watch: {
+      switch: function (val) {
+        console.log(`switch: ${val}`);
+        this.req_conf.timestamp = `${Date.now()}`;
+        // this.req_conf.timestamp = `1520325335470`;
+        if (val) {
+          this.pollingLog();
+        } else {
+          this.req_conf.pageIndex = 1;
+          window.clearInterval(this.interval_id);
+        }
+      }
+    },
     computed: {
       tableData() {
-        return map(this.logs, (v) => {
-          return assign(v, {
-            'time_stamp': format(
-              new Date(v.timeStamp),
-              'MMMD[日] Ah[点]mm[分]ss[秒]',
-              {locale: zh_cn}
-            )
-          })
-        }).filter(log => log.msg.toLowerCase().includes(String(this.input_log_filter).toLowerCase()))
+        return this.logs.filter(log => log.log.toLowerCase().includes(String(this.input_log_filter).toLowerCase()))
       }
     },
     mounted() {
-      // this.pollingLog();
+      console.log('mounted(): ', this.switch);
     },
     beforeDestroy: function () {
+      this.req_conf.pageIndex = 1;
       window.clearInterval(this.interval_id);
     },
     methods: {
-      fetchData(api, id) {
-        console.log(`fetchData(${api}, ${id})`);
+      fetchData(podName) {
         let $table = document.querySelector('#table');
         this.isLoading = true;
-        return API.getLog(api, id).then(res => {
+
+        return API.getLog(extend({}, this.req_conf, {podName: podName})).then(res => {
           console.log(`res: `, res);
           this.isLoading = false;
-          if (!isEmpty(res)) {
+          if (!isEmpty(res.logs)) {
             if (this.logs.length > this.max_line) {
               this.logs = [];
             }
-            res.forEach(ele => this.logs.push(ele));
+            res.logs.forEach(ele => this.logs.push(ele));
+            this.req_conf.pageIndex++;
           }
           this.auto_scroll_to_bottom && this.$nextTick(() => {
             $table.scrollTop = $table.scrollHeight - $table.clientHeight;
@@ -79,14 +91,15 @@
         })
       },
       refresh() {
-        return this.fetchData(this.api, this.id);
+        return this.fetchData(this.podName);
       },
       clear() {
         return this.logs = [];
       },
       pollingLog() {
         this.interval_id = setInterval(() => {
-          this.fetchData(this.api, this.id)
+          this.fetchData(this.podName);
+
         }, Number(this.freq))
       }
     }
@@ -150,7 +163,8 @@
         }
         /deep/ .el-table
             th, tr, td, th.is-leaf
-                font-size 13px
+                font-size 12px
+                padding 2px 0
                 background-color black
                 color #00D900
                 vertical-align text-top

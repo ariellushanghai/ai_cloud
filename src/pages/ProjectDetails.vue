@@ -5,7 +5,7 @@
             // 训练日志弹出框
             el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='0', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
                 .log-container
-                    log(api='getLog', id='0', :freq='5000')
+                    log(:podName='train_pod', :freq='5000', :switch='dialog_train_log_visible')
 
             // 新建训练弹出框
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
@@ -186,6 +186,7 @@
         list_images: [],
         dialog_add_training_visible: false,
         dialog_train_log_visible: false,
+        train_pod: '',
         steps_add_training: [{
           name: '构建镜像',
           form_name: 'form_build_image'
@@ -501,9 +502,11 @@
       handleOpenLog(index, row) {
         console.log(`handleOpenLog(): `, index, row);
         this.dialog_train_log_visible = true;
+        this.train_pod = row.pod;
       },
       handleCloseLog() {
         console.log(`handleCloseLog(): `);
+        this.dialog_train_log_visible = false;
       },
       handleContinueDeployImage(index, row) {
         console.log(`handleContinueDeployImage(): `, index, row);
@@ -521,7 +524,6 @@
         this.$refs[form].validate((valid) => {
           console.log(`valid: `, valid);
           if (valid) {
-            // alert('submit!');
             if (form === 'form_build_image') {
               return this.postFormBuildImage(this.form_build_image);
             }
@@ -555,18 +557,22 @@
         console.log('API: ', API);
         console.log('payload: ', payload);
         API.buildImage(payload).then(res => {
-          this.$notify({
-            message: `构建镜像成功`,
-            type: 'success',
-            duration: 2000
-          });
-          this.isBuildingImage = false;
-          this.form_deploy_image = omit(extend({}, this.tmpl_form_deploy_image, this.form_build_image), [
-            'uploaded_code', 'uploaded_data'
-          ]);
-          console.log(`L543: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
-          this.form_build_image = extend({}, this.tmpl_form_build_image);
-          this.at_step_add_training = 1;
+          if (Number(res.status) === 200 && res.data && res.data.result === 'success') {
+            let response = res.data.data;
+            this.$notify({
+              message: `构建镜像成功`,
+              type: 'success',
+              duration: 2000
+            });
+            this.isBuildingImage = false;
+            this.form_deploy_image = omit(extend({}, this.tmpl_form_deploy_image, this.form_build_image, response), [
+              'uploaded_code', 'uploaded_data', 'pod', 'status', 'imageId', 'containers', 'imageUrl'
+            ]);
+            this.form_deploy_image.image = response.imageUrl;
+            console.log(`L567: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
+            this.form_build_image = extend({}, this.tmpl_form_build_image);
+            this.at_step_add_training = 1;
+          }
         }, err => {
           console.log(`err: `, err);
           this.$notify({
@@ -598,24 +604,27 @@
         console.log(`payload: `, payload);
         this.isDeployingImage = true;
         API.deployImage(payload).then(res => {
-          this.$notify({
-            message: `部署镜像成功`,
-            type: 'success',
-            duration: 2000
-          });
-          this.dialog_add_training_visible = false;
-          this.isDeployingImage = false;
-          this.form_deploy_image = extend({}, this.tmpl_form_deploy_image);
-          this.at_step_add_training = 0;
-
-        }, err => {
-          console.log(`err: `, err);
-          this.$notify({
-            message: `${err}`,
-            type: 'error',
-            duration: 0
-          });
-          this.isDeployingImage = false;
+          if (Number(res.status) === 200 && res.data && res.data.result === 'success') {
+            let response = res.data.data;
+            this.$notify({
+              message: `部署镜像成功`,
+              type: 'success',
+              duration: 2000
+            });
+            this.fetchData();
+            this.dialog_add_training_visible = false;
+            this.isDeployingImage = false;
+            this.form_deploy_image = extend({}, this.tmpl_form_deploy_image);
+            this.at_step_add_training = 0;
+          } else {
+            console.log(`err: `, res.data.result);
+            this.$notify({
+              message: `${res.data.result}`,
+              type: 'error',
+              duration: 0
+            });
+            this.isDeployingImage = false;
+          }
         });
       }
     },

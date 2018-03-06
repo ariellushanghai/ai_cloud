@@ -96,9 +96,9 @@ export default {
     return req.post(`/image/deploy`, obj);
   },
   // 获取训练日志
-  getLog(id) {
+  getLog(obj) {
     // return network.get('getLog.json');
-    return network.get(`/logs/${id}`);
+    return network.post('/logs', obj);
   },
 
   baseUploadToAddr(path) {

@@ -11,8 +11,8 @@
                     el-form-item(label='密码', prop='password')
                         el-input(v-model='form_login.password', type='password', @keydown.enter="submit('form_login')", auto-complete='off')
                     el-form-item.btn-grp
-                        el-button(@click="submit('form_login')", type='primary') 登录
-                        el-button(@click="resetForm('form_login')") 取消
+                        el-button(@click="submit('form_login')", :loading='isLoading', type='primary') 登录
+                        el-button(@click="resetForm('form_login')", v-show='!isLoading') 取消
 </template>
 
 <script>

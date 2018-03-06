@@ -35,3 +35,12 @@ input::selection, .cell *::selection, .cell::selection {
     quotes: "「" "」";
 }
 
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background-color: rgba(234, 85, 5, 0.5);
+}
