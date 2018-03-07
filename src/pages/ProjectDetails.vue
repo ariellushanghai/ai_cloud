@@ -3,7 +3,7 @@
         el-main.project-details-main
 
             // 训练日志弹出框
-            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='0', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
+            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='50px', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
                 .log-container
                     log(:podName='train_pod', :freq='5000', :switch='dialog_train_log_visible')
 
@@ -15,9 +15,9 @@
                         el-step(title='构建镜像', icon='el-icon-edit')
                         el-step(title='部署镜像', icon='el-icon-upload')
                 // 表单
-                .form-container
+                .form-container(v-loading='isBuildingImage')
                     // 第一步: 构建镜像
-                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', v-loading='isBuildingImage || isTransformingFile', element-loading-background='rgba(255, 255, 255, 0.1)', :disabled='isBuildingImage || isTransformingFile', :status-icon='true', label-position='left', label-width='50%', size='small')
+                    el-form(v-show='at_step_add_training === 0', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', element-loading-background='rgba(255, 255, 255, 0.1)', :disabled='isBuildingImage || isTransformingFile', :status-icon='true', label-position='left', label-width='50%', size='small')
 
                         el-form-item(label='输入训练名:', prop='trainName')
                             el-input(v-model.trim='form_build_image.trainName', auto-complete='off', :style="{'width': '200px'}")
@@ -79,14 +79,14 @@
 
                 // 第一步: 构建镜像
                 .dialog-footer(v-show='at_step_add_training === 0', slot='footer')
-                    el-button(@click="cancelForm('form_build_image')", :v-show='!isBuildingImage', :disabled='isTransformingFile', size='small')
+                    el-button(@click="cancelForm('form_build_image')", :v-show='!isBuildingImage', :disabled='isTransformingFile || isBuildingImage', size='small')
                         | 取消
                     el-button(type='primary', @click="validateForm('form_build_image')", :disabled='disableBtnBuildImage', :loading='isBuildingImage', icon='el-icon-check', size='small')
                         | 下一步
 
                 // 第二步: 部署镜像
                 .dialog-footer(v-show='at_step_add_training === 1', slot='footer')
-                    el-button(@click="cancelForm('form_deploy_image')", size='small')
+                    el-button(@click="cancelForm('form_deploy_image')", :disabled='isTransformingFile || isBuildingImage', size='small')
                         | 取消
                     el-button(type='primary', @click="validateForm('form_deploy_image')", :loading='isBuildingImage', icon='el-icon-check', size='small')
                         | 完成
@@ -108,7 +108,7 @@
                         el-input(placeholder='过滤训练名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_trainings_filter')
                     // 训练表格
                     el-card.card(:body-style="{padding:'15px'}")
-                        el-table.training-table(:data='tableTrainings', :height='table_height', stripe='', fit='', border='')
+                        el-table.training-table(:data='tableTrainings', :height='table_height', stripe='', fit='')
                             el-table-column(type='expand')
                                 template(slot-scope='props')
                                     el-form.table-expand(label-position='left', inline='', size='small')
@@ -664,6 +664,8 @@
 
     .card.operations .el-input
         width 200px
+
+    /*.dialog-image-operations*/
 
     .training-table
         padding 0

@@ -65,6 +65,8 @@
     },
     mounted() {
       console.log('mounted(): ', this.switch);
+      this.req_conf.timestamp = `${Date.now()}`;
+      return this.pollingLog();
     },
     beforeDestroy: function () {
       this.req_conf.pageIndex = 1;
@@ -97,9 +99,9 @@
         return this.logs = [];
       },
       pollingLog() {
-        this.interval_id = setInterval(() => {
+        this.fetchData(this.podName);
+        return this.interval_id = setInterval(() => {
           this.fetchData(this.podName);
-
         }, Number(this.freq))
       }
     }
@@ -168,7 +170,7 @@
                 background-color black
                 color #00D900
                 vertical-align text-top
-                border-bottom 1px dashed #666
+                border-bottom 1px groove #666
 
         /deep/ .el-table--enable-row-hover .el-table__body tr:hover > td
             background-color black
