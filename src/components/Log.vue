@@ -22,7 +22,7 @@
 
   export default {
     name: "Log",
-    props: ['podName', 'freq', 'switch'],
+    props: ['podName', 'timestamp', 'freq', 'switch'],
     data() {
       return {
         max_line: 5e3,
@@ -34,7 +34,7 @@
         req_conf: {
           from: 0,
           size: 10,
-          timestamp: ''
+          timestamp: Number(this.timestamp)
         },
         styleObj: {
           width: '100%',
@@ -45,8 +45,7 @@
     watch: {
       switch: function (val) {
         console.log(`switch: ${val}`);
-        this.req_conf.timestamp = `${Date.now()}`;
-        // this.req_conf.timestamp = `1520325335470`;
+        // this.req_conf.timestamp = `${Date.now()}`;
         if (val) {
           this.pollingLog();
         } else {
@@ -62,7 +61,7 @@
     },
     mounted() {
       console.log('mounted(): ', this.switch);
-      this.req_conf.timestamp = `${Date.now()}`;
+      // this.req_conf.timestamp = `${Date.now()}`;
       return this.pollingLog();
     },
     beforeDestroy: function () {
@@ -90,7 +89,9 @@
         })
       },
       refresh() {
-        return this.fetchData(this.podName);
+        if (this.isLoading === false) {
+          return this.fetchData(this.podName);
+        }
       },
       clear() {
         return this.logs = [];
@@ -98,7 +99,9 @@
       pollingLog() {
         this.fetchData(this.podName);
         return this.interval_id = setInterval(() => {
-          this.fetchData(this.podName);
+          if (this.isLoading === false) {
+            return this.fetchData(this.podName);
+          }
         }, Number(this.freq))
       }
     }
