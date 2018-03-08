@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   redirectURL = 'http://bip.pab.com.cn/cm/login.html?redirectUrl=' + redirect_uri + '';
   loginURL = 'http://localhost:8080/cm/login.html?redirectUrl=';
-  baseURL = 'http://localhost:8080/api'
+  baseURL = 'http://10.25.83.76:8088/api'
 }
 
 export {redirectURL, loginURL, baseURL}

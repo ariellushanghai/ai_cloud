@@ -11,8 +11,8 @@
                             template(slot="prepend") {{prepend}}
 
                 .dialog-footer(slot='footer')
-                    el-button(@click="cancelForm('form_add_proj')") 取消
-                    el-button(type='primary', @click="validateForm('form_add_proj')", icon='el-icon-upload2', :loading='isSendingForm')
+                    el-button(@click="cancelForm('form_add_proj')", size='small') 取消
+                    el-button(type='primary', @click="validateForm('form_add_proj')", icon='el-icon-upload2', :loading='isSendingForm', size='small')
                         | 提交
 
 

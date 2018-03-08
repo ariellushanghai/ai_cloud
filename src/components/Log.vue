@@ -17,11 +17,8 @@
 </template>
 
 <script>
-  import format from 'date-fns/format'
   import {extend, map, assign, isEmpty} from 'lodash'
   import API from '@/service/api'
-
-  const zh_cn = require('date-fns/locale/zh-CN');
 
   export default {
     name: "Log",
@@ -35,8 +32,8 @@
         logs: [],
         interval_id: null,
         req_conf: {
-          pageIndex: 1,
-          pageSize: 10,
+          from: 0,
+          size: 10,
           timestamp: ''
         },
         styleObj: {
@@ -53,7 +50,7 @@
         if (val) {
           this.pollingLog();
         } else {
-          this.req_conf.pageIndex = 1;
+          this.req_conf.from = 0;
           window.clearInterval(this.interval_id);
         }
       }
@@ -69,7 +66,7 @@
       return this.pollingLog();
     },
     beforeDestroy: function () {
-      this.req_conf.pageIndex = 1;
+      this.req_conf.from = 0;
       window.clearInterval(this.interval_id);
     },
     methods: {
@@ -85,7 +82,7 @@
               this.logs = [];
             }
             res.logs.forEach(ele => this.logs.push(ele));
-            this.req_conf.pageIndex++;
+            this.req_conf.from = res.from;
           }
           this.auto_scroll_to_bottom && this.$nextTick(() => {
             $table.scrollTop = $table.scrollHeight - $table.clientHeight;
