@@ -22,11 +22,12 @@
 
   export default {
     name: "Log",
-    props: ['podName', 'timestamp', 'freq', 'switch'],
+    props: ['train_status', 'podName', 'timestamp', 'freq', 'switch'],
     data() {
       return {
         max_line: 5e3,
         auto_scroll_to_bottom: true,
+        isLogEnd: false,
         isLoading: false,
         input_log_filter: '',
         logs: [],
@@ -34,7 +35,7 @@
         req_conf: {
           from: 0,
           size: 10,
-          timestamp: Number(this.timestamp)
+          timestamp: null
         },
         styleObj: {
           width: '100%',
@@ -61,14 +62,28 @@
     },
     mounted() {
       console.log('mounted(): ', this.switch);
-      // this.req_conf.timestamp = `${Date.now()}`;
+      this.isTrainingMode();
+      this.setTrainingMode();
       return this.pollingLog();
     },
     beforeDestroy: function () {
-      this.req_conf.from = 0;
-      window.clearInterval(this.interval_id);
+      this.stopPollingLog();
+      this.clear();
     },
     methods: {
+      isTrainingMode() {
+        return (this.train_status === '10' ? true : false);
+      },
+      setTrainingMode() {
+        if (this.isTrainingMode()) {
+          // debugger;
+          // 训练中
+          this.req_conf.timestamp = `${Date.now()}`;
+        } else {
+          // debugger;
+          this.req_conf.timestamp = Number(this.timestamp)
+        }
+      },
       fetchData(podName) {
         let $table = document.querySelector('#table');
         this.isLoading = true;
@@ -82,9 +97,22 @@
             }
             res.logs.forEach(ele => this.logs.push(ele));
             this.req_conf.from = res.from;
+          } else {
+            if (!this.isTrainingMode()) {
+              // debugger;
+              return this.stopPollingLog();
+            }
           }
           this.auto_scroll_to_bottom && this.$nextTick(() => {
             $table.scrollTop = $table.scrollHeight - $table.clientHeight;
+          });
+        }, err => {
+          console.error(`err: `, err);
+          this.isLoading = false;
+          this.$notify({
+            message: `${err}`,
+            type: 'error',
+            duration: 0
           });
         })
       },
@@ -99,10 +127,19 @@
       pollingLog() {
         this.fetchData(this.podName);
         return this.interval_id = setInterval(() => {
-          if (this.isLoading === false) {
+          if (this.isTrainingMode() && this.isLoading === false) {
             return this.fetchData(this.podName);
+          } else {
+            // 非训练中模式
+            if (!this.isLogEnd && this.isLoading === false) {
+              return this.fetchData(this.podName);
+            }
           }
         }, Number(this.freq))
+      },
+      stopPollingLog() {
+        this.req_conf.from = 0;
+        window.clearInterval(this.interval_id);
       }
     }
   }

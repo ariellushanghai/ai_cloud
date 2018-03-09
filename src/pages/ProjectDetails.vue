@@ -5,7 +5,7 @@
             // 训练日志弹出框
             el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='50px', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
                 .log-container
-                    log(:podName='train_pod', :freq='5000', :timestamp='trainCreateDate', :switch='dialog_train_log_visible')
+                    log(:train_status='train_status' , :podName='train_pod', :freq='5000', :timestamp='trainCreateDate', :switch='dialog_train_log_visible')
 
             // 新建训练弹出框
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
@@ -187,6 +187,7 @@
         dialog_add_training_visible: false,
         dialog_train_log_visible: false,
         train_pod: '',
+        train_status: '',
         trainCreateDate: null,
         steps_add_training: [{
           name: '构建镜像',
@@ -505,6 +506,7 @@
         this.dialog_train_log_visible = true;
         this.train_pod = row.pod;
         this.trainCreateDate = row.createDate;
+        this.train_status = row.status
       },
       handleCloseLog() {
         console.log(`handleCloseLog(): `);
