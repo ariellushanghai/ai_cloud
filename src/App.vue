@@ -14,7 +14,7 @@
   export default {
     name: 'app',
     metaInfo: {
-      title: 'AI☁️',
+      title: 'AI云️',
       titleTemplate: '%s-'
     },
     components: {
