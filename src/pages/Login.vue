@@ -9,7 +9,7 @@
                     el-form-item(label='用户名', prop='userName')
                         el-input(v-model='form_login.userName', :autofocus='true')
                     el-form-item(label='密码', prop='password')
-                        el-input(v-model='form_login.password', type='password', @keydown.enter="submit('form_login')", auto-complete='off')
+                        el-input(v-model='form_login.password', type='password', @keyup.enter.native="submit('form_login')", auto-complete='off')
                     el-form-item.btn-grp
                         el-button(@click="submit('form_login')", :loading='isLoading', type='primary') 登录
                         el-button(@click="resetForm('form_login')", v-show='!isLoading') 取消
