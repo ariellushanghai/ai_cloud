@@ -10,7 +10,7 @@ axios.defaults.headers.get['Content-Type'] = 'application/json';
 
 axios.interceptors.request.use(
   config => {
-    console.log(`axios.interceptors.request.use: `, config);
+    // console.log(`axios.interceptors.request.use: `, config);
     config.validateStatus = function (status) {
       return Number(status) === 200;
     };

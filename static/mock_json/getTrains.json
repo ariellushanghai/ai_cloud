@@ -4,7 +4,7 @@
   "result": "success",
   "data": [
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9ab",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9ab",
       "trainName": "项目_0",
       "namespace": "lee",
       "dirPath": "string",
@@ -23,7 +23,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9ac",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9ac",
       "trainName": "trainName-TEST_1_long_long_name_trainName-TEST_1_long_long_name",
       "namespace": "lee",
       "dirPath": "string",
@@ -40,7 +40,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9ad",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9ad",
       "trainName": "trainName-TEST_2",
       "namespace": "lee",
       "dirPath": "string",
@@ -58,7 +58,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9af",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9af",
       "trainName": "trainName-TEST_3",
       "namespace": "lee",
       "dirPath": "string",
@@ -76,7 +76,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9as",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9as",
       "trainName": "trainName-TEST_4",
       "namespace": "lee",
       "dirPath": "string",
@@ -94,7 +94,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885579ed9cc00b9ae",
+      "rprojectId": "d0b7c07e9a8249f885579ed9cc00b9ae",
       "trainName": "trainName-TEST_5",
       "namespace": "lee",
       "dirPath": "string",
@@ -112,7 +112,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f855579ed9cc00b9as",
+      "rprojectId": "d0b7c07e9a8249f855579ed9cc00b9as",
       "trainName": "trainName-TEST_6",
       "namespace": "lee",
       "dirPath": "string",
@@ -130,7 +130,7 @@
       "revision": "0.1.0"
     },
     {
-      "trainId": "d0b7c07e9a8249f885589ed9cc00b9ae",
+      "rprojectId": "d0b7c07e9a8249f885589ed9cc00b9ae",
       "trainName": "trainName-TEST_7",
       "namespace": "lee",
       "dirPath": "string",

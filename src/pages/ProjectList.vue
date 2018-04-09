@@ -95,7 +95,7 @@
         return this.$store.getters.user_name
       },
       prepend() {
-        return `${this.$store.state.user.parentDir}/train/`;
+        return `${this.$store.state.user.parentDir}/`;
       }
     },
 
