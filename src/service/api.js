@@ -53,10 +53,10 @@ export default {
         });
     },
     // 训练项目List
-    getProjects(userName) {
+    getProjects(userName, projectType) {
         console.log(`getProjects(${userName})`)
         // return network.get('getProjects.json');
-        return network.get(`/projects/${userName}`);
+        return network.get(`/projects/${userName}/${projectType}`);
     },
     // 新增训练项目
     addProject(obj) {

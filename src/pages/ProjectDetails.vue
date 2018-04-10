@@ -32,7 +32,7 @@
                     // 第2步: 构建镜像
                     el-form(v-show='at_step_add_training === 1', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', element-loading-background='rgba(255, 255, 255, 0.1)', :disabled='isBuildingImage || isTransformingFile', :status-icon='true', label-position='left', label-width='50%', size='small')
 
-                        el-form-item(label='输入训练名:', prop='rprojectName')
+                        el-form-item(label='训练名:', prop='rprojectName')
                             el-input(v-model.trim='form_build_image.rprojectName', auto-complete='off', :style="{'width': '200px'}", disabled='')
 
                         el-form-item(label='选择镜像:', prop='imageName')
@@ -40,11 +40,11 @@
                                 el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image.imageName')
 
                         el-form-item(:label="'上传代码到 ' + upload_code_url_short", prop='uploaded_code')
-                            el-upload(:action='upload_code_url', :on-progress='handleFileUploading', :on-success='handleCodeUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName')
+                            el-upload(:action='upload_code_url', :on-progress='handleFileUploading', :on-success='handleCodeUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='true', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName')
                                 el-button(type='primary', icon='el-icon-upload', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName') 点击上传
 
                         el-form-item(:label="'上传训练数据到 ' + upload_data_url_short", prop='uploaded_data')
-                            el-upload(:action='upload_data_url', :on-progress='handleFileUploading', :on-success='handleDataUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='false', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName')
+                            el-upload(:action='upload_data_url', :on-progress='handleFileUploading', :on-success='handleDataUploadedSuccess', :on-error='handleFileUploadedFailed', :show-file-list='true', :multiple='true', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName')
                                 el-button(type='primary', icon='el-icon-upload', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName') 点击上传
                     |
                     // 第3步: 部署镜像
@@ -113,7 +113,7 @@
             el-row(type='flex', style='overflow: hidden;')
                 // 左侧菜单栏
                 el-col.menu-wrapper(:sm='6', :md='6', :lg='4', :xl='3')
-                    project-menu(:data='project_menu_data')
+                    project-menu(:data='project_menu_data', :projectType="projectType")
                 el-col(:sm='18', :md='18', :lg='20', :xl='21')
                     // 操作栏
                     el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
@@ -198,6 +198,7 @@
         metaInfo: {
             titleTemplate: '%s-项目详情'
         },
+        props: ["projectType", "trainType"],
         data() {
             return {
                 isLoadingTable: false,
@@ -244,21 +245,22 @@
                     rprojectName: '',
                     namespace: '',
                     name: '',
-                    projectType: '00',
-                    projectDir: ''
+                    projectType: this.projectType,
+                    projectDir: '',
+                    type: this.trainType
                 },
                 form_naming_train: {
                     rprojectName: '',
                     namespace: '',
                     name: '',
-                    projectType: '00',
-                    projectDir: ''
+                    projectType: this.projectType,
+                    projectDir: '',
+                    type: this.trainType
                 },
                 tmpl_form_build_image: {
                     rprojectName: '',
                     rprojectId: '',
                     name: '',
-                    projectType: 'train',
                     namespace: '',
                     imageName: '',
                     uploaded_code: false,
@@ -268,7 +270,6 @@
                     rprojectName: '',
                     rprojectId: '',
                     name: '',
-                    projectType: 'train',
                     namespace: '',
                     imageName: '',
                     uploaded_code: false,
@@ -281,10 +282,6 @@
                     ]
                 },
                 rules_build_image: {
-                    rprojectName: [
-                        {type: "string", required: true, message: '请输入训练名', trigger: 'blur'},
-                        {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
-                    ],
                     imageName: [
                         {type: 'string', required: true, message: '请选择镜像', trigger: 'change'}
                     ],
@@ -302,9 +299,8 @@
                         train_num: 0,
                         cmd: ''
                     },
-                    projectType: 'train',
                     replicas: 1,
-                    type: 'job',
+                    type: this.trainType,
                     tensorboard: false,
                     enablePS: false,
                     enableWorkers: false
@@ -316,9 +312,8 @@
                         train_num: 0,
                         cmd: ''
                     },
-                    projectType: 'train',
                     replicas: 1,
-                    type: 'job',
+                    type: this.trainType,
                     tensorboard: false,
                     enablePS: false,
                     enableWorkers: false
@@ -340,17 +335,19 @@
                 return `${this.$store.state.user.parentDir}/`;
             },
             upload_code_url() {
-                console.log(`upload_code_url: ${baseURL}/upload?path=${this.home_path}train/${this.$route.params.name}/project/`);
-                return `${baseURL}/upload?path=${encodeURIComponent(this.home_path + 'train/' + this.$route.params.name + '/project/')}`;
+                console.log(`L339: `, this.form_build_image.rprojectName);
+                console.log(`upload_code_url`, `${baseURL}/uploads?path=${encodeURIComponent(this.home_path + this.$route.params.name + '/' + this.form_build_image.rprojectName + '/project/')}`);
+                return `${baseURL}/uploads?path=${encodeURIComponent(this.home_path + this.$route.params.name + '/' + this.form_build_image.rprojectName + '/project/')}`;
             },
             upload_code_url_short() {
-                return `~/train/${this.$route.params.name}/project/`;
+                return `~/${this.$route.params.name}/${this.form_build_image.rprojectName}/project/`;
             },
             upload_data_url() {
-                return `${baseURL}/upload?path=${encodeURIComponent(this.home_path + 'train/' + this.$route.params.name + '/data/')}`;
+                console.log(`upload_data_url`, `${baseURL}/uploads?path=${encodeURIComponent(this.home_path + this.$route.params.name + '/' + this.form_build_image.rprojectName + '/data/')}`);
+                return `${baseURL}/uploads?path=${encodeURIComponent(this.home_path + this.$route.params.name + '/' + this.form_build_image.rprojectName + '/data/')}`;
             },
             upload_data_url_short() {
-                return `~/train/${this.$route.params.name}/data/`;
+                return `~/${this.$route.params.name}/${this.form_build_image.rprojectName}/data/`;
             },
             tableTrainings: function () {
                 return map(this.trainings_data, (v) => {
@@ -392,6 +389,7 @@
             }
         },
         mounted() {
+            console.log(`<ProjectDetails/> mounted: this.projectType: ${this.projectType}, this.trainType: ${this.trainType}`);
             if (!this.$store.state.project_list || !this.$store.state.project_list.length) {
                 return this.$router.push({name: 'project'})
             }
@@ -462,7 +460,8 @@
                 this.isLoadingTable = true;
                 return API.getTrains({
                     proName: this.$route.params.name,
-                    userName: this.$store.getters.user_name
+                    userName: this.$store.getters.user_name,
+                    projectType: this.projectType
                 }).then(res => {
                     console.log(`res: `, res)
                     this.trainings_data = res;
@@ -616,7 +615,7 @@
                 return API.namingTrain(payload).then(response => {
                     this.isNamingTrain = false;
                     this.form_build_image = omit(extend({}, this.tmpl_form_build_image, response), [
-                        'uploaded_code', 'uploaded_data', 'pod', 'status', 'imageId', 'containers', 'imageUrl'
+                        'pod', 'status', 'imageId', 'containers', 'imageUrl'
                     ]);
                     this.at_step_add_training = 1;
                 }, err => {
@@ -679,13 +678,11 @@
                 }), ['baseImage', 'codeURL', 'createDate', 'imageUrl', 'modifyDate', 'revision', 'env']);
                 if (raw_form_data.tensorboard) {
                     payload = extend(payload, {
-                        tensorboard: 1,
-                        servicePort: 6006,
-                        containerPort: 6006
+                        tensorboard: true
                     });
                 } else {
                     payload = omit(extend(payload, {
-                        tensorboard: 0
+                        tensorboard: false
                     }), ['servicePort', 'containerPort', 'env']);
                 }
                 console.log(`payload: `, payload);

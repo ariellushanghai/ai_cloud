@@ -76,8 +76,8 @@
         return this.home_path + this.current_sub_path;
       },
       full_path_upload_to() {
-        console.log(`full_path_upload_to: ${baseURL}/upload?path=${this.full_path}` + (this.current_sub_path ? '/' : ''));
-        return `${baseURL}/upload?path=${encodeURIComponent(this.full_path)}`;
+        console.log(`full_path_upload_to: ${baseURL}/uploads?path=${this.full_path}` + (this.current_sub_path ? '/' : ''));
+        return `${baseURL}/uploads?path=${encodeURIComponent(this.full_path)}`;
       },
       folderData() {
         return sortBy(map(this.current_path_content.children, (entry) => {

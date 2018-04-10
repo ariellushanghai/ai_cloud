@@ -1,30 +1,33 @@
 <template lang="pug">
     el-menu.vertical-menu(router='', unique-opened='', @select='handleSelectMenu', :default-active='defaultActive', text-color='#303133', active-text-color='#000')
         el-tooltip(v-for='item in data', :index='String(item.proName)', :key='item.proId', effect='dark', :content='item.proName', placement='right')
-            el-menu-item(:index="String('/project/'+item.proName)", :route="String('/project/'+item.proName)")
+            el-menu-item(:index="String('/' + middlePath + '/' +item.proName)", :route="String('/' + middlePath + '/' +item.proName)")
                 span(slot='title') {{item.proName}}
 </template>
 
 <script>
-  export default {
-    name: "ProjectMenu",
-    props: ['data'],
-    data() {
-      return {};
-    },
-    computed: {
-      defaultActive() {
-        return this.$route.path;
-      }
-    },
-    mounted() {
-    },
-    methods: {
-      handleSelectMenu(key, keyPath) {
-        console.log('handleSelectMenu(', key, keyPath, ')');
-      }
+    export default {
+        name: "ProjectMenu",
+        props: ['data', 'projectType'],
+        data() {
+            return {};
+        },
+        computed: {
+            defaultActive() {
+                return this.$route.path;
+            },
+            middlePath() {
+                return this.projectType === 'training' ? 'project' : 'development';
+            }
+        },
+        mounted() {
+        },
+        methods: {
+            handleSelectMenu(key, keyPath) {
+                console.log('handleSelectMenu(', key, keyPath, ')');
+            }
+        }
     }
-  }
 </script>
 
 <style lang="stylus" scoped>

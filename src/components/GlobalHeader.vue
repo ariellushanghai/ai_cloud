@@ -9,7 +9,7 @@
         |
         el-col(:sm='15', :md='15', :lg='17', :xl='17')
             el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', router='')
-                el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name', :disabled="menu.name == '部署上线'")
+                el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name')
                     | {{menu.name}}
         |
         el-col.col-user(:span='3')
@@ -40,156 +40,156 @@
 </template>
 
 <script>
-  // @flow
+    // @flow
 
-  import {extend, isNil} from 'lodash'
-  import API from '@/service/api'
-  import logo_file from '@/assets/images/logo.jpg'
+    import {extend, isNil} from 'lodash'
+    import API from '@/service/api'
+    import logo_file from '@/assets/images/logo.jpg'
 
-  export default {
-    name: 'GlobalHeader',
-    data() {
-      const validateOldPassword = (rule, value, callback) => {
-        if (isNil(value) || value === '') {
-          return callback(new Error('请输入现在的密码'))
-        } else {
-          if (this.form_change_passwd.newPassword !== '') {
-            this.$refs.form_change_passwd.validateField('newPassword');
-          }
-          callback();
-        }
-      };
-      const validateNewPassword = (rule, value, callback) => {
-        if (isNil(value) || value === '') {
-          return callback(new Error('请输入新密码'));
-        } else {
-          if (this.form_change_passwd.repeatNewPassword !== '') {
-            this.$refs.form_change_passwd.validateField('repeatNewPassword');
-          }
-          callback();
-        }
-      };
+    export default {
+        name: 'GlobalHeader',
+        data() {
+            const validateOldPassword = (rule, value, callback) => {
+                if (isNil(value) || value === '') {
+                    return callback(new Error('请输入现在的密码'))
+                } else {
+                    if (this.form_change_passwd.newPassword !== '') {
+                        this.$refs.form_change_passwd.validateField('newPassword');
+                    }
+                    callback();
+                }
+            };
+            const validateNewPassword = (rule, value, callback) => {
+                if (isNil(value) || value === '') {
+                    return callback(new Error('请输入新密码'));
+                } else {
+                    if (this.form_change_passwd.repeatNewPassword !== '') {
+                        this.$refs.form_change_passwd.validateField('repeatNewPassword');
+                    }
+                    callback();
+                }
+            };
 
-      const validateRepeatNewPassword = (rule, value, callback) => {
-        if (isNil(value) || value === '') {
-          return callback(new Error('请重复输入新密码'));
-        } else if (value !== this.form_change_passwd.newPassword) {
-          return callback(new Error('两次输入密码不一致!'));
-        } else {
-          callback();
-        }
-      };
-      return {
-        logo_file,
-        dialog_change_passwd_visible: false,
-        isSendingForm: false,
-        tmpl_form_change_passwd: {
-          oldPassword: '',
-          newPassword: '',
-          repeatNewPassword: ''
+            const validateRepeatNewPassword = (rule, value, callback) => {
+                if (isNil(value) || value === '') {
+                    return callback(new Error('请重复输入新密码'));
+                } else if (value !== this.form_change_passwd.newPassword) {
+                    return callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                logo_file,
+                dialog_change_passwd_visible: false,
+                isSendingForm: false,
+                tmpl_form_change_passwd: {
+                    oldPassword: '',
+                    newPassword: '',
+                    repeatNewPassword: ''
+                },
+                form_change_passwd: {
+                    oldPassword: '',
+                    newPassword: '',
+                    repeatNewPassword: ''
+                },
+                rules: {
+                    oldPassword: [
+                        {validator: validateOldPassword, trigger: 'blur'}
+                    ],
+                    newPassword: [
+                        {validator: validateNewPassword, trigger: 'blur'}
+                    ],
+                    repeatNewPassword: [
+                        {validator: validateRepeatNewPassword, trigger: 'blur'}
+                    ]
+                }
+            }
         },
-        form_change_passwd: {
-          oldPassword: '',
-          newPassword: '',
-          repeatNewPassword: ''
+        computed: {
+            defaultActive() {
+                if (/^\/project\//.exec(this.$route.path)) {
+                    return '/project'
+                }
+                if (/^\/development\//.exec(this.$route.path)) {
+                    return '/development'
+                }
+                return this.$route.path;
+            },
+            menuItems() {
+                return this.$store.getters.global_menu;
+            },
+            userName() {
+                return this.$store.getters.user_name;
+            },
+            hide_self() {
+                return !this.$store.getters.visiable_global_header;
+            }
         },
-        rules: {
-          oldPassword: [
-            {validator: validateOldPassword, trigger: 'blur'}
-          ],
-          newPassword: [
-            {validator: validateNewPassword, trigger: 'blur'}
-          ],
-          repeatNewPassword: [
-            {validator: validateRepeatNewPassword, trigger: 'blur'}
-          ]
-        }
-      }
-    },
-    computed: {
-      defaultActive() {
-        if (/^\/project\//.exec(this.$route.path)) {
-          return '/project'
-        }
-        // if (/^\/workflowform\//.exec(this.$route.path)) {
-        //   return '/workflowform/0'
-        // }
-        return this.$route.path;
-      },
-      menuItems() {
-        return this.$store.getters.global_menu;
-      },
-      userName() {
-        return this.$store.getters.user_name;
-      },
-      hide_self() {
-        return !this.$store.getters.visiable_global_header;
-      }
-    },
-    methods: {
-      logoutAICloud() {
-        return API.logoutAICloud().then(res => {
-          console.log(`logout success!!`);
-          this.$store.commit('LOGOUT');
-          return this.$router.replace({name: 'login'})
-        });
-      },
-      showForm() {
-        this.form_change_passwd = extend({}, this.tmpl_form_change_passwd);
-        return this.dialog_change_passwd_visible = true;
-      },
-      cancelForm(formName: string) {
-        console.log(`cancelForm(${formName})`);
-        this.$refs[formName].resetFields();
-        this.form_change_passwd = extend({}, this.tmpl_form_change_passwd);
-        return this.dialog_change_passwd_visible = false;
-      },
-      validateForm(formName: string) {
-        console.log('validateForm(formName): ', formName);
+        methods: {
+            logoutAICloud() {
+                return API.logoutAICloud().then(res => {
+                    console.log(`logout success!!`);
+                    this.$store.commit('LOGOUT');
+                    return this.$router.replace({name: 'login'})
+                });
+            },
+            showForm() {
+                this.form_change_passwd = extend({}, this.tmpl_form_change_passwd);
+                return this.dialog_change_passwd_visible = true;
+            },
+            cancelForm(formName: string) {
+                console.log(`cancelForm(${formName})`);
+                this.$refs[formName].resetFields();
+                this.form_change_passwd = extend({}, this.tmpl_form_change_passwd);
+                return this.dialog_change_passwd_visible = false;
+            },
+            validateForm(formName: string) {
+                console.log('validateForm(formName): ', formName);
 
-        this.$refs[formName].validate((valid) => {
-          console.log(`valid: `, valid);
-          if (valid) {
-            // alert('submit!');
-            return this.postForm(extend(this.form_change_passwd, {userName: this.userName}));
-          } else {
-            console.error('error submit!!');
-            return false;
-          }
-        });
-      },
-      postForm(data) {
-        console.log(`postForm(): `, data);
-        this.isSendingForm = true;
-        return API.changePasswd(data).then(res => {
-          this.$notify({
-            message: `修改密码成功`,
-            type: 'success',
-            duration: 1000
-          });
-          this.isSendingForm = false;
-          this.cancelForm('form_change_passwd');
-        }, err => {
-          console.error(`err: `, err);
-          this.$notify({
-            message: `${err.message}`,
-            type: 'error',
-            duration: 0
-          });
-          this.isSendingForm = false;
-        });
-      },
-      handleCommand(command) {
-        if (command === 'logout') {
-          return this.logoutAICloud();
-        }
-        if (command === 'changePasswd') {
-          return this.showForm();
-        }
+                this.$refs[formName].validate((valid) => {
+                    console.log(`valid: `, valid);
+                    if (valid) {
+                        // alert('submit!');
+                        return this.postForm(extend(this.form_change_passwd, {userName: this.userName}));
+                    } else {
+                        console.error('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            postForm(data) {
+                console.log(`postForm(): `, data);
+                this.isSendingForm = true;
+                return API.changePasswd(data).then(res => {
+                    this.$notify({
+                        message: `修改密码成功`,
+                        type: 'success',
+                        duration: 1000
+                    });
+                    this.isSendingForm = false;
+                    this.cancelForm('form_change_passwd');
+                }, err => {
+                    console.error(`err: `, err);
+                    this.$notify({
+                        message: `${err.message}`,
+                        type: 'error',
+                        duration: 0
+                    });
+                    this.isSendingForm = false;
+                });
+            },
+            handleCommand(command) {
+                if (command === 'logout') {
+                    return this.logoutAICloud();
+                }
+                if (command === 'changePasswd') {
+                    return this.showForm();
+                }
 
-      }
+            }
+        }
     }
-  }
 </script>
 
 <style lang="stylus" scoped>
