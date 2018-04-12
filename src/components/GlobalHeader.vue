@@ -215,6 +215,7 @@
         justify-content space-around
         align-items center
         background-color ping_an-orange
+        user-select none
 
     .logo
         display block
@@ -223,6 +224,7 @@
         width 82px
         height auto
         max-height header-height
+        user-select none
 
     .title
         justify-content center
@@ -230,8 +232,10 @@
         text-align center
         background-color ping_an-orange
         font-size 20px
+        font-family Verdana
         font-weight bold
         color #fff
+        user-select none
 
     .col-user
         display flex

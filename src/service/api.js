@@ -75,9 +75,9 @@ export default {
         });
     },
     // 获取基础镜像列表
-    getImages() {
+    getImages(type) {
         // return network.get('getImages.json');
-        return network.get(`/images`);
+        return network.get(`/images/${type}`);
     },
     // 命名新训练
     namingTrain(obj) {

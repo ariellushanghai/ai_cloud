@@ -33,10 +33,10 @@
                     el-form(v-show='at_step_add_training === 1', :model='form_build_image', :rules='rules_build_image', ref='form_build_image', element-loading-background='rgba(255, 255, 255, 0.1)', :disabled='isBuildingImage || isTransformingFile', :status-icon='true', label-position='left', label-width='50%', size='small')
 
                         el-form-item(label='训练名:', prop='rprojectName')
-                            el-input(v-model.trim='form_build_image.rprojectName', auto-complete='off', :style="{'width': '200px'}", disabled='')
+                            el-input(v-model.trim='form_build_image.rprojectName', auto-complete='off', :style="{'width': '300px'}", disabled='')
 
                         el-form-item(label='选择镜像:', prop='imageName')
-                            el-select(v-model='form_build_image.imageName', placeholder='请选择镜像', :style="{'width': '200px'}")
+                            el-select(v-model='form_build_image.imageName', placeholder='请选择镜像', :style="{'width': '300px'}")
                                 el-option(v-for='image in list_images', :label='image.imageName', :key='image.imageId', :value='image.imageName')
 
                         el-form-item(:label="'上传代码到 ' + upload_code_url_short", prop='uploaded_code')
@@ -49,39 +49,42 @@
                     |
                     // 第3步: 部署镜像
                     el-form(v-show='at_step_add_training === 2', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='isTransformingFile')
-
+                        |
                         .templates(v-show='!showCustomComputeResource')
                             .compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="selectComputeResourceTemplate(index)", :class="{selected: index === selected_compute_resource_template}")
                                 p
-                                    span CPU:
-                                    span {{tmpl.requestCPU}} 核
+                                    span.left CPU:
+                                    span.right {{tmpl.requestCPU}} 核
                                 p
-                                    span 内存:
-                                    span {{tmpl.requestMemory}}
+                                    span.left 内存:
+                                    span.right {{tmpl.requestMemory}}
                                 p
-                                    span GPU:
-                                    span {{tmpl.gpu}} 个
-
+                                    span.left GPU:
+                                    span.right {{tmpl.gpu}} 个
+                        |
+                        el-form-item(v-if='form_deploy_image.jupyterPasswd', label='Jupyter密码:', prop='jupyterPasswd')
+                            el-input(v-model='form_deploy_image.jupyterPasswd', type="password", auto-complete="off")
+                        |
                         el-form-item(label='启用TensorBoard:')
                             el-switch(v-model='form_deploy_image.tensorboard', active-color='#13ce66')
-
+                        |
                         .forty-sixty
                             .forty
                                 el-form-item(:label="labelOfConfigParaServer")
                                     el-switch(v-model='form_deploy_image.enablePS', active-color='#13ce66')
                             .sixty
                                 el-slider(v-model='form_deploy_image.env.ps', :step='1', :min='0', :max='3', :show-stops='true',:disabled='!form_deploy_image.enablePS')
-
+                        |
                         .forty-sixty
                             .forty
                                 el-form-item(:label="labelOfConfigWorker")
                                     el-switch(v-model='form_deploy_image.enableWorkers', active-color='#13ce66')
                             .sixty
                                 el-slider(v-model='form_deploy_image.env.workers', :step='1', :min='0', :max='3', :show-stops='true', :disabled='!form_deploy_image.enableWorkers')
-
+                        |
                         el-form-item(label='训练轮数:')
                             el-input-number(v-model.trim='form_deploy_image.env.train_num', :min='0', :step='1000', auto-complete='off')
-
+                        |
                         el-form-item(label='命令行参数:')
                             el-input(v-model.trim='form_deploy_image.env.cmd', auto-complete='off')
                 |
@@ -168,12 +171,15 @@
                                         i.el-icon-loading
                                         | {{scope.row.status_zh}}
                             el-table-column(prop='count', label='训练轮数', align='center', width='100')
-                            el-table-column(label='操作', align='center', width='220')
+                            el-table-column(label='操作', align='center', min-width='220')
                                 template(slot-scope='scope')
-                                    el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
-                                        | 部署镜像
-                                    el-button(v-show="scope.row.status !== '00'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
-                                        | 察看日志
+                                    el-button-group
+                                        el-button(v-show="scope.row.status === '50'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueBuildImage(scope.$index, scope.row)')
+                                            | 构建镜像
+                                        el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
+                                            | 部署镜像
+                                        el-button(v-show="scope.row.status === '10' || scope.row.status === '20' || scope.row.status === '30' || scope.row.status === '40'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
+                                            | 查看日志
 
 </template>
 
@@ -226,19 +232,19 @@
                 selected_compute_resource_template: 0,
                 tmpl_compute_resource: [{
                     requestCPU: 1,
-                    requestMemory: '2Gi',
+                    requestMemory: '2 Gi',
                     gpu: 0
                 }, {
                     requestCPU: 2,
-                    requestMemory: '4Gi',
+                    requestMemory: '4 Gi',
                     gpu: 0
                 }, {
                     requestCPU: 8,
-                    requestMemory: '16Gi',
+                    requestMemory: '16 Gi',
                     gpu: 1
                 }, {
                     requestCPU: 16,
-                    requestMemory: '32Gi',
+                    requestMemory: '32 Gi',
                     gpu: 2
                 }],
                 tmpl_form_naming_train: {
@@ -292,19 +298,6 @@
                         {type: 'boolean', required: true, message: '请上传数据', trigger: 'change'}
                     ]
                 },
-                tmpl_form_deploy_image: {
-                    env: {
-                        ps: 0,
-                        workers: 0,
-                        train_num: 0,
-                        cmd: ''
-                    },
-                    replicas: 1,
-                    type: this.trainType,
-                    tensorboard: false,
-                    enablePS: false,
-                    enableWorkers: false
-                },
                 form_deploy_image: {
                     env: {
                         ps: 0,
@@ -318,7 +311,11 @@
                     enablePS: false,
                     enableWorkers: false
                 },
-                rules_deploy_image: {},
+                rules_deploy_image: {
+                    jupyterPasswd: [
+                        {type: 'string', required: true, message: '请输入密码', trigger: 'change'}
+                    ]
+                },
                 isNamingTrain: false,
                 isBuildingImage: false,
                 isDeployingImage: false,
@@ -328,6 +325,28 @@
             }
         },
         computed: {
+            tmpl_form_deploy_image() {
+                console.log(`this.projectType: ${this.projectType}`);
+                let tmpl = {
+                    env: {
+                        ps: 0,
+                        workers: 0,
+                        train_num: 0,
+                        cmd: ''
+                    },
+                    replicas: 1,
+                    type: this.trainType,
+                    tensorboard: false,
+                    enablePS: false,
+                    enableWorkers: false
+                };
+                if (this.projectType === 'develop') {
+                    tmpl = extend(tmpl, {
+                        jupyterPasswd: ''
+                    })
+                }
+                return tmpl;
+            },
             prependProjectDir() {
                 return `${this.$store.state.user.parentDir}/${this.$route.params.name}/`;
             },
@@ -511,9 +530,10 @@
             },
             handleAddTrain() {
                 console.log(`handleAddTrain()`);
+                let image_type = 'training';
                 this.form_build_image = extend({}, this.tmpl_form_build_image);
                 this.form_deploy_image = extend({}, this.tmpl_form_deploy_image);
-                return API.getImages().then(res => {
+                return API.getImages(image_type).then(res => {
                     this.list_images = res;
                     this.dialog_add_training_visible = true;
                 });
@@ -569,12 +589,25 @@
                 console.log(`handleCloseLog(): `);
                 this.dialog_train_log_visible = false;
             },
+            // 中断后继续构建
+            handleContinueBuildImage(index, row) {
+                let image_type = 'training';
+                console.log(`handleContinueBuildImage(): `, index, row);
+                return API.getImages(image_type).then(res => {
+                    this.list_images = res;
+                    this.form_build_image = omit(extend(this.tmpl_form_build_image, this.form_naming_train, row), ['status_zh', 'createDate_converted']);
+                    console.log(`L583: this.form_build_image: `, JSON.stringify(this.form_build_image));
+                    this.at_step_add_training = 1;
+                    this.dialog_add_training_visible = true;
+                });
+            },
+            // 中断后继续部署
             handleContinueDeployImage(index, row) {
                 console.log(`handleContinueDeployImage(): `, index, row);
                 this.form_deploy_image = omit(extend(this.form_deploy_image, row, {
                     image: row.imageUrl
                 }), ['status_zh', 'createDate_converted']);
-                console.log(`L489: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
+                console.log(`L583: this.form_deploy_image: `, JSON.stringify(this.form_deploy_image));
                 this.at_step_add_training = 2;
                 this.dialog_add_training_visible = true;
             },
@@ -608,7 +641,8 @@
                 let payload = extend(raw_form_data, {
                     name: self.$route.params.name,
                     namespace: self.$store.getters.user_name,
-                    projectDir: self.prependProjectDir
+                    projectDir: self.prependProjectDir,
+                    type: this.projectType === 'training' ? 'job' : 'jupyter'
                 });
                 console.log(`postFormNamingTrain(${JSON.stringify(payload)})`);
                 this.isNamingTrain = true;
@@ -689,7 +723,6 @@
                 this.isDeployingImage = true;
                 API.deployImage(payload).then(res => {
                     if (Number(res.status) === 200 && res.data && res.data.result === 'success') {
-                        let response = res.data.data;
                         this.$notify({
                             message: `部署镜像成功`,
                             type: 'success',
@@ -824,6 +857,7 @@
         width 120px
         margin 0
         border 2px dashed #c0c4cc
+        border-radius 20px
         transition all ease-in-out .2s
 
     .compute-resource-template:hover, .compute-resource-template.selected
@@ -840,6 +874,14 @@
 
         span
             width 50%
+
+            &.left
+                text-align right
+                padding-right 1em
+
+            &.right
+                text-align left
+                padding-left 1em
 
     .forty-sixty
         display flex
