@@ -1,6 +1,7 @@
 <template lang="pug">
     el-container.project-list
         el-main.project-list-main
+            |
             el-dialog(title='新增项目', :visible.sync='dialog_add_proj_visible', width='40%', append-to-body='', center='', :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
                 el-form(:model='form_add_proj', :rules='rules', ref='form_add_proj', size='small', :disabled='isSendingForm')
                     el-form-item(label='项目名称', prop='proName')
@@ -14,16 +15,18 @@
                     el-button(@click="cancelForm('form_add_proj')", size='small') 取消
                     el-button(type='primary', @click="validateForm('form_add_proj')", icon='el-icon-upload2', :loading='isSendingForm', size='small')
                         | 提交
-
-
+            |
             el-card.card.operations(:body-style="{padding:'15px'}", style='margin-bottom: 10px;')
                 .button-group
                     el-button(size='small', type='primary', icon='el-icon-circle-plus', style='margin-right: 10px;', @click='showForm')
                         | 新增项目
                     el-input(placeholder='过滤项目名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_proj_filter')
+            |
             el-row.loading-target(type='flex', :style="{height: proj_container_height + 'px','overflow': 'hidden','margin-bottom': '10px'}")
+                |
                 el-col.empty-list-container(v-if='proj_list.length === 0', :span='24')
                     .tip 暂无项目
+                |
                 el-col(v-if='proj_list.length !== 0', :span='24', :style="{'overflow-y': 'auto','overflow-x': 'hidden'}")
                     el-row.proj-container(type='flex', :gutter='10')
                         el-col(v-for='proj in proj_list', :xs='12', :sm='8', :md='8', :lg='6', :xl='4', :key='proj.proId', :style="{height: 'auto','margin-bottom': '10px'}")
@@ -57,6 +60,18 @@
         },
         props: ['projectType', 'trainType'],
         data: function () {
+            let checkName = (rule, value, callback) => {
+                return callback();
+                let reg = /[a-z]([-a-z0-9]*[a-z0-9])?/;
+                if (!value) {
+                    return callback(new Error('不能为空'));
+                }
+                if (reg.test(value)) {
+                    callback();
+                } else {
+                    callback(new Error('不合法'));
+                }
+            };
             return {
                 isLoading: false,
                 dialog_add_proj_visible: false,
@@ -69,8 +84,9 @@
                 },
                 rules: {
                     proName: [
-                        {type: "string", required: true, message: '请输入项目名', trigger: 'blur'},
-                        {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
+                        {validator: checkName, trigger: 'blur'}
+                        // {type: "string", required: true, message: '请输入项目名', trigger: 'blur'},
+                        // {min: 3, message: '长度在3个字符以上', trigger: 'blur'}
                     ]
                 },
                 projects_data: [],
@@ -85,7 +101,7 @@
                     return assign(v, {
                         createDate_converted: format(
                             new Date(v.createDate),
-                            'YYYY[年]MMMD[日]Ah[点]mm[分]',
+                            'YYYY[年]MMMD[日] Ah[点]mm[分]ss[秒]',
                             {locale: zh_cn}
                         )
                     })
@@ -278,6 +294,8 @@
         transform scale(1.05)
 
     .proj-card /deep/ .el-card__header
+        user-select none
+        text-transform uppercase
         background #fafafa
         padding 10px 20px
 

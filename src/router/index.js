@@ -4,8 +4,10 @@ import store from '@/store/'
 
 const UserManager = r => require(['@/pages/UserManager'], r);
 const Storage = r => require(['@/pages/Storage'], r);
+const Trainings = r => require(['@/pages/Trainings'], r);
 const ProjectList = r => require(['@/pages/ProjectList'], r);
 const ProjectDetails = r => require(['@/pages/ProjectDetails'], r);
+const TrainingDetails = r => require(['@/pages/TrainingDetails'], r);
 const Login = r => require(['@/pages/Login'], r);
 
 
@@ -44,10 +46,25 @@ const router = new Router({
         },
         // 模型训练->训练
         {
-            name: 'project_details',
+            // name: 'project_details',
             path: '/project/:name',
-            component: ProjectDetails,
-            props: {projectType: 'training', trainType: 'job'}
+            component: Trainings,
+            // component: ProjectDetails,
+            props: {projectType: 'training', trainType: 'job'},
+            children: [
+                {
+                    name: 'project_details',
+                    path: '',
+                    component: ProjectDetails,
+                    props: {projectType: 'training', trainType: 'job'}
+                },
+                {
+                    name: 'training_details',
+                    path: 'training/:id',
+                    component: TrainingDetails,
+                    props: {projectType: 'training', trainType: 'job'}
+                }
+            ]
         },
         // 模型开发->训练
         {

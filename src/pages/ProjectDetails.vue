@@ -114,10 +114,10 @@
 
 
             el-row(type='flex', style='overflow: hidden;')
-                // 左侧菜单栏
-                el-col.menu-wrapper(:sm='6', :md='6', :lg='4', :xl='3')
-                    project-menu(:data='project_menu_data', :projectType="projectType")
-                el-col(:sm='18', :md='18', :lg='20', :xl='21')
+                //- 左侧菜单栏
+                //- el-col.menu-wrapper(:sm='6', :md='6', :lg='4', :xl='3')
+                //-    project-menu(:data='project_menu_data', :projectType="projectType")
+                el-col(:sm='24', :md='24', :lg='24', :xl='24')
                     // 操作栏
                     el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
                         .button-group
@@ -129,9 +129,12 @@
                         el-input(placeholder='过滤训练名', suffix-icon='el-icon-search', size='small', clearable='', v-model='input_trainings_filter')
                     // 训练表格
                     el-card.card(:body-style="{padding:'15px'}")
-                        el-table.training-table(:data='tableTrainings', :height='table_height', stripe='', fit='')
+                        |
+                        el-table.training-table(:data='tableTrainings', @row-click="handleRowClick", :height='table_height', stripe='', fit='')
+                            |
                             el-table-column(type='expand')
                                 template(slot-scope='props')
+                                    |
                                     el-form.table-expand(label-position='left', inline='', size='small')
                                         el-form-item(label='ID: ')
                                             span {{ props.row.rprojectId }}
@@ -151,7 +154,10 @@
                                             span {{ props.row.target }}
                                         el-form-item(label='版本号: ')
                                             span {{ props.row.revision }}
+                            |
+                            |
                             el-table-column(prop='rprojectName', label='训练名', sortable='')
+                            |
                             el-table-column(prop='createDate_converted', label='创建时间', width='220', :sort-method='sortCreateDate', sortable='')
                             el-table-column(prop='status', label='状态', align='center', width='120')
                                 template(slot-scope='scope')
@@ -178,7 +184,7 @@
                                             | 构建镜像
                                         el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
                                             | 部署镜像
-                                        el-button(v-show="scope.row.status === '10' || scope.row.status === '20' || scope.row.status === '30' || scope.row.status === '40'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
+                                        //- el-button(v-show="scope.row.status === '10' || scope.row.status === '20' || scope.row.status === '30' || scope.row.status === '40'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
                                             | 查看日志
 
 </template>
@@ -373,16 +379,16 @@
                     return assign(v, {
                         createDate_converted: format(
                             new Date(v.createDate),
-                            'YYYY[年]MMMD[日]Ah[点]mm[分]',
+                            'YYYY[年]MMMD[日] Ah[点]mm[分]ss[秒]',
                             {locale: zh_cn}
                         ),
                         status_zh: `${this.transProjStatus(v.status).zh}`
                     })
                 }).filter((train) => train.rprojectName.toLowerCase().includes(String(this.input_trainings_filter).toLowerCase()))
             },
-            project_menu_data() {
-                return this.$store.state.project_list
-            },
+            // project_menu_data() {
+            //     return this.$store.state.project_list
+            // },
             disableBtnBuildImage() {
                 if (this.isTransformingFile || this.isBuildingImage) {
                     console.log(`L308`)
@@ -527,6 +533,19 @@
                         message: '失败! 请手动复制文本'
                     });
                 });
+            },
+            handleRowClick(row, event, column) {
+                console.log(`handleRowClick()`, arguments);
+                if (column.label === "操作") {
+                    return event.preventDefault();
+                } else {
+                    // API.getTrainById(row.rprojectId)
+                    return this.$router.push({
+                        name: 'training_details',
+                        params: {id: row.rprojectId}
+                    })
+                    // return row;
+                }
             },
             handleAddTrain() {
                 console.log(`handleAddTrain()`);
@@ -758,13 +777,13 @@
 <style lang="stylus" scoped>
     .ProjectDetails
         background-color antiquewhite
-        min-height 100%
+        height 100%
         position relative
 
     .project-details-main
         display flex
         flex-direction column
-        padding 10px
+        padding 0px
         width 100%
         height 100%
         position relative
@@ -788,6 +807,9 @@
         padding 0
         width 100%
         font-size 12px
+
+        /deep/ .el-table__row
+            cursor pointer
 
     .table-expand
         font-size 0
@@ -836,14 +858,6 @@
     .text-selected
         color #fff
         background-color #EA5505
-
-    .menu-wrapper
-        display flex
-        align-items stretch
-        padding-right 10px
-        border-radius 4px
-        overflow-x hidden
-        overflow-y auto
 
     .templates
         display flex

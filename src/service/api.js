@@ -83,6 +83,10 @@ export default {
     namingTrain(obj) {
         return network.post(`/app`, obj);
     },
+    // 获取训练详情
+    getTrainById(rProjectId) {
+        return network.get(`/app/${rProjectId}`);
+    },
     // 删除训练项目
     delTrain(trainId) {
         return network.delete(`/apps/${trainId}`);
