@@ -1,18 +1,18 @@
 <template lang="pug">
-    el-row.row(type='flex', :class='{invisiable: hide_self}')
-        el-col(:sm='3', :md='3', :lg='2', :xl='2')
+    .row(:class='{invisiable: hide_self}')
+        .column.logo
             router-link.link.col(:to="{path: '/'}")
-                img.logo(:src='logo_file')
+                img(:src='logo_file')
         |
-        el-col.title(:sm='3', :md='3', :lg='2', :xl='2')
+        .column.title
             span AI Cloud
         |
-        el-col(:sm='15', :md='15', :lg='17', :xl='17')
-            el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', router='')
+        .column.menu
+            el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', :router='true')
                 el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name')
                     | {{menu.name}}
         |
-        el-col.col-user(:span='3')
+        .column.col-user
             el-dropdown(@command='handleCommand', placement='bottom')
                 el-button.btn-user(type='text')
                     | {{userName}}
@@ -202,15 +202,22 @@
         opacity 0
 
     .row
+        display flex
         height 100%
         background-color #333644
         color #fff
 
-    .col
-        height 100%
-        background-color #35495e
+        .column
+            height 100%
+            width auto
+
+            &:first-of-type
+                padding-left 10px
+            &:last-of-type
+                padding-right 10px
 
     .link
+        height 100%
         display flex
         justify-content space-around
         align-items center
@@ -218,13 +225,16 @@
         user-select none
 
     .logo
-        display block
-        flex-grow 0
-        flex-shrink 0
-        width 82px
-        height auto
-        max-height header-height
-        user-select none
+        background-color ping_an-orange
+
+        img
+            display block
+            flex-grow 0
+            flex-shrink 0
+            width 82px
+            height auto
+            max-height header-height
+            user-select none
 
     .title
         justify-content center
@@ -236,11 +246,14 @@
         font-weight bold
         color #fff
         user-select none
+        padding 0 .5em
+
+    .menu
+        flex-grow 1
 
     .col-user
         display flex
         align-items center
-        justify-content center
 
     .btn-user
         color #fff

@@ -2,10 +2,10 @@
     el-container.ProjectDetails(v-loading='isLoadingTable')
         el-main.project-details-main
 
-            // 训练日志弹出框
-            el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='50px', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
-                .log-container
-                    log(:train_status='train_status' , :podName='train_pod', :freq='5000', :timestamp='trainCreateDate', :switch='dialog_train_log_visible')
+            //- 训练日志弹出框
+            //- el-dialog.dialog-train-log(:visible.sync='dialog_train_log_visible', custom-class='dialog-train-log', width='61.8%', top='50px', append-to-body='', modal-append-to-body='', lock-scroll='', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false', close='handleCloseLog')
+                //- .log-container
+                    //- log(:train_status='train_status' , :podName='train_pod', :freq='5000', :timestamp='trainCreateDate', :switch='dialog_train_log_visible')
 
             // 新建训练弹出框
             el-dialog.dialog-build-image(:visible.sync='dialog_add_training_visible', width='61.8%', append-to-body='', modal-append-to-body='', lock-scroll='', :before-close="handleCloseDialogBuildImage", :show-close='false', :close-on-click-modal='false', :close-on-press-escape='false')
@@ -185,7 +185,7 @@
                                         el-button(v-show="scope.row.status === '00'", type='primary', size='mini', icon='el-icon-edit-outline', @click='handleContinueDeployImage(scope.$index, scope.row)')
                                             | 部署镜像
                                         //- el-button(v-show="scope.row.status === '10' || scope.row.status === '20' || scope.row.status === '30' || scope.row.status === '40'", type='primary', size='mini', icon='el-icon-view', @click='handleOpenLog(scope.$index, scope.row)')
-                                            | 查看日志
+                                            //- | 查看日志
 
 </template>
 
@@ -219,10 +219,10 @@
                 trainings_data: [],
                 list_images: [],
                 dialog_add_training_visible: false,
-                dialog_train_log_visible: false,
-                train_pod: '',
-                train_status: '',
-                trainCreateDate: null,
+                // dialog_train_log_visible: false,
+                // train_pod: '',
+                // train_status: '',
+                // trainCreateDate: null,
                 steps_add_training: [
                     {
                         name: '输入训练名',
@@ -597,17 +597,17 @@
                 this.isTransformingFile = false;
                 return this.$message.error(`上传${file.name}失败!`)
             },
-            handleOpenLog(index, row) {
-                console.log(`handleOpenLog(): `, index, row);
-                this.dialog_train_log_visible = true;
-                this.train_pod = row.pod;
-                this.trainCreateDate = row.createDate;
-                this.train_status = row.status
-            },
-            handleCloseLog() {
-                console.log(`handleCloseLog(): `);
-                this.dialog_train_log_visible = false;
-            },
+            // handleOpenLog(index, row) {
+            //     console.log(`handleOpenLog(): `, index, row);
+            //     this.dialog_train_log_visible = true;
+            //     this.train_pod = row.pod;
+            //     this.trainCreateDate = row.createDate;
+            //     this.train_status = row.status
+            // },
+            // handleCloseLog() {
+            //     console.log(`handleCloseLog(): `);
+            //     this.dialog_train_log_visible = false;
+            // },
             // 中断后继续构建
             handleContinueBuildImage(index, row) {
                 let image_type = 'training';
@@ -912,12 +912,12 @@
     .dialog-train-log /deep/ .el-dialog__body
         height 500px
 
-    .log-container
-        background-color black
-        position relative
-        width 1000%
-        max-width 100%
-        height 100%
+    /*.log-container*/
+        /*background-color black*/
+        /*position relative*/
+        /*width 1000%*/
+        /*max-width 100%*/
+        /*height 100%*/
 
     .input-dir
         font-family monospace

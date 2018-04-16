@@ -1,14 +1,14 @@
 <template lang="pug">
     .project-menu
         h3 项目列表
-        el-menu.vertical-menu(router='', unique-opened='', @select='handleSelectMenu', :default-active='defaultActive', text-color='#303133', active-text-color='#fff')
+        el-menu.vertical-menu(:router='true', :unique-opened='true', @select='handleSelectMenu', :default-active='defaultActive', text-color='#303133', active-text-color='#fff')
             el-tooltip(v-for='item in menuData', :key='item.proId', effect='dark', :content='item.proName', placement='right')
-                el-menu-item(:index="item.index", :route="item.route")
+                el-menu-item(:index="item.route", :route="item.route")
                     span(slot='title') {{item.proName}}
 </template>
 
 <script>
-    import {map, extend} from 'lodash'
+    import {forEach, map, extend} from 'lodash'
 
     export default {
         name: "ProjectMenu",
@@ -16,14 +16,24 @@
         computed: {
             menuData() {
                 return map(this.data, (item) => {
-                    return item = extend(item, {
+                    return extend(item, {
                         index: `${this.middlePath}_${item.proName}`,
                         route: `/${this.middlePath}/${item.proName}`
                     })
                 });
             },
             defaultActive() {
-                return this.$route.path;
+                let flag_matched_subpath = false;
+                forEach(this.menuData, v => {
+                    if (this.$route.path.includes(v.route)) {
+                        return flag_matched_subpath = v.route
+                    }
+                });
+                if (flag_matched_subpath) {
+                    return flag_matched_subpath
+                } else {
+                    return this.$route.path;
+                }
             },
             middlePath() {
                 return this.projectType === 'training' ? 'project' : 'development';
@@ -47,6 +57,7 @@
         overflow-x hidden
         overflow-y hidden
         background-color #fff
+        border-radius 4px
         box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
         color #303133
         display flex
@@ -76,6 +87,4 @@
                 background-color: ping_an-orange;
                 font-weight bolder
 
-                &:hover
-                    cursor not-allowed
 </style>

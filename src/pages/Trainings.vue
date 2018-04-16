@@ -62,7 +62,6 @@
         display flex
         align-items stretch
         padding-right 10px
-        border-radius 4px
         overflow-x hidden
         overflow-y auto
 
