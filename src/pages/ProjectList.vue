@@ -29,7 +29,7 @@
                 |
                 el-col(v-if='proj_list.length !== 0', :span='24', :style="{'overflow-y': 'auto','overflow-x': 'hidden'}")
                     el-row.proj-container(type='flex', :gutter='10')
-                        el-col(v-for='proj in proj_list', :xs='12', :sm='8', :md='8', :lg='6', :xl='4', :key='proj.proId', :style="{height: 'auto','margin-bottom': '10px'}")
+                        el-col(v-for='proj in proj_list', :xs='12', :sm='8', :md='8', :lg='6', :xl='4', :key='proj.proId', :style="{'margin-bottom': '10px'}")
                             el-card.proj-card(:body-style="{padding:'15px'}")
                                 .card-header(slot='header')
                                     span {{proj.proName}}
@@ -282,9 +282,13 @@
     .proj-container
         flex-wrap wrap
 
+        > .el-col
+            height 165px
+            overflow visible
+
     .proj-card
         will-change transform
-        height 100%
+        height calc(100% - 10px)
         margin-bottom 10px
         background-color #fff
         border none
@@ -298,6 +302,7 @@
         text-transform uppercase
         background #fafafa
         padding 10px 20px
+        max-height 41px
 
     .card-header
         line-height 20px
@@ -306,7 +311,7 @@
         text-overflow ellipsis
 
     .proj-card /deep/ .el-card__body
-        height calc(100% - 41px)
+        height 116px
         display flex
         flex-direction column
         justify-content space-between
@@ -317,6 +322,7 @@
 
     .proj-card .button-group
         justify-content flex-end
+        max-height 30px
 
     .empty-list-container
         display flex

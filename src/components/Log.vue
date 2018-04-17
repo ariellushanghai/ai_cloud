@@ -51,6 +51,7 @@
                     this.pollingLog();
                 } else {
                     this.req_conf.from = 0;
+                    this.clear();
                     window.clearInterval(this.interval_id);
                 }
             }

@@ -13,7 +13,6 @@
 </template>
 
 <script>
-    import API from '@/service/api'
     import ProjectMenu from '@/components/ProjectMenu'
 
     export default {

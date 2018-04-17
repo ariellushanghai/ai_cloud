@@ -129,7 +129,6 @@
         methods: {
             logoutAICloud() {
                 return API.logoutAICloud().then(res => {
-                    console.log(`logout success!!`);
                     this.$store.commit('LOGOUT');
                     return this.$router.replace({name: 'login'})
                 });
@@ -139,16 +138,12 @@
                 return this.dialog_change_passwd_visible = true;
             },
             cancelForm(formName: string) {
-                console.log(`cancelForm(${formName})`);
                 this.$refs[formName].resetFields();
                 this.form_change_passwd = extend({}, this.tmpl_form_change_passwd);
                 return this.dialog_change_passwd_visible = false;
             },
             validateForm(formName: string) {
-                console.log('validateForm(formName): ', formName);
-
                 this.$refs[formName].validate((valid) => {
-                    console.log(`valid: `, valid);
                     if (valid) {
                         // alert('submit!');
                         return this.postForm(extend(this.form_change_passwd, {userName: this.userName}));
@@ -159,7 +154,6 @@
                 });
             },
             postForm(data) {
-                console.log(`postForm(): `, data);
                 this.isSendingForm = true;
                 return API.changePasswd(data).then(res => {
                     this.$notify({
@@ -246,7 +240,7 @@
         font-weight bold
         color #fff
         user-select none
-        padding 0 .5em
+        padding 0 20px
 
     .menu
         flex-grow 1

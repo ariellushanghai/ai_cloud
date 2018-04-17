@@ -61,10 +61,8 @@
     },
     methods: {
       submit(formName) {
-        console.log('submit()')
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(`Koshe`);
             this.isLoading = true;
             return API.loginAICloud(this.form_login).then(res => {
               this.isLoading = false;

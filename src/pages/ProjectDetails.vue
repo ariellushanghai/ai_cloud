@@ -48,7 +48,7 @@
                                 el-button(type='primary', icon='el-icon-upload', :disabled='form_build_image.rprojectName.length < 3 || !form_build_image.imageName') 点击上传
                     |
                     // 第3步: 部署镜像
-                    el-form(v-show='at_step_add_training === 2', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='isTransformingFile')
+                    el-form.form-deploy-image(v-show='at_step_add_training === 2', :model='form_deploy_image', :rules='rules_deploy_image', ref='form_deploy_image', :status-icon='true', label-position='left', label-width='200px', size='small', :disabled='isTransformingFile')
                         |
                         .templates(v-show='!showCustomComputeResource')
                             .compute-resource-template(v-for='(tmpl, index) in tmpl_compute_resource', :key='index', @click="selectComputeResourceTemplate(index)", :class="{selected: index === selected_compute_resource_template}")
@@ -62,7 +62,7 @@
                                     span.left GPU:
                                     span.right {{tmpl.gpu}} 个
                         |
-                        el-form-item(v-if='form_deploy_image.jupyterPasswd', label='Jupyter密码:', prop='jupyterPasswd')
+                        el-form-item(v-if='form_deploy_image.jupyterPasswd !== undefined', label='Jupyter密码:', prop='jupyterPasswd')
                             el-input(v-model='form_deploy_image.jupyterPasswd', type="password", auto-complete="off")
                         |
                         el-form-item(label='启用TensorBoard:')
@@ -219,10 +219,6 @@
                 trainings_data: [],
                 list_images: [],
                 dialog_add_training_visible: false,
-                // dialog_train_log_visible: false,
-                // train_pod: '',
-                // train_status: '',
-                // trainCreateDate: null,
                 steps_add_training: [
                     {
                         name: '输入训练名',
@@ -315,25 +311,10 @@
                     type: this.trainType,
                     tensorboard: false,
                     enablePS: false,
-                    enableWorkers: false
+                    enableWorkers: false,
+                    jupyterPasswd: this.projectType === 'develop' ? '' : undefined
                 },
-                rules_deploy_image: {
-                    jupyterPasswd: [
-                        {type: 'string', required: true, message: '请输入密码', trigger: 'change'}
-                    ]
-                },
-                isNamingTrain: false,
-                isBuildingImage: false,
-                isDeployingImage: false,
-                showCustomComputeResource: false,
-                input_trainings_filter: '',
-                table_height: this.resizeHandler()
-            }
-        },
-        computed: {
-            tmpl_form_deploy_image() {
-                console.log(`this.projectType: ${this.projectType}`);
-                let tmpl = {
+                tmpl_form_deploy_image: {
                     env: {
                         ps: 0,
                         workers: 0,
@@ -344,15 +325,23 @@
                     type: this.trainType,
                     tensorboard: false,
                     enablePS: false,
-                    enableWorkers: false
-                };
-                if (this.projectType === 'develop') {
-                    tmpl = extend(tmpl, {
-                        jupyterPasswd: ''
-                    })
-                }
-                return tmpl;
-            },
+                    enableWorkers: false,
+                    jupyterPasswd: this.projectType === 'develop' ? '' : undefined
+                },
+                rules_deploy_image: {
+                    jupyterPasswd: this.projectType === 'develop' ? [
+                        {type: 'string', required: true, message: '请输入密码', trigger: 'change'}
+                    ] : undefined
+                },
+                isNamingTrain: false,
+                isBuildingImage: false,
+                isDeployingImage: false,
+                showCustomComputeResource: false,
+                input_trainings_filter: '',
+                table_height: this.resizeHandler()
+            }
+        },
+        computed: {
             prependProjectDir() {
                 return `${this.$store.state.user.parentDir}/${this.$route.params.name}/`;
             },
@@ -402,9 +391,6 @@
                 } else {
                     return false;
                 }
-            },
-            disableBtnDeployImage() {
-
             },
             labelOfConfigParaServer() {
                 return this.form_deploy_image.enablePS ? `配置参数服务器(已选${this.form_deploy_image.env.ps}台): ` : '配置参数服务器: ';
@@ -539,12 +525,10 @@
                 if (column.label === "操作") {
                     return event.preventDefault();
                 } else {
-                    // API.getTrainById(row.rprojectId)
                     return this.$router.push({
-                        name: 'training_details',
+                        name: this.trainType === 'deployment' ? 'develop_details' : 'training_details',
                         params: {id: row.rprojectId}
                     })
-                    // return row;
                 }
             },
             handleAddTrain() {
@@ -789,6 +773,10 @@
         position relative
         overflow hidden
 
+    .form-deploy-image
+        /deep/ .el-form-item, /deep/ .forty-sixty
+            height 50px
+
     .card
         margin-bottom 10px
         flex-shrink 0
@@ -807,6 +795,9 @@
         padding 0
         width 100%
         font-size 12px
+
+        &::before
+            background-color transparent
 
         /deep/ .el-table__row
             cursor pointer
@@ -913,11 +904,11 @@
         height 500px
 
     /*.log-container*/
-        /*background-color black*/
-        /*position relative*/
-        /*width 1000%*/
-        /*max-width 100%*/
-        /*height 100%*/
+    /*background-color black*/
+    /*position relative*/
+    /*width 1000%*/
+    /*max-width 100%*/
+    /*height 100%*/
 
     .input-dir
         font-family monospace

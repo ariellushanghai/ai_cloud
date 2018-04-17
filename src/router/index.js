@@ -9,6 +9,7 @@ const ProjectList = r => require(['@/pages/ProjectList'], r);
 const ProjectDetails = r => require(['@/pages/ProjectDetails'], r);
 const TrainingDetails = r => require(['@/pages/TrainingDetails'], r);
 const Login = r => require(['@/pages/Login'], r);
+const NotFound = r => require(['@/pages/NotFound'], r);
 
 
 const router = new Router({
@@ -46,10 +47,8 @@ const router = new Router({
         },
         // 模型训练->训练
         {
-            // name: 'project_details',
             path: '/project/:name',
             component: Trainings,
-            // component: ProjectDetails,
             props: {projectType: 'training', trainType: 'job'},
             children: [
                 {
@@ -68,15 +67,32 @@ const router = new Router({
         },
         // 模型开发->训练
         {
-            name: 'development_details',
             path: '/development/:name',
-            component: ProjectDetails,
-            props: {projectType: 'develop', trainType: 'deployment'}
+            component: Trainings,
+            props: {projectType: 'develop', trainType: 'deployment'},
+            children: [
+                {
+                    name: 'development_details',
+                    path: '',
+                    component: ProjectDetails,
+                    props: {projectType: 'develop', trainType: 'deployment'},
+                },
+                {
+                    name: 'develop_details',
+                    path: 'develop/:id',
+                    component: TrainingDetails,
+                    props: {projectType: 'develop', trainType: 'deployment'}
+                }
+            ],
         },
         {
             name: 'login',
             path: '/login',
             component: Login
+        },
+        {
+            path: '*',
+            component: NotFound
         }
     ]
 });
