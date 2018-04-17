@@ -1,159 +1,29 @@
 {
-  "code": "2001",
-  "message": "登录成功",
+  "code": "0000",
+  "message": "成功",
   "result": "success",
   "data": [
     {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "Li Ka-shing",
-      "parentDir": "/ai-cloud/Li-Ka-shing",
-      "training": "/ai-cloud/Li-Ka-shing/train",
-      "inference": "/ai-cloud/Li-Ka-shing/inference",
+      "userId": "cf37ffbcbaea4a77b6329ed13c4ee91b",
+      "userName": "lijunyong673",
+      "password": "e10adc3949ba59abbe56e057f20f883e",
+      "parentDir": "/ai-cloud/lijunyong673",
+      "training": "/ai-cloud/lijunyong673",
+      "inference": "/ai-cloud/lijunyong673",
       "role": "admin",
       "resource": null,
-      "createDate": 1516674743059
+      "createDate": 1523240201394
     },
     {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "tom",
-      "parentDir": "/ai-cloud/tom",
-      "training": "/ai-cloud/tom/train",
-      "inference": "/ai-cloud/tom/inference",
-      "role": "normal",
-      "resource": null,
-      "createDate": 1516690640685
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "Jack Ma",
-      "parentDir": "/ai-cloud/jack_ma",
-      "training": "/ai-cloud/jack_ma/train",
-      "inference": "/ai-cloud/jack_ma/inference",
+      "userId": "98eb56772d944ac6ac71206a834c47e2",
+      "userName": "luhuan",
+      "password": "e10adc3949ba59abbe56e057f20f883e",
+      "parentDir": "/ai-cloud/luhuan",
+      "training": "/ai-cloud/luhuan",
+      "inference": "/ai-cloud/luhuan",
       "role": "admin",
       "resource": null,
-      "createDate": 1516674743059
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "Vincent Lau",
-      "parentDir": "/ai-cloud/vincent_lau",
-      "training": "/ai-cloud/vincent_lau/train",
-      "inference": "/ai-cloud/vincent_lau/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1777674743059
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "刘强东",
-      "parentDir": "/ai-cloud/richard_liu",
-      "training": "/ai-cloud/richard_liu/train",
-      "inference": "/ai-cloud/richard_liu/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 2088874743059
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "马化腾",
-      "parentDir": "/ai-cloud/pony-ma",
-      "training": "/ai-cloud/pony-ma/train",
-      "inference": "/ai-cloud/pony-ma/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 3816674743059
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_0",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516683407606
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_1",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516682724287
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_2",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516681108922
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_3",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516685858058
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_4",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516678170707
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_5",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516678184500
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_6",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516686904467
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_7",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516684912310
-    },
-    {
-      "userId": "6dc244746f514400b50faad25f6a8ffa",
-      "userName": "lee_8",
-      "parentDir": "/ai-cloud/lee",
-      "training": "/ai-cloud/lee/train",
-      "inference": "/ai-cloud/lee/inference",
-      "role": "admin",
-      "resource": null,
-      "createDate": 1516690673837
+      "createDate": 1523240325852
     }
-  ],
-  "err": 0,
-  "msg": null
+  ]
 }

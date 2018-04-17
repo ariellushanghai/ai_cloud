@@ -4,31 +4,24 @@
   "result": "success",
   "data": [
     {
-      "imageId": "94cebc6271af4f4da4d0fffa804287c1",
-      "imageName": "tensorflow",
-      "imageUrl": "10.25.83.76/base-image/tensorflow:1.4.1",
-      "imageType": "10",
+      "imageId": "94cebc6271af4f4da4d0fffa804287c6",
+      "imageName": "ai-tensorflow-gpu",
+      "imageUrl": "10.25.83.76/base-image/aicloud-tensorflow:1.0-gpu",
+      "imageType": "tf",
       "imageStatus": "00"
     },
     {
-      "imageId": "94cebc6271af4f4da4d0fffa804287c2",
-      "imageName": "tensorflow-gpu",
-      "imageUrl": "10.25.83.76/base-image/tensorflow:1.4.0-gpu",
-      "imageType": "10",
+      "imageId": "94cebc6271af4f4da4d0fffa804287c9",
+      "imageName": "ai-tensorflow-1.1",
+      "imageUrl": "10.25.83.76/base-image/aicloud-tensorflow:1.1",
+      "imageType": "tf",
       "imageStatus": "00"
     },
     {
-      "imageId": "94cebc6271af4f4da4d0fffa804287c3",
-      "imageName": "caffe-gpu",
-      "imageUrl": "10.25.83.76/base-image/caffe:1.0-gpu",
-      "imageType": "20",
-      "imageStatus": "00"
-    },
-    {
-      "imageId": "94cebc6271af4f4da4d0fffa804287c4",
-      "imageName": "mxnet-gpu",
-      "imageUrl": "10.25.83.76/base-image/mxnet/python:1.0-gpu",
-      "imageType": "30",
+      "imageId": "94cebc6271af4f4da4d0fffa80428732",
+      "imageName": "base-image-tensorflow-1.4.3",
+      "imageUrl": "10.25.83.76/base-image/tensorflow:1.4.3",
+      "imageType": "tf",
       "imageStatus": "00"
     }
   ]
