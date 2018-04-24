@@ -32,11 +32,11 @@
             |
             el-tabs.tabs(v-model="activeTab" @tab-click="handleTabClick", type='border-card')
                 el-tab-pane(label="路由列表" name="routine" :disabled="isLoading")
-                    .routine(v-if='trainObj.tensorboard || trainObj.service_base_url')
-                        el-button(@click="openInNewTab('tensorboardUrl')", :disabled='!tensorboardUrl', type="primary", size='mini') 跳转去TensorBoard
+                    .routine
+                        el-button(v-if='trainObj.tensorboard', @click="openInNewTab('tensorboardUrl')", :disabled='!tensorboardUrl', type="primary", size='mini') 跳转去TensorBoard
                             //- a(:href='tensorboardUrl', target='_blank')
                         |
-                        el-button(@click="openInNewTab('jupyterUrl')", :disabled='!jupyterUrl', type="primary", size='mini') 跳转去Jupyter
+                        el-button(v-if="trainObj.service_base_url", @click="openInNewTab('jupyterUrl')", :disabled='!jupyterUrl', type="primary", size='mini') 跳转去Jupyter
                         //- a(:href='jupyterUrl') 跳转去Jupyter
                 |
                 el-tab-pane(label="终端" name="console" :disabled="isLoading")
